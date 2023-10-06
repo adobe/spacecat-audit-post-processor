@@ -1,6 +1,6 @@
 # SpaceCat Audit Post-Processor
 
-> An example library to be used in and with Project Franklin
+> Consumes completed audit events and post-processes them (e.g. to send alerts & notifications).
 
 ## Status
 [![codecov](https://img.shields.io/codecov/c/github/adobe-rnd/spacecat-audit-post-processor.svg)](https://codecov.io/gh/adobe-rnd/spacecat-audit-post-processor)
