@@ -23,8 +23,8 @@ import SNSAuditClient from './sns-client.js';
  * @returns {Response} a response
  */
 async function run(request, context) {
-  log('error', context.invocation.event.Records[0].body);
-  const { message } = context.invocation.event.Records[0].body.message;
+  const { message } = context.invocation.event.Records[0].body;
+  log('error', message);
   const mobile = message.scores.mobile.performance;
   const desktop = message.scores.desktop.performance;
   const snsAuditClient = SNSAuditClient();
