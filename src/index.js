@@ -15,6 +15,7 @@ import { logger } from '@adobe/helix-universal-logger';
 import { helixStatus } from '@adobe/helix-status';
 import { log } from './util.js';
 import SNSAuditClient from './sns-client.js';
+import SlackClient from './slack-client.js';
 
 /**
  * This is the main function
@@ -23,14 +24,13 @@ import SNSAuditClient from './sns-client.js';
  * @returns {Response} a response
  */
 async function run(request, context) {
-  const message = JSON.parse(context.invocation.event.Records[0].body).message;
-  log('error', `WITH PARSE: ${JSON.stringify(message)}`);
+  const { message } = JSON.parse(context.invocation.event.Records[0].body);
   const mobile = message.scores.mobile.performance;
   const desktop = message.scores.desktop.performance;
-  const snsAuditClient = SNSAuditClient();
+  const slackClient = SlackClient();
 
   if (mobile < 0.9 || desktop < 0.9) {
-    await snsAuditClient.sendNotification('PERFORMANCE DEGRADATION DETECTED!!');
+    await slackClient.sendNotification(message);
   }
 
   return new Response('SUCCESS');
