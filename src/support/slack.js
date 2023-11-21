@@ -15,11 +15,11 @@ import { fetch } from './utils.js';
 
 export const SLACK_API = 'https://slack.com/api/chat.postMessage';
 
-export function getQueryParams(blocks, channel, thread) {
+export function getQueryParams(blocks, channel, ts) {
   return {
     channel,
     blocks: JSON.stringify(blocks),
-    ...(thread && { thread }),
+    ...(ts && { thread_ts: ts }),
   };
 }
 
@@ -28,9 +28,9 @@ export async function postSlackMessage(token, opts) {
     throw new Error('Missing slack bot token');
   }
 
-  const { blocks, channel, thread } = opts;
+  const { blocks, channel, ts } = opts;
 
-  const params = getQueryParams(blocks, channel, thread);
+  const params = getQueryParams(blocks, channel, ts);
   const resp = await fetch(createUrl(SLACK_API, params), {
     headers: {
       Authorization: `Bearer ${token}`,

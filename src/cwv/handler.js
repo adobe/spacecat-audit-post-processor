@@ -27,23 +27,81 @@ function verifyParameters(message, context) {
   }
 }
 
-function buildSlackMessage(overThreshold) {
+function buildSlackMessage(url, overThreshold) {
+  if (overThreshold.length === 0) return null;
 
+  const blocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `:For ${url}, ${overThreshold.length} page(s) had LCP over threshold in the *last week* for the real users.\n More information is below (up to three pages):`,
+      },
+    },
+  ];
+
+  for (let i = 0; i < Math.min(3, overThreshold.length); i++) {
+    const elem = {
+      type: 'rich_text',
+      elements: [
+        {
+          type: 'rich_text_preformatted',
+          elements: [
+            {
+              type: 'text',
+              text: `${overThreshold[i].url}`,
+            },
+          ],
+        },
+        {
+          type: 'rich_text_list',
+          style: 'bullet',
+          elements: [
+            {
+              type: 'rich_text_section',
+              elements: [
+                {
+                  type: 'text',
+                  text: `Page views: ${commaNumber(overThreshold[i].pageviews)}`,
+                },
+              ],
+            },
+            {
+              type: 'rich_text_section',
+              elements: [
+                {
+                  type: 'text',
+                  text: `LCP: ${humanFormat(overThreshold[i].avglcp, { scale: timeScale })}`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    blocks.push(elem);
+  }
+
+  return blocks;
 }
 
-export function cwvHandler(message, context) {
+export async function cwvHandler(message, context) {
   const { url, auditResult, auditContext } = message;
   const { log, env: { SLACK_BOT_TOKEN: token } } = context;
+
+  log.info(`Audit result received: ${JSON.stringify(message)}`);
 
   verifyParameters(message, context);
 
   const overThreshold = auditResult.filter((result) => result.avglcp > 2500);
 
+  const blocks = buildSlackMessage(url, overThreshold);
 
-
-
+  if (!blocks) return new Response(200);
 
   const { channel, ts } = auditContext.slackContext;
 
-  return null;
+  await postSlackMessage(token, { blocks, channel, ts });
+
+  return new Response(200);
 }
