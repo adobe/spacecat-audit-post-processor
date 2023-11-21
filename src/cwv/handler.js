@@ -10,7 +10,14 @@
  * governing permissions and limitations under the License.
  */
 
+import humanFormat from 'human-format';
+import commaNumber from 'comma-number';
 import { postSlackMessage } from '../support/slack.js';
+
+const timeScale = new humanFormat.Scale({
+  ms: 1,
+  s: 1000,
+});
 
 function verifyParameters(message, context) {
   const { log, env: { SLACK_BOT_TOKEN: token } } = context;
