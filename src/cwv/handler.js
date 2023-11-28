@@ -12,7 +12,21 @@
 
 import humanFormat from 'human-format';
 import commaNumber from 'comma-number';
-import { postSlackMessage } from '../support/slack.js';
+import { postSlackMessage, markdown, section } from '../support/slack.js';
+import { generateDomainKey } from '../support/rumapi.js';
+
+const COLOR_EMOJIS = {
+  gray: ':gray-circle:',
+  green: ':green:',
+  red: ':red:',
+  yellow: ':yellow:',
+};
+
+const SCORES = {
+  lcp: { 0: COLOR_EMOJIS.green, 2500: COLOR_EMOJIS.yellow, 4000: COLOR_EMOJIS.red },
+  cls: { 0: COLOR_EMOJIS.green, 0.1: COLOR_EMOJIS.yellow, 0.25: COLOR_EMOJIS.red },
+  inp: { 0: COLOR_EMOJIS.green, 200: COLOR_EMOJIS.yellow, 500: COLOR_EMOJIS.red },
+};
 
 const timeScale = new humanFormat.Scale({
   ms: 1,
@@ -20,95 +34,104 @@ const timeScale = new humanFormat.Scale({
 });
 
 function verifyParameters(message, context) {
-  const { log, env: { SLACK_BOT_TOKEN: token } } = context;
-  const { url, auditContext, auditResult } = message;
-
-  if (!url || !auditContext || Array.isArray(auditResult)) {
-    log.error('some stuff hasnt been satisfied');
-    throw Error('some stuff hasnt been satisfied');
-  }
+  const { env: { SLACK_BOT_TOKEN: token } } = context;
+  const {
+    url, auditContext, auditResult,
+  } = message;
 
   if (!token) {
-    log.error('slack bot token missing');
-    throw Error('slack bot token missing');
+    throw Error('Slack bot token is not set');
+  }
+
+  if (!url || typeof auditContext !== 'object' || !auditResult) {
+    throw Error('Required parameters missing in the message body');
+  }
+
+  if (!Array.isArray(auditResult)) {
+    throw Error('Audit result is not an array');
+  }
+
+  const { finalUrl, slackContext } = auditContext;
+
+  if (!finalUrl || typeof slackContext !== 'object' || !slackContext.channel) {
+    throw Error('Required parameters missing in audit context');
+  }
+}
+export function getColorEmoji(type, value) {
+  const scores = SCORES[type];
+  if (!scores) return COLOR_EMOJIS.gray;
+  const pair = Object.entries(scores).reverse()
+    .find((e) => Number.isFinite(value) && value >= e[0]);
+  return pair ? pair[1] : COLOR_EMOJIS.gray;
+}
+
+async function createBacklink(rumApiKey, finalUrl, log) {
+  try {
+    const domainkey = await generateDomainKey(rumApiKey, finalUrl);
+    return `https://main--franklin-dashboard--adobe.hlx.live/views/rum-dashboard?interval=7&offset=0&limit=100&url=${finalUrl}&domainkey=${domainkey}`;
+  } catch (e) {
+    log.info('Could not generate domain key. Will not add backlink to result');
+    return null;
   }
 }
 
-function buildSlackMessage(url, overThreshold) {
-  if (overThreshold.length === 0) return null;
+async function buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log) {
+  const blocks = [];
 
-  const blocks = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `:For ${url}, ${overThreshold.length} page(s) had LCP over threshold in the *last week* for the real users.\n More information is below (up to three pages):`,
-      },
-    },
-  ];
+  blocks.push(section({
+    text: markdown(`For *${url}*, ${overThreshold.length} page(s) had CWV over threshold in the *last week* for the real users.\n More information is below (up to three pages):`),
+  }));
 
-  for (let i = 0; i < Math.min(3, overThreshold.length); i++) {
-    const elem = {
-      type: 'rich_text',
-      elements: [
-        {
-          type: 'rich_text_preformatted',
-          elements: [
-            {
-              type: 'text',
-              text: `${overThreshold[i].url}`,
-            },
-          ],
-        },
-        {
-          type: 'rich_text_list',
-          style: 'bullet',
-          elements: [
-            {
-              type: 'rich_text_section',
-              elements: [
-                {
-                  type: 'text',
-                  text: `Page views: ${commaNumber(overThreshold[i].pageviews)}`,
-                },
-              ],
-            },
-            {
-              type: 'rich_text_section',
-              elements: [
-                {
-                  type: 'text',
-                  text: `LCP: ${humanFormat(overThreshold[i].avglcp, { scale: timeScale })}`,
-                },
-              ],
-            },
-          ],
-        },
+  for (let i = 0; i < Math.min(3, overThreshold.length); i += 1) {
+    const topLine = section({
+      text: markdown(`:arrow-green: *<${overThreshold[i].url}|${overThreshold[i].url}>*`),
+    });
+
+    const stats = section({
+      fields: [
+        markdown(`:mag: *Pageviews:* ${commaNumber(overThreshold[i].pageviews)}`),
+        markdown(`${getColorEmoji('lcp', overThreshold[i].avglcp)} *LCP:* ${humanFormat(overThreshold[i].avglcp, { scale: timeScale })}`),
+        markdown(`${getColorEmoji('cls', overThreshold[i].avgcls)} *CLS:* ${overThreshold[i].avgcls}`),
+        markdown(`${getColorEmoji('inp', overThreshold[i].avginp)} *INP:* ${overThreshold[i].avginp === null ? 0 : overThreshold[i].avginp} ms`),
       ],
-    };
-    blocks.push(elem);
+    });
+
+    blocks.push(topLine);
+    blocks.push(stats);
+  }
+
+  const backlink = await createBacklink(rumApiKey, finalUrl, log);
+
+  if (backlink) {
+    blocks.push(section({
+      text: markdown(`*To access the full report <${backlink}|click here> :link:* _(expires in 7 days)_`),
+    }));
   }
 
   return blocks;
 }
 
-export async function cwvHandler(message, context) {
+export default async function cwvHandler(message, context) {
   const { url, auditResult, auditContext } = message;
-  const { log, env: { SLACK_BOT_TOKEN: token } } = context;
-
-  log.info(`Audit result received: ${JSON.stringify(message)}`);
+  const { log, env: { RUM_API_UBER_KEY: rumApiKey, SLACK_BOT_TOKEN: token } } = context;
 
   verifyParameters(message, context);
 
-  const overThreshold = auditResult.filter((result) => result.avglcp > 2500);
+  const { finalUrl, slackContext: { channel, ts } } = auditContext;
 
-  const blocks = buildSlackMessage(url, overThreshold);
+  const overThreshold = auditResult
+    .filter((result) => result.avglcp > 2500 || result.avgcls > 0.1 || result.avginp > 200);
 
-  if (!blocks) return new Response(200);
+  if (overThreshold.length === 0) {
+    log.info(`All CWV values are below threshold for ${url}`);
+    return new Response(200);
+  }
 
-  const { channel, ts } = auditContext.slackContext;
+  const blocks = await buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log);
 
   await postSlackMessage(token, { blocks, channel, ts });
+
+  log.info(`Slack notification sent for ${url}`);
 
   return new Response(200);
 }

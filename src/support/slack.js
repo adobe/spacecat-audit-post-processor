@@ -17,6 +17,7 @@ export const SLACK_API = 'https://slack.com/api/chat.postMessage';
 
 export function getQueryParams(blocks, channel, ts) {
   return {
+    unfurl_links: false,
     channel,
     blocks: JSON.stringify(blocks),
     ...(ts && { thread_ts: ts }),
@@ -31,17 +32,19 @@ export async function postSlackMessage(token, opts) {
   const { blocks, channel, ts } = opts;
 
   const params = getQueryParams(blocks, channel, ts);
-  const resp = await fetch(createUrl(SLACK_API, params), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
 
-  if (resp.status !== 200) {
-    throw new Error(`Failed to send initial slack message. Status: ${resp.status}`);
+  let resp;
+  let respJson;
+  try {
+    resp = await fetch(createUrl(SLACK_API, params), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    respJson = await resp.json();
+  } catch (e) {
+    throw new Error(`Failed to send slack message. ${resp ? `Status: ${resp.status}` : /* c8 ignore next  */ ''}`);
   }
-
-  const respJson = await resp.json();
 
   if (!respJson.ok) {
     throw new Error(`Slack message was not acknowledged. Error: ${respJson.error}`);
@@ -51,4 +54,12 @@ export async function postSlackMessage(token, opts) {
     channel: respJson.channel,
     ts: respJson.ts,
   };
+}
+
+export function section(content) {
+  return { type: 'section', ...content };
+}
+
+export function markdown(text) {
+  return { type: 'mrkdwn', text };
 }

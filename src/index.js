@@ -60,7 +60,7 @@ async function run(message, context) {
   const { log } = context;
   const { type, url } = message;
 
-  log.info(`Audit result received for url: ${url}`);
+  log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
 
   const handler = HANDLERS[type];
   if (!handler) {
