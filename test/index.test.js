@@ -16,8 +16,58 @@ import assert from 'assert';
 import { main } from '../src/index.js';
 
 describe('Index Tests', () => {
-  it('index function is present', async () => {
-    const result = await main();
-    assert.strictEqual(result, 'Hello, world.');
+  let context;
+  beforeEach('setup', () => {
+    context = {
+      invocation:
+          {
+            event: {
+              Records: [
+                {
+                  messageId: 'message-1',
+                  body: JSON.stringify({
+                    type: 'cwv',
+                    url: 'space.cat',
+                    auditContext: {
+                      finalUrl: 'www.space.cat',
+                      slackContext: {
+                        channel: 'channel-id',
+                        ts: 'thread-id',
+                      },
+                    },
+                    auditResult: [],
+                  }),
+                },
+              ],
+            },
+          },
+      log: console,
+      env: {
+        SLACK_BOT_TOKEN: 'token',
+        RUM_API_UBER_KEY: 'uber-key',
+      },
+    };
+  });
+  it('index function exists and successfully executes', async () => {
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 200);
+  });
+
+  it('index function returns 404 for unknown audit type', async () => {
+    context.invocation.event.Records[0].body = JSON.stringify({
+      type: '404',
+    });
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 404);
+  });
+
+  it('index function returns 500 for ', async () => {
+    context.invocation.event.Records[0].body = JSON.stringify({
+      type: 'cwv',
+      url: 'space.cat',
+      auditResult: [],
+    });
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 500);
   });
 });

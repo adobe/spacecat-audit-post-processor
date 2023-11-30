@@ -11,7 +11,7 @@
  */
 
 import { createUrl } from '@adobe/fetch';
-import { hasText } from '@adobe/spacecat-shared-utils';
+import { hasText, isArray } from '@adobe/spacecat-shared-utils';
 import { fetch } from './utils.js';
 
 const API = 'https://helix-pages.anywhere.run/helix-services/run-query@v3/rotate-domainkeys';
@@ -46,7 +46,7 @@ export async function generateDomainKey(rumApiKey, finalUrl) {
   }
 
   const data = respJson?.results?.data;
-  if (!Array.isArray(data) || data.length === 0) {
+  if (!isArray(data) || data.length === 0) {
     throw new Error('Unexpected response format. $.results.data is not array');
   }
 

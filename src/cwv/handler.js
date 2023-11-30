@@ -10,10 +10,12 @@
  * governing permissions and limitations under the License.
  */
 
+import { isArray, isObject } from '@adobe/spacecat-shared-utils';
 import humanFormat from 'human-format';
 import commaNumber from 'comma-number';
 import { postSlackMessage, markdown, section } from '../support/slack.js';
 import { generateDomainKey } from '../support/rumapi.js';
+import {Response} from "@adobe/fetch";
 
 const RUM_API_URL = 'https://main--franklin-dashboard--adobe.hlx.live/views/rum-dashboard';
 const COLOR_EMOJIS = {
@@ -44,17 +46,17 @@ function verifyParameters(message, context) {
     throw Error('Slack bot token is not set');
   }
 
-  if (!url || typeof auditContext !== 'object' || !auditResult) {
+  if (!url || !isObject(auditContext) || !auditResult) {
     throw Error('Required parameters missing in the message body');
   }
 
-  if (!Array.isArray(auditResult)) {
+  if (!isArray(auditResult)) {
     throw Error('Audit result is not an array');
   }
 
   const { finalUrl, slackContext } = auditContext;
 
-  if (!finalUrl || typeof slackContext !== 'object' || !slackContext.channel) {
+  if (!finalUrl || !isObject(slackContext) || !slackContext.channel) {
     throw Error('Required parameters missing in audit context');
   }
 }
@@ -138,6 +140,11 @@ export default async function cwvHandler(message, context) {
     return new Response(200);
   } catch (error) {
     log.error(`Error in cwvHandler: ${error.message}`);
-    return new Response(500);
+    return new Response('', {
+      status: 500,
+      headers: {
+        'x-error': error.message,
+      },
+    });
   }
 }
