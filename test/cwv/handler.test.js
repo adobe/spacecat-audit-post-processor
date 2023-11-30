@@ -163,7 +163,7 @@ describe('cwv handler', () => {
     const { channel, ts } = message.auditContext.slackContext;
 
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(true)
       .reply(200, successKeyResponse);
     nock('https://slack.com', {
@@ -190,7 +190,7 @@ describe('cwv handler', () => {
     const { channel, ts } = message.auditContext.slackContext;
 
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(true)
       .reply(200, wrongKeyResponse);
     nock('https://slack.com', {

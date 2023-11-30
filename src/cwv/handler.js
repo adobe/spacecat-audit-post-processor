@@ -15,6 +15,7 @@ import commaNumber from 'comma-number';
 import { postSlackMessage, markdown, section } from '../support/slack.js';
 import { generateDomainKey } from '../support/rumapi.js';
 
+const RUM_API_URL = 'https://main--franklin-dashboard--adobe.hlx.live/views/rum-dashboard';
 const COLOR_EMOJIS = {
   gray: ':gray-circle:',
   green: ':green:',
@@ -68,7 +69,7 @@ export function getColorEmoji(type, value) {
 async function createBacklink(rumApiKey, finalUrl, log) {
   try {
     const domainkey = await generateDomainKey(rumApiKey, finalUrl);
-    return `https://main--franklin-dashboard--adobe.hlx.live/views/rum-dashboard?interval=7&offset=0&limit=100&url=${finalUrl}&domainkey=${domainkey}`;
+    return `${RUM_API_URL}?interval=7&offset=0&limit=100&url=${finalUrl}&domainkey=${domainkey}`;
   } catch (e) {
     log.info('Could not generate domain key. Will not add backlink to result');
     return null;
@@ -82,7 +83,11 @@ async function buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log) {
     text: markdown(`For *${url}*, ${overThreshold.length} page(s) had CWV over threshold in the *last week* for the real users.\n More information is below (up to three pages):`),
   }));
 
-  for (let i = 0; i < Math.min(3, overThreshold.length); i += 1) {
+  const backlinks = await Promise.all(
+    overThreshold.slice(0, 3).map(async (ot) => createBacklink(rumApiKey, ot.url, log)),
+  );
+
+  overThreshold.slice(0, 3).forEach((ot, i) => {
     const topLine = section({
       text: markdown(`:arrow-green: *<${overThreshold[i].url}|${overThreshold[i].url}>*`),
     });
@@ -95,43 +100,44 @@ async function buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log) {
         markdown(`${getColorEmoji('inp', overThreshold[i].avginp)} *INP:* ${overThreshold[i].avginp === null ? 0 : overThreshold[i].avginp} ms`),
       ],
     });
-
-    blocks.push(topLine);
-    blocks.push(stats);
-  }
-
-  const backlink = await createBacklink(rumApiKey, finalUrl, log);
-
-  if (backlink) {
-    blocks.push(section({
-      text: markdown(`*To access the full report <${backlink}|click here> :link:* _(expires in 7 days)_`),
-    }));
-  }
+    blocks.push(topLine, stats);
+    if (backlinks[i]) {
+      blocks.push(section({
+        text: markdown(`*To access the full report <${backlinks[i]}|click here> :link:* _(expires in 7 days)_`),
+      }));
+    }
+  });
 
   return blocks;
 }
 
 export default async function cwvHandler(message, context) {
-  const { url, auditResult, auditContext } = message;
-  const { log, env: { RUM_API_UBER_KEY: rumApiKey, SLACK_BOT_TOKEN: token } } = context;
+  const { log } = context;
+  try {
+    const { url, auditResult, auditContext } = message;
+    const { env: { RUM_API_UBER_KEY: rumApiKey, SLACK_BOT_TOKEN: token } } = context;
 
-  verifyParameters(message, context);
+    verifyParameters(message, context);
 
-  const { finalUrl, slackContext: { channel, ts } } = auditContext;
+    const { finalUrl, slackContext: { channel, ts } } = auditContext;
 
-  const overThreshold = auditResult
-    .filter((result) => result.avglcp > 2500 || result.avgcls > 0.1 || result.avginp > 200);
+    const overThreshold = auditResult
+      .filter((result) => result.avglcp > 2500 || result.avgcls > 0.1 || result.avginp > 200);
 
-  if (overThreshold.length === 0) {
-    log.info(`All CWV values are below threshold for ${url}`);
+    if (overThreshold.length === 0) {
+      log.info(`All CWV values are below threshold for ${url}`);
+      return new Response(200);
+    }
+
+    const blocks = await buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log);
+
+    await postSlackMessage(token, { blocks, channel, ts });
+
+    log.info(`Slack notification sent for ${url}`);
+
     return new Response(200);
+  } catch (error) {
+    log.error(`Error in cwvHandler: ${error.message}`);
+    return new Response(500);
   }
-
-  const blocks = await buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log);
-
-  await postSlackMessage(token, { blocks, channel, ts });
-
-  log.info(`Slack notification sent for ${url}`);
-
-  return new Response(200);
 }

@@ -11,6 +11,7 @@
  */
 
 import { createUrl } from '@adobe/fetch';
+import { hasText } from '@adobe/spacecat-shared-utils';
 import { fetch } from './utils.js';
 
 const API = 'https://helix-pages.anywhere.run/helix-services/run-query@v3/rotate-domainkeys';
@@ -22,6 +23,9 @@ function getExpirationDate() {
 }
 
 export async function generateDomainKey(rumApiKey, finalUrl) {
+  if (!hasText(rumApiKey) || !hasText(finalUrl)) {
+    throw new Error('Invalid input: rumApiKey and finalUrl are required');
+  }
   const params = {
     domainkey: rumApiKey,
     url: finalUrl,
@@ -32,7 +36,10 @@ export async function generateDomainKey(rumApiKey, finalUrl) {
   let respJson;
 
   try {
-    const resp = await fetch(createUrl(API, params));
+    const resp = await fetch(createUrl(API, params), { method: 'POST' });
+    if (!resp.ok) {
+      throw new Error(`Request failed with status ${resp.status}: ${resp.statusText}`);
+    }
     respJson = await resp.json();
   } catch (e) {
     throw new Error(`Error during rum/rotate-domainkeys api call: ${e.message}`);

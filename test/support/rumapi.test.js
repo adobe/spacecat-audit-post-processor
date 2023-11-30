@@ -58,7 +58,7 @@ describe('rum api', () => {
 
   it('rejects when rum api returns 500', async () => {
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(params)
       .reply(500);
 
@@ -68,7 +68,7 @@ describe('rum api', () => {
 
   it('rejects when rum api returns invalid json', async () => {
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(params)
       .reply(200, 'invalid-json');
 
@@ -78,7 +78,7 @@ describe('rum api', () => {
 
   it('rejects when rum api returns unexpected format', async () => {
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(params)
       .reply(200, '{ "key": "value" }');
 
@@ -88,7 +88,7 @@ describe('rum api', () => {
 
   it('rejects when rum api returns unsuccessful repsonse', async () => {
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(params)
       .reply(200, wrongKeyResponse);
 
@@ -98,7 +98,7 @@ describe('rum api', () => {
 
   it('rejects when rum api returns null key', async () => {
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(params)
       .reply(200, nullKeyResponse);
 
@@ -108,7 +108,7 @@ describe('rum api', () => {
 
   it('returns scoped domain key when successful', async () => {
     nock('https://helix-pages.anywhere.run')
-      .get('/helix-services/run-query@v3/rotate-domainkeys')
+      .post('/helix-services/run-query@v3/rotate-domainkeys')
       .query(params)
       .reply(200, successKeyResponse);
 
