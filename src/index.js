@@ -9,12 +9,27 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import wrap from '@adobe/helix-shared-wrap';
+import { helixStatus } from '@adobe/helix-status';
+import secrets from '@adobe/helix-shared-secrets';
+import { recommendations } from './firefall/handler.js';
+import dataAccess from '@adobe/spacecat-shared-data-access';
 
 /**
  * This is the main function
- * @param {string} name name of the person to greet
- * @returns {string} a greeting
+ * @param {object} message the message object received from SQS
+ * @param {UniversalContext} context the context of the universal serverless function
+ * @returns {Response} a response
  */
-export function main(name = 'world') {
-  return `Hello, ${name}.`;
+async function run(message, context) {
+  const { log } = context;
+
+  log.info('Post processor request received', message);
+
+  recommendations(message, context);
 }
+
+export const main = wrap(run)
+  .with(dataAccess)
+  .with(secrets)
+  .with(helixStatus);
