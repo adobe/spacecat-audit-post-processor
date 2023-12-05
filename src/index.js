@@ -12,8 +12,9 @@
 import wrap from '@adobe/helix-shared-wrap';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
-import { recommendations } from './firefall/handler.js';
 import dataAccess from '@adobe/spacecat-shared-data-access';
+
+import { recommendations } from './firefall/handler.js';
 
 /**
  * This is the main function
