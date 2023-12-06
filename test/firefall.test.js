@@ -45,7 +45,14 @@ describe('Optimization Recommendation', () => {
               seo: 100,
             },
           }),
-        }]),
+        }, {
+          getScores: sandbox.stub().resolves({
+            accessibility: 100,
+            pwa: 100,
+            seo: 100,
+          }),
+        },
+        ]),
       },
       log: {
         info: sandbox.stub(),

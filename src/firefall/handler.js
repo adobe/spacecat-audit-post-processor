@@ -11,13 +11,30 @@
  */
 
 import { isObject } from '@adobe/spacecat-shared-utils';
+import * as fs from 'fs';
+
+const PROMPT_FILENAME = 'prompt_06122023.prompt';
+
+async function getPrompt(log, placeholders) {
+  try {
+    let prompt = fs.readFileSync(PROMPT_FILENAME, 'utf8');
+    Object.keys(placeholders).forEach((key) => {
+      prompt = prompt.replace(`[${key}]`, placeholders[key]);
+    });
+  } catch (error) {
+    log.error('Error reading prompt file:', error);
+    throw error;
+  }
+}
 
 export async function recommendations(message, context) {
   const { type, auditResult: { siteId } } = message;
   const { dataAccess, log } = context;
   const {
-    OPENAI_API_ENDPOINT: openAIAPIEndpoint,
-    OPENAI_API_KEY: openAIAPIKey,
+    FIREFALL_API_ENDPOINT: firefallAPIEndpoint,
+    FIREFALL_IMS_ORG: firefallIMSOrg,
+    FIREFALL_API_KEY: firefallAPIKey,
+    FIREFALL_API_AUTH: firefallAPIAuth,
   } = context.env;
 
   log.info(`Fetching Audit Results for ${siteId}`);
@@ -47,24 +64,36 @@ export async function recommendations(message, context) {
   const scoresAfter = latestAuditResult.scores;
   const scoresBefore = audits[1] ? await audits[1].getScores() : null;
 
-  log.debug(`Got the following properties: \n 
-  githubDiff: ${githubDiff}, \n
-  markdownDiff: ${markdownDiff}, \n
-  scoresAfter: ${scoresAfter}, \n
-  scoresBefore: ${scoresBefore}`);
+  const placeholders = [
+    githubDiff || 'no changes',
+    markdownDiff || 'no changes',
+    scoresAfter.toString(),
+    scoresBefore.toString(),
+  ];
 
-  const data = {
-    prompt: 'Your prompt goes here',
-  };
+  const body = JSON.stringify({
+    dialogue: {
+      question: getPrompt(log, placeholders),
+    },
+    llm_metadata: {
+      llm_type: 'azure_chat_openai',
+      model_name: 'gpt-4',
+      temperature: 0.5,
+    },
+  });
+
+  log.debug('Request body for Firefall API :', body);
 
   try {
-    const response = await fetch(openAIAPIEndpoint, {
+    const response = await fetch(firefallAPIEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${openAIAPIKey}`,
+        Authorization: `Bearer ${firefallAPIAuth}`,
+        'x-api-key': firefallAPIKey,
+        'x-gw-ims-org-id': firefallIMSOrg,
       },
-      body: JSON.stringify(data),
+      body,
     });
 
     const responseData = await response.json();
