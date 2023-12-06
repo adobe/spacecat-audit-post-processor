@@ -58,7 +58,7 @@ async function run(message, context) {
 
   log.info('Post processor request received', message);
 
-  recommendations(message, context);
+  return recommendations(message, context);
 }
 
 export const main = wrap(run)
