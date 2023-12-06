@@ -34,7 +34,17 @@ describe('Optimization Recommendation', () => {
     contextMock = {
       dataAccess: {
         getAuditsForSite: sandbox.stub().resolves([{
-          getAuditResult: sandbox.stub().resolves({ result: 'Foo Bar' }),
+          getAuditResult: sandbox.stub().resolves({
+            githubDiff: 'Foo Bar',
+            markdownContext: {
+              markdownDiff: 'Foo Bar',
+            },
+            scores: {
+              accessibility: 100,
+              pwa: 100,
+              seo: 100,
+            },
+          }),
         }]),
       },
       log: {
