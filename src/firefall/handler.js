@@ -25,22 +25,27 @@ export async function recommendations(message, context) {
     throw new Error('Data Access is not available');
   }
 
-  const latestAudit = await dataAccess.getLatestAuditForSite(siteId, type);
+  const audits = await dataAccess.getAuditsForSite(siteId, type);
 
-  log.info(`Fetched latest Audit for ${siteId}`, latestAudit);
+  log.debug(`Fetched latest Audit for ${siteId}`, audits);
 
-  if (!latestAudit) {
+  if (!audits) {
     throw new Error(`No audit found for site ${siteId}`);
   }
-  const auditResult = await latestAudit.getAuditResult();
+  const latestAuditResult = await audits[0].getAuditResult();
 
-  if (!auditResult) {
+  if (!latestAuditResult) {
     throw new Error(`No audit result found for site ${siteId}`);
   }
 
   // get previous scores
 
-  log.debug(`Fetched Audit Results for ${siteId}`, auditResult);
+  log.debug(`Fetched Audit Results for ${siteId}`, latestAuditResult);
+
+  // const { githubDiff } = auditResult;
+  // const { markdownContext: { markdownDiff } } = auditResult;
+  // const scoresAfter = auditResult.scores;
+  // const scoresBefore = audits[1] ? await audits[1].getAuditResult().scores : null;
 
   const data = {
     prompt: 'Your prompt goes here',

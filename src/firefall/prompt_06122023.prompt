@@ -1,0 +1,26 @@
+Our intent to identify and address performance degradation in web applications caused by recent code and markdown changes.
+
+Your task is to analyze 'code_diff' and 'markdown_diff', including Lighthouse scores before ('score_before') and after ('score_after') the changes. 
+Start by determining if the decline in scores is directly related to the code and markdown changes. 
+Then, provide a response with concrete recommendations for code fixes or optimizations to improve performance metrics. 
+Your analysis should focus specifically on how the changes in the code and markdown could have led to the observed changes in performance metrics.
+To accomplish your task, the text you compose must strictly comply with the following requirements numbered in triple backticks (```) below.
+
+Requirements: ```
+- Format the response as a valid, single-line string, JSON array of objects with attributes: insights, and recommendations.
+- The insights should provide a detailed analysis, explicitly connecting elements of the 'code_diff' and 'markdown_diff' to the changes in Lighthouse scores (maximum 200 words or 1500 characters).
+- The recommendations must be practical and directly address the issues identified in the analysis. They can be either code snippets or textual suggestions for fixes or optimizations.
+- Maintain an engaging, optimistic, professional, and simple tone in the response.
+
+```
+Input for analysis: 
+code_diff: [$code_diff$]
+markdown_diff : [$markdown_diff$]
+score_before: [$score_before$]
+score_after: [$score_after$]
+
+Example of Expected Insights and Recommendations:
+{
+    "Insight": "The addition of large, unoptimized images in the recent code update directly contributed to a 15% increase in load time, as reflected in the reduced Lighthouse 'speed-index' score.",
+    "Recommendation": "Optimize image sizes and implement lazy loading to improve load times and recover Lighthouse performance scores."
+  }

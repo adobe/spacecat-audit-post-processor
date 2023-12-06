@@ -54,7 +54,29 @@ describe('Optimization Recommendation', () => {
     nock.cleanAll();
   });
 
-  // it('should call Fis
+  // it('should call Firefall API to get recommendations for a page', async () => {
+  //   const message = { type: 'testType', auditResult: { siteId: 'Foo' } };
+  //   const recommendation = { recommendations: ['Recommendation 1', 'Recommendation 2'] };
+  //
+  //   const nockScope = nock('https://firefall.adobe.com', {
+  //     reqheaders: {
+  //       'Content-Type': 'application/json',
+  //       Authorization: 'Bearer test-api-key',
+  //     },
+  //   })
+  //     .post('/')
+  //     .reply(200, recommendation);
+  //
+  //   nockScope.on('request', (req, interceptor, body) => {
+  //     console.log('Request was made:', req, interceptor, body);
+  //   });
+  //
+  //   const response = await recommendations(message, contextMock);
+  //
+  //   expect(contextMock.log.info).to.have.been.calledWith('Fetching Audit Results for Foo');
+  //   expect(contextMock.log.info).to.have.been.calledWith('Recommendations:', recommendation);
+  //   expect(response).to.deep.equal(recommendation);
+  // });
 
   it('should handle Firefall API response failure', async () => {
     const message = { type: 'mobile', auditResult: { siteId: '123' } };
