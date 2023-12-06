@@ -11,6 +11,7 @@
  */
 
 import { isObject } from '@adobe/spacecat-shared-utils';
+import { Response } from '@adobe/fetch';
 import * as fs from 'fs';
 
 const PROMPT_FILENAME = './prompt_06122023.prompt';
@@ -98,7 +99,7 @@ export async function recommendations(message, context) {
 
     const responseData = await response.json();
     log.info('Recommendations:', responseData);
-    return responseData;
+    return new Response(responseData);
   } catch (error) {
     throw new Error('Error getting recommendations from Firefall API');
   }
