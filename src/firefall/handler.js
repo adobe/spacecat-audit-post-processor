@@ -10,6 +10,8 @@
  * governing permissions and limitations under the License.
  */
 
+import { isObject } from '@adobe/spacecat-shared-utils';
+
 export async function recommendations(message, context) {
   const { type, auditResult: { siteId } } = message;
   const { dataAccess, log } = context;
@@ -20,8 +22,21 @@ export async function recommendations(message, context) {
 
   log.info(`Fetching Audit Results for ${siteId}`);
 
+  if (!isObject(dataAccess)) {
+    throw new Error('Data Access is not available');
+  }
+
   const latestAudit = await dataAccess.getLatestAuditForSite(siteId, type);
+
+  if (!latestAudit) {
+    throw new Error(`No audit found for site ${siteId}`);
+  }
   const auditResult = await latestAudit.getAuditResult();
+
+  if (!auditResult) {
+    throw new Error(`No audit result found for site ${siteId}`);
+  }
+
   // get previous scores
 
   log.debug(`Fetched Audit Results for ${siteId}`, auditResult);
