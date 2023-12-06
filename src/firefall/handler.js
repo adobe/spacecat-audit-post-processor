@@ -30,19 +30,20 @@ export async function recommendations(message, context) {
     prompt: 'Your prompt goes here',
   };
 
-  fetch(openAIAPIEndpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${openAIAPIKey}`,
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => response.json())
-    .then((responseData) => {
-      log.info('Recommendations:', responseData);
-    })
-    .catch((error) => {
-      log.error('Error getting recommendations:', error);
+  try {
+    const response = await fetch(openAIAPIEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openAIAPIKey}`,
+      },
+      body: JSON.stringify(data),
     });
+
+    const responseData = await response.json();
+    log.info('Recommendations:', responseData);
+    return responseData;
+  } catch (error) {
+    throw new Error('Error getting recommendations from Firefall API');
+  }
 }
