@@ -13,7 +13,7 @@
 import { isObject } from '@adobe/spacecat-shared-utils';
 import * as fs from 'fs';
 
-const PROMPT_FILENAME = 'prompt_06122023.prompt';
+const PROMPT_FILENAME = './prompt_06122023.prompt';
 
 async function getPrompt(log, placeholders) {
   try {
