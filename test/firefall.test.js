@@ -33,9 +33,9 @@ describe('Optimization Recommendation', () => {
     sandbox = sinon.createSandbox();
     contextMock = {
       dataAccess: {
-        getLatestAuditForSite: sandbox.stub().resolves({
+        getAuditsForSite: sandbox.stub().resolves([{
           getAuditResult: sandbox.stub().resolves({ result: 'Foo Bar' }),
-        }),
+        }]),
       },
       log: {
         info: sandbox.stub(),
