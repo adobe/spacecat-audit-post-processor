@@ -21,7 +21,7 @@ export async function recommendations(message, context) {
   } = context.env;
 
   log.info(`Fetching Audit Results for ${siteId}`);
-
+  log.info(`Objects available: ${dataAccess}, ${openAIAPIEndpoint}, ${openAIAPIKey}`);
   if (!dataAccess || !isObject(dataAccess)) {
     throw new Error('Data Access is not available');
   }
