@@ -27,7 +27,7 @@ export async function recommendations(message, context) {
 
   const audits = await dataAccess.getAuditsForSite(siteId, type);
 
-  log.debug(`Fetched latest Audit for ${siteId}`, audits);
+  log.debug(`Fetched Audits for ${siteId}`, audits);
 
   if (!audits) {
     throw new Error(`No audit found for site ${siteId}`);
@@ -42,10 +42,16 @@ export async function recommendations(message, context) {
 
   log.debug(`Fetched Audit Results for ${siteId}`, latestAuditResult);
 
-  // const { githubDiff } = auditResult;
-  // const { markdownContext: { markdownDiff } } = auditResult;
-  // const scoresAfter = auditResult.scores;
-  // const scoresBefore = audits[1] ? await audits[1].getAuditResult().scores : null;
+  const { githubDiff } = latestAuditResult;
+  const { markdownContext: { markdownDiff } } = latestAuditResult;
+  const scoresAfter = latestAuditResult.scores;
+  const scoresBefore = audits[1] ? await audits[1].getScores() : null;
+
+  log.debug(`Got the following properties: \n 
+  githubDiff: ${githubDiff}, \n
+  markdownDiff: ${markdownDiff}, \n
+  scoresAfter: ${scoresAfter}, \n
+  scoresBefore: ${scoresBefore}`);
 
   const data = {
     prompt: 'Your prompt goes here',
