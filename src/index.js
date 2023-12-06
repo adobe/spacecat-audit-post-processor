@@ -17,6 +17,37 @@ import dataAccess from '@adobe/spacecat-shared-data-access';
 import { recommendations } from './firefall/handler.js';
 
 /**
+ * Wrapper to turn an SQS record into a function param
+ * Inspired by https://github.com/adobe/helix-admin/blob/main/src/index.js#L104C1-L128C5
+ *
+ * @param {UniversalAction} fn
+ * @returns {function(object, UniversalContext): Promise<Response>}
+ */
+function sqsEventAdapter(fn) {
+  return async (req, context) => {
+    const { log } = context;
+    let message;
+
+    try {
+      // currently not publishing batch messages
+      const records = context.invocation?.event?.Records;
+      log.info(`Received ${records.length} many records. ID of the first message in the batch: ${records[0]?.messageId}`);
+      message = JSON.parse(records[0]?.body);
+      log.info(`Received message with id: ${context.invocation?.event?.Records.length}`);
+    } catch (e) {
+      log.error('Function was not invoked properly, message body is not a valid JSON', e);
+      return new Response('', {
+        status: 400,
+        headers: {
+          'x-error': 'Event does not contain a valid message body',
+        },
+      });
+    }
+    return fn(message, context);
+  };
+}
+
+/**
  * This is the main function
  * @param {object} message the message object received from SQS
  * @param {UniversalContext} context the context of the universal serverless function
@@ -32,5 +63,6 @@ async function run(message, context) {
 
 export const main = wrap(run)
   .with(dataAccess)
+  .with(sqsEventAdapter)
   .with(secrets)
   .with(helixStatus);
