@@ -22,7 +22,7 @@ export async function recommendations(message, context) {
 
   log.info(`Fetching Audit Results for ${siteId}`);
 
-  if (!isObject(dataAccess)) {
+  if (!dataAccess || !isObject(dataAccess)) {
     throw new Error('Data Access is not available');
   }
 
