@@ -75,13 +75,13 @@ export async function recommendations(message, context) {
 
   log.debug(`Fetched Audit Results for ${siteId}`, latestAuditResult);
 
-  const { githubDiff } = latestAuditResult;
+  const { gitHubDiff } = latestAuditResult;
   const { markdownContext: { markdownDiff } } = latestAuditResult;
   const scoresAfter = latestAuditResult.scores;
   const scoresBefore = audits[1] ? await audits[1].getScores() : null;
 
   const placeholders = {
-    codeDiff: githubDiff || 'no changes',
+    codeDiff: gitHubDiff || 'no changes',
     mdDiff: markdownDiff || 'no changes',
     scoreBefore: scoresBefore ? scoresBefore.toString() : 'no previous scores',
     scoreAfter: scoresAfter ? scoresAfter.toString() : 'no scores',
