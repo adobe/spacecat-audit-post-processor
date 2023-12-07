@@ -109,7 +109,7 @@ export async function recommendations(message, context) {
     });
 
     const responseData = await response.json();
-    log.info('Recommendations:', responseData);
+    log.info('Recommendations:', responseData.toString());
     return new Response(responseData);
   } catch (error) {
     throw new Error('Error getting recommendations from Firefall API');
