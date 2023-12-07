@@ -30,8 +30,8 @@ async function getPrompt(log, placeholders) {
 }
 
 function getEmojiForChange(before, after) {
-  if (after > before) return ':warning:'; // Emoji for increase
-  if (after < before) return ':large_green_circle:'; // Emoji for decrease
+  if (after < before) return ':warning:'; // Emoji for increase
+  if (after > before) return ':large_green_circle:'; // Emoji for decrease
   return ':heavy_minus_sign:'; // Emoji for no change
 }
 
@@ -115,12 +115,10 @@ export async function recommendations(message, context) {
     });
 
     const responseData = await response.json();
-    log.info('Recommendations:', responseData.generations[0][0].text);
+    const recommendationData = responseData.generations[0][0].text;
+    log.info('Recommendations:', recommendationData);
 
     const data = JSON.parse(responseData.generations[0][0].text);
-    const recommendationMessage = `Insights and Recommendations for ${url}:\n`;
-
-    log.info('Recommendation Message:', recommendationMessage);
 
     const blocks = [
       {
@@ -168,7 +166,7 @@ export async function recommendations(message, context) {
       channel: 'C060T2PPF8V',
     });
 
-    return new Response(recommendationMessage);
+    return new Response(recommendationData);
   } catch (error) {
     throw new Error('Error getting recommendations from Firefall API');
   }
