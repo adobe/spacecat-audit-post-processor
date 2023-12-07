@@ -60,6 +60,10 @@ export async function recommendations(message, context) {
     log.error(`No audits found for site ${siteId}`);
     return new Response({ error: `No audits found for site ${siteId}` }, { status: 404 });
   }
+
+  // sort audits by auditedAt so that the latest audit is at the first position
+  audits.sort((a, b) => new Date(b.state.auditedAt) - new Date(a.state.auditedAt));
+
   const latestAuditResult = await audits[0].getAuditResult();
 
   if (!latestAuditResult) {
