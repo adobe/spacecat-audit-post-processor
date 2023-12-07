@@ -164,15 +164,7 @@ export async function recommendations(message, context) {
     });
 
     await postSlackMessage(slackToken, {
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: recommendationMessage,
-          },
-        },
-      ],
+      blocks,
       channel: 'C060T2PPF8V',
     });
 
