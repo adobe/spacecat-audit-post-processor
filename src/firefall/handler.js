@@ -30,9 +30,9 @@ async function getPrompt(log, placeholders) {
 }
 
 function getEmojiForChange(before, after) {
-  if (after > before) return ':arrow_up:'; // Emoji for increase
-  if (after < before) return ':arrow_down:'; // Emoji for decrease
-  return ':left_right_arrow:'; // Emoji for no change
+  if (after > before) return ':warning:'; // Emoji for increase
+  if (after < before) return ':large_green_circle:'; // Emoji for decrease
+  return ':heavy_minus_sign:'; // Emoji for no change
 }
 
 export async function recommendations(message, context) {
@@ -132,25 +132,25 @@ export async function recommendations(message, context) {
       },
     ];
 
+    const scoreFields = [];
+
+    Object.keys(scoresBefore).forEach((key) => {
+      const before = scoresBefore[key];
+      const after = scoresAfter[key];
+      const emoji = getEmojiForChange(Number(before), Number(after));
+      scoreFields.push({
+        type: 'mrkdwn',
+        text: `${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`,
+      });
+    });
+
     blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: '*Score Changes:*',
       },
-    });
-
-    Object.keys(scoresBefore).forEach((key) => {
-      const before = scoresBefore[key];
-      const after = scoresAfter[key];
-      const emoji = getEmojiForChange(Number(before), Number(after));
-      blocks.push({
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`,
-        },
-      });
+      fields: scoreFields,
     });
 
     data.insights.forEach((item, index) => {
