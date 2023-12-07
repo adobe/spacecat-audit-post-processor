@@ -13,6 +13,7 @@ import wrap from '@adobe/helix-shared-wrap';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
+import { toBoolean } from '@adobe/spacecat-shared-utils';
 
 import { recommendations } from './firefall/handler.js';
 
@@ -59,7 +60,7 @@ async function run(message, context) {
     FIREFALL_INTEGRATION_ENABLED: firefallIntegrationEnabled,
   } = context.env;
 
-  if (firefallIntegrationEnabled) {
+  if (toBoolean(firefallIntegrationEnabled)) {
     log.info('Firefall integration enabled, processing message', message);
     return recommendations(message, context);
   }
