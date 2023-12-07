@@ -42,6 +42,7 @@ export async function recommendations(message, context) {
 
   log.info(`Fetching Audit Results for ${siteId}`);
   if (!dataAccess || !isObject(dataAccess)) {
+    log.error('Data Access is not available');
     return new Response({ error: 'Data Access is not available' }, { status: 500 });
   }
 
@@ -50,11 +51,13 @@ export async function recommendations(message, context) {
   log.debug(`Fetched Audits for ${siteId}`, audits);
 
   if (!audits) {
+    log.error(`No audits found for site ${siteId}`);
     return new Response({ error: `No audits found for site ${siteId}` }, { status: 404 });
   }
   const latestAuditResult = await audits[0].getAuditResult();
 
   if (!latestAuditResult) {
+    log.error(`No audit result found for site ${siteId}`);
     return new Response({ error: `No audit result found for site ${siteId}` }, { status: 404 });
   }
 
@@ -74,8 +77,9 @@ export async function recommendations(message, context) {
     scoresBefore.toString(),
   ];
 
-  const prompt = getPrompt(log, placeholders);
+  const prompt = await getPrompt(log, placeholders);
   if (!isString(prompt)) {
+    log.error('Prompt is not available');
     return new Response({ error: 'Prompt is not available' }, { status: 500 });
   }
 
