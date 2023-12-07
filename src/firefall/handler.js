@@ -20,9 +20,7 @@ async function getPrompt(log, placeholders) {
   try {
     let prompt = fs.readFileSync(PROMPT_FILENAME, { encoding: 'utf8', flag: 'r' });
     log.debug('Prompt file content:', prompt);
-    Object.keys(placeholders).forEach((key) => {
-      prompt = prompt.replace(`[${key}]`, placeholders[key]);
-    });
+    prompt = prompt.replace(/{{(.*?)}}/g, (match, key) => (key in placeholders ? placeholders[key] : match));
     return prompt;
   } catch (error) {
     log.error('Error reading prompt file:', error);
@@ -70,12 +68,12 @@ export async function recommendations(message, context) {
   const scoresAfter = latestAuditResult.scores;
   const scoresBefore = audits[1] ? await audits[1].getScores() : null;
 
-  const placeholders = [
-    githubDiff || 'no changes',
-    markdownDiff || 'no changes',
-    scoresAfter.toString(),
-    scoresBefore.toString(),
-  ];
+  const placeholders = {
+    codeDiff: githubDiff || 'no changes',
+    mdDiff: markdownDiff || 'no changes',
+    scoreBefore: scoresBefore ? scoresBefore.toString() : 'no previous scores',
+    scoreAfter: scoresAfter ? scoresAfter.toString() : 'no scores',
+  };
 
   const prompt = await getPrompt(log, placeholders);
   if (!isString(prompt)) {
@@ -109,7 +107,7 @@ export async function recommendations(message, context) {
     });
 
     const responseData = await response.json();
-    log.info('Recommendations:', responseData.toString());
+    log.info('Recommendations:', JSON.stringify(responseData));
     return new Response(responseData);
   } catch (error) {
     throw new Error('Error getting recommendations from Firefall API');

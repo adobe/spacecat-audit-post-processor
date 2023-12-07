@@ -15,10 +15,10 @@ Requirements: ```
 
 ```
 Input for analysis:
-code_diff: [$code_diff$]
-markdown_diff : [$markdown_diff$]
-score_before: [$score_before$]
-score_after: [$score_after$]
+code_diff: {{codeDiff}}
+markdown_diff : {{mdDiff}}
+score_before: {{scoreBefore}}
+score_after: {{scoreAfter}}
 
 Example of Expected Insights and Recommendations:
 {
