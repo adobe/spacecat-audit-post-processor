@@ -23,8 +23,10 @@ async function getPrompt(log, placeholders) {
     Object.keys(placeholders).forEach((key) => {
       prompt = prompt.replace(`[${key}]`, placeholders[key]);
     });
+    return prompt;
   } catch (error) {
     log.error('Error reading prompt file:', error);
+    return null;
   }
 }
 
