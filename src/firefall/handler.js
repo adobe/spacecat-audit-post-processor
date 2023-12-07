@@ -18,7 +18,8 @@ const PROMPT_FILENAME = './static/prompts/firefall.prompt';
 
 async function getPrompt(log, placeholders) {
   try {
-    let prompt = fs.readFileSync(PROMPT_FILENAME, 'utf8');
+    let prompt = fs.readFileSync(PROMPT_FILENAME);
+    log.debug('Prompt file content:', prompt);
     Object.keys(placeholders).forEach((key) => {
       prompt = prompt.replace(`[${key}]`, placeholders[key]);
     });
