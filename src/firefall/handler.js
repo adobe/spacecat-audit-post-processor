@@ -107,9 +107,9 @@ export async function recommendations(message, context) {
     });
 
     const responseData = await response.json();
-    const data = responseData.generations[0][0].text;
-    log.info('Recommendations:', data);
+    log.info('Recommendations:', responseData.generations[0][0].text);
 
+    const data = JSON.parse(responseData.generations[0][0].text);
     let recommendationMessage = 'Insights and Recommendations:\n';
 
     data.insights.forEach((item, index) => {
