@@ -29,6 +29,12 @@ async function getPrompt(log, placeholders) {
   }
 }
 
+function getEmojiForChange(before, after) {
+  if (after > before) return ':arrow_up:'; // Emoji for increase
+  if (after < before) return ':arrow_down:'; // Emoji for decrease
+  return ':left_right_arrow:'; // Emoji for no change
+}
+
 export async function recommendations(message, context) {
   const { type, url, auditResult: { siteId } } = message;
   const { dataAccess, log } = context;
@@ -112,13 +118,50 @@ export async function recommendations(message, context) {
     log.info('Recommendations:', responseData.generations[0][0].text);
 
     const data = JSON.parse(responseData.generations[0][0].text);
-    let recommendationMessage = `Insights and Recommendations for ${url}:\n`;
-
-    data.insights.forEach((item, index) => {
-      recommendationMessage += `${index + 1}. ${item.insight}\n   Recommendation: ${item.recommendation}\n`;
-    });
+    const recommendationMessage = `Insights and Recommendations for ${url}:\n`;
 
     log.info('Recommendation Message:', recommendationMessage);
+
+    const blocks = [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `*Insights and Recommendations:* for ${url}`,
+        },
+      },
+    ];
+
+    blocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Score Changes:*',
+      },
+    });
+
+    Object.keys(scoresBefore).forEach((key) => {
+      const before = scoresBefore[key];
+      const after = scoresAfter[key];
+      const emoji = getEmojiForChange(Number(before), Number(after));
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`,
+        },
+      });
+    });
+
+    data.insights.forEach((item, index) => {
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`,
+        },
+      });
+    });
 
     await postSlackMessage(slackToken, {
       blocks: [
