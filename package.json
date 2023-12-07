@@ -31,7 +31,10 @@
     },
     "fastlyServiceId!important": "",
     "timeout": 900000,
-    "nodeVersion": 18
+    "nodeVersion": 18,
+    "static": [
+      "src/firefall/firefall.prompt"
+    ]
   },
   "repository": {
     "type": "git",

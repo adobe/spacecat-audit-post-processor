@@ -14,7 +14,7 @@ import { isObject } from '@adobe/spacecat-shared-utils';
 import { Response } from '@adobe/fetch';
 import * as fs from 'fs';
 
-const PROMPT_FILENAME = './prompt_06122023.prompt';
+const PROMPT_FILENAME = './firefall.prompt';
 
 async function getPrompt(log, placeholders) {
   try {
@@ -24,7 +24,6 @@ async function getPrompt(log, placeholders) {
     });
   } catch (error) {
     log.error('Error reading prompt file:', error);
-    throw error;
   }
 }
 
@@ -40,7 +39,7 @@ export async function recommendations(message, context) {
 
   log.info(`Fetching Audit Results for ${siteId}`);
   if (!dataAccess || !isObject(dataAccess)) {
-    throw new Error('Data Access is not available');
+    return new Response({ error: 'Data Access is not available' }, { status: 500 });
   }
 
   const audits = await dataAccess.getAuditsForSite(siteId, type);
@@ -48,12 +47,12 @@ export async function recommendations(message, context) {
   log.debug(`Fetched Audits for ${siteId}`, audits);
 
   if (!audits) {
-    throw new Error(`No audit found for site ${siteId}`);
+    return new Response({ error: `No audits found for site ${siteId}` }, { status: 404 });
   }
   const latestAuditResult = await audits[0].getAuditResult();
 
   if (!latestAuditResult) {
-    throw new Error(`No audit result found for site ${siteId}`);
+    return new Response({ error: `No audit result found for site ${siteId}` }, { status: 404 });
   }
 
   // get previous scores
@@ -72,9 +71,14 @@ export async function recommendations(message, context) {
     scoresBefore.toString(),
   ];
 
+  const prompt = getPrompt(log, placeholders);
+  if (!prompt) {
+    return new Response({ error: 'Prompt is not available' }, { status: 500 });
+  }
+
   const body = JSON.stringify({
     dialogue: {
-      question: getPrompt(log, placeholders),
+      question: prompt,
     },
     llm_metadata: {
       llm_type: 'azure_chat_openai',

@@ -55,10 +55,19 @@ function sqsEventAdapter(fn) {
  */
 async function run(message, context) {
   const { log } = context;
+  const {
+    FIREFALL_INTEGRATION_ENABLED: firefallIntegrationEnabled,
+  } = context.env;
 
-  log.info('Post processor request received', message);
+  if (firefallIntegrationEnabled) {
+    log.info('Firefall integration enabled, processing message', message);
+    return recommendations(message, context);
+  }
 
-  return recommendations(message, context);
+  log.info('Firefall integration disabled, skipping message', message);
+  return new Response('', {
+    status: 200,
+  });
 }
 
 export const main = wrap(run)
