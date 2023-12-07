@@ -13,6 +13,7 @@
 import { isObject, isString } from '@adobe/spacecat-shared-utils';
 import { Response } from '@adobe/fetch';
 import * as fs from 'fs';
+import { postSlackMessage } from '../support/slack.js';
 
 const PROMPT_FILENAME = './static/prompts/firefall.prompt';
 
@@ -29,13 +30,14 @@ async function getPrompt(log, placeholders) {
 }
 
 export async function recommendations(message, context) {
-  const { type, auditResult: { siteId } } = message;
+  const { type, url, auditResult: { siteId } } = message;
   const { dataAccess, log } = context;
   const {
     FIREFALL_API_ENDPOINT: firefallAPIEndpoint,
     FIREFALL_IMS_ORG: firefallIMSOrg,
     FIREFALL_API_KEY: firefallAPIKey,
     FIREFALL_API_AUTH: firefallAPIAuth,
+    SLACK_BOT_TOKEN: slackToken,
   } = context.env;
 
   log.info(`Fetching Audit Results for ${siteId}`);
@@ -110,13 +112,26 @@ export async function recommendations(message, context) {
     log.info('Recommendations:', responseData.generations[0][0].text);
 
     const data = JSON.parse(responseData.generations[0][0].text);
-    let recommendationMessage = 'Insights and Recommendations:\n';
+    let recommendationMessage = `Insights and Recommendations for ${url}:\n`;
 
     data.insights.forEach((item, index) => {
-      recommendationMessage += `${index + 1}. ${item.insight}\n   ${item.recommendation}\n`;
+      recommendationMessage += `${index + 1}. ${item.insight}\n   Recommendation: ${item.reccomendation}\n`;
     });
 
     log.info('Recommendation Message:', recommendationMessage);
+
+    await postSlackMessage(slackToken, {
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: recommendationMessage,
+          },
+        },
+      ],
+      channel: 'C060T2PPF8V',
+    });
 
     return new Response(recommendationMessage);
   } catch (error) {
