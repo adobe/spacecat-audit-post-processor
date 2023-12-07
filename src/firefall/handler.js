@@ -107,8 +107,18 @@ export async function recommendations(message, context) {
     });
 
     const responseData = await response.json();
-    log.info('Recommendations:', JSON.stringify(responseData));
-    return new Response(responseData);
+    const data = responseData.generations[0][0].text;
+    log.info('Recommendations:', data);
+
+    let recommendationMessage = 'Insights and Recommendations:\n';
+
+    data.insights.forEach((item, index) => {
+      recommendationMessage += `${index + 1}. ${item.insight}\n   ${item.recommendation}\n`;
+    });
+
+    log.info('Recommendation Message:', recommendationMessage);
+
+    return new Response(recommendationMessage);
   } catch (error) {
     throw new Error('Error getting recommendations from Firefall API');
   }
