@@ -115,7 +115,7 @@ export async function recommendations(message, context) {
     let recommendationMessage = `Insights and Recommendations for ${url}:\n`;
 
     data.insights.forEach((item, index) => {
-      recommendationMessage += `${index + 1}. ${item.insight}\n   Recommendation: ${item.reccomendation}\n`;
+      recommendationMessage += `${index + 1}. ${item.insight}\n   Recommendation: ${item.recommendation}\n`;
     });
 
     log.info('Recommendation Message:', recommendationMessage);
