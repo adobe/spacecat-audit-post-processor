@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import { isObject } from '@adobe/spacecat-shared-utils';
+import { isObject, isString } from '@adobe/spacecat-shared-utils';
 import { Response } from '@adobe/fetch';
 import * as fs from 'fs';
 
@@ -18,7 +18,7 @@ const PROMPT_FILENAME = './static/prompts/firefall.prompt';
 
 async function getPrompt(log, placeholders) {
   try {
-    let prompt = fs.readFileSync(PROMPT_FILENAME);
+    let prompt = fs.readFileSync(PROMPT_FILENAME, { encoding: 'utf8', flag: 'r' });
     log.debug('Prompt file content:', prompt);
     Object.keys(placeholders).forEach((key) => {
       prompt = prompt.replace(`[${key}]`, placeholders[key]);
@@ -73,7 +73,7 @@ export async function recommendations(message, context) {
   ];
 
   const prompt = getPrompt(log, placeholders);
-  if (!prompt) {
+  if (!isString(prompt)) {
     return new Response({ error: 'Prompt is not available' }, { status: 500 });
   }
 
