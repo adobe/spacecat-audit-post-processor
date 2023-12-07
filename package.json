@@ -33,7 +33,7 @@
     "timeout": 900000,
     "nodeVersion": 18,
     "static": [
-      "src/firefall/firefall.prompt"
+      "static/prompts/firefall.prompt"
     ]
   },
   "repository": {

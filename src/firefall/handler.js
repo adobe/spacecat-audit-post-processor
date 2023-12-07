@@ -14,7 +14,7 @@ import { isObject } from '@adobe/spacecat-shared-utils';
 import { Response } from '@adobe/fetch';
 import * as fs from 'fs';
 
-const PROMPT_FILENAME = './firefall.prompt';
+const PROMPT_FILENAME = './static/prompts/firefall.prompt';
 
 async function getPrompt(log, placeholders) {
   try {
