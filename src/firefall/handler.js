@@ -165,6 +165,16 @@ export async function recommendations(message, context) {
       });
     });
 
+    data.code.forEach((codeItem) => {
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `\`\`\`${codeItem}\`\`\``,
+        },
+      });
+    });
+
     await postSlackMessage(slackToken, {
       blocks,
       channel: 'C060T2PPF8V',
