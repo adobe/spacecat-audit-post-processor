@@ -182,6 +182,6 @@ export async function recommendations(message, context) {
 
     return new Response(recommendationData);
   } catch (error) {
-    throw new Error('Error getting recommendations from Firefall API');
+    throw new Error(`Error getting recommendations from Firefall API: ${error}`);
   }
 }
