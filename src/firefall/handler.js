@@ -127,6 +127,7 @@ export async function recommendations(message, context) {
     let data = {};
     try {
       data = JSON.parse(recommendationData);
+      log.debug(`Parsed JSON from Firefall response: ${data}`);
     } catch (error) {
       log.error('Error parsing JSON from Firefall response:', error);
     }
