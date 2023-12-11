@@ -102,7 +102,7 @@ export async function recommendations(message, context) {
     llm_metadata: {
       llm_type: 'azure_chat_openai',
       model_name: 'gpt-4',
-      temperature: 0.3,
+      temperature: 0.5,
     },
   });
 
@@ -175,10 +175,36 @@ export async function recommendations(message, context) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}\nRecommended code:\n\`\`\`${item.code}\`\`\``,
+          text: `${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`,
         },
       });
     });
+
+    log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
+
+    if (typeof data.code === 'object') {
+      log.debug('Code is an array');
+      data.code.forEach((codeItem) => {
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `\`\`\`${codeItem}\`\`\``,
+          },
+        });
+      });
+    } else if (typeof data.code === 'string') {
+      log.debug('Code is a string');
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `\`\`\`${data.code}\`\`\``,
+        },
+      });
+    } else {
+      log.debug('Code is not an array or a string');
+    }
 
     log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
 
