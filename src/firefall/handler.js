@@ -144,6 +144,9 @@ export async function recommendations(message, context) {
 
     const scoreFields = [];
 
+    log.debug('Creating Slack message');
+    log.debug(`Adding score changes to Slack message. Scores before: ${scoresBefore}, Scores after: ${scoresAfter}`);
+
     Object.keys(scoresBefore).forEach((key) => {
       const before = scoresBefore[key];
       const after = scoresAfter[key];
@@ -163,6 +166,8 @@ export async function recommendations(message, context) {
       fields: scoreFields,
     });
 
+    log.debug(`Adding insights and recommendations to Slack message. Insights: ${data.insights}`);
+
     data.insights.forEach((item, index) => {
       blocks.push({
         type: 'section',
@@ -173,6 +178,8 @@ export async function recommendations(message, context) {
       });
     });
 
+    log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
+
     data.code.forEach((codeItem) => {
       blocks.push({
         type: 'section',
@@ -182,6 +189,8 @@ export async function recommendations(message, context) {
         },
       });
     });
+
+    log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
 
     await postSlackMessage(slackToken, {
       blocks,
