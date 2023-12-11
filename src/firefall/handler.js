@@ -36,7 +36,9 @@ function getEmojiForChange(before, after) {
 }
 
 export async function recommendations(message, context) {
-  const { type, url, auditResult: { siteId } } = message;
+  const {
+    type, url, auditResult: { siteId }, auditContext: { slackContext: { channelId, threadTs } },
+  } = message;
   const { dataAccess, log } = context;
   const {
     FIREFALL_API_ENDPOINT: firefallAPIEndpoint,
@@ -177,7 +179,8 @@ export async function recommendations(message, context) {
 
     await postSlackMessage(slackToken, {
       blocks,
-      channel: 'C060T2PPF8V',
+      channel: channelId,
+      ts: threadTs,
     });
 
     return new Response(recommendationData);
