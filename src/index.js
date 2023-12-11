@@ -13,7 +13,7 @@ import wrap from '@adobe/helix-shared-wrap';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
-import { toBoolean } from '@adobe/spacecat-shared-utils';
+import { toBoolean, resolveSecretsName } from '@adobe/spacecat-shared-utils';
 
 import { recommendations } from './firefall/handler.js';
 
@@ -74,5 +74,5 @@ async function run(message, context) {
 export const main = wrap(run)
   .with(dataAccess)
   .with(sqsEventAdapter)
-  .with(secrets)
+  .with(secrets, { name: resolveSecretsName })
   .with(helixStatus);
