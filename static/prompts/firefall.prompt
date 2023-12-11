@@ -8,10 +8,11 @@ Your analysis should also pay particular attention to any element of score_after
 To accomplish your task, the text you compose must strictly comply with the following requirements numbered in triple backticks (```) below.
 
 Requirements: ```
-- Format the response as a valid, single-line string, JSON object. That object must contain an insights property, which is a JSON Array of objects, where each object has properies 'insight' and 'reccomendation'.
+- Format the response as a valid, single-line string, JSON object. That object must contain an insights property and a code property. The insights property is a JSON Array of objects, where each object has properties 'insight' and 'recommendation'. The code property is an array of strings, where each string contains the recommended code changes from the analysis.
 - The insights should provide a detailed analysis, explicitly connecting elements of the 'code_diff' and 'markdown_diff' to the changes in Lighthouse scores (maximum 200 words or 1500 characters).
 - The recommendations must be practical and directly address the issues identified in the analysis. They can be either code snippets or textual suggestions for fixes or optimizations.
 - Maintain an engaging, optimistic, professional, and simple tone in the response.
+- The code recommendation should contain examples of how a possible fix could look like. The code can be completely altered or even removed if necessary.
 
 ```
 Input for analysis:
@@ -20,7 +21,7 @@ markdown_diff : {{mdDiff}}
 score_before: {{scoreBefore}}
 score_after: {{scoreAfter}}
 
-Example of Expected Insights and Recommendations:
+Example of Expected Insights, Recommendations and code changes, the returned message should always be a one line string, that can be parsed into a JSON object:
 {
   insights: [
     {
@@ -31,5 +32,18 @@ Example of Expected Insights and Recommendations:
       insight: "The addition a third-party api is adding to the 'total-blocking-time' and decreasing the overall 'performance' score as a result.",
       recommendation: "Do not load the third-party api until absolutely required; Either by using an intersection observer to load it only once it reaches the viewport, or by delaying it's loading until the user interacts with that element."
     },
+  ],
+  code: [
+    "@@ -137,6 +137,12 @@ function setup() {
+        window.hlx.codeBasePath = '';
+        window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';
+
+     -  // timeout for 2 seconds
+     -  const end = Date.now() + 2 * 1000;
+     -  while (Date.now() < end) {
+     -    console.log('test')
+     -  }
+     -
+        const scriptEl = document.getElementByTagName(script);"
   ]
 }
