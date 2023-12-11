@@ -25,11 +25,11 @@ Example of Expected Insights and Recommendations:
   insights: [
     {
       insight: "The addition of large, unoptimized images in the recent code update directly contributed to a 15% increase in load time, as reflected in the reduced Lighthouse 'speed-index' score.",
-      reccomendation: "Optimize image sizes and implement lazy loading to improve load times and recover Lighthouse performance scores.",
+      recommendation: "Optimize image sizes and implement lazy loading to improve load times and recover Lighthouse performance scores.",
     },
     {
       insight: "The addition a third-party api is adding to the 'total-blocking-time' and decreasing the overall 'performance' score as a result.",
-      reccomendation: "Do not load the third-party api until absolutely required; Either by using an intersection observer to load it only once it reaches the viewport, or by delaying it's loading until the user interacts with that element."
+      recommendation: "Do not load the third-party api until absolutely required; Either by using an intersection observer to load it only once it reaches the viewport, or by delaying it's loading until the user interacts with that element."
     },
   ]
 }
