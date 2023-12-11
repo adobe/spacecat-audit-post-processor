@@ -182,15 +182,25 @@ export async function recommendations(message, context) {
 
     log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
 
-    data.code.forEach((codeItem) => {
+    if (typeof data.code === 'object') {
+      data.code.forEach((codeItem) => {
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `\`\`\`${codeItem.recommendation}\`\`\``,
+          },
+        });
+      });
+    } else if (typeof data.code === 'string') {
       blocks.push({
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `\`\`\`${codeItem.recommendation}\`\`\``,
+          text: `\`\`\`${data.code}\`\`\``,
         },
       });
-    });
+    }
 
     log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
 
