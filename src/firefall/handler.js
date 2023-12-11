@@ -127,7 +127,11 @@ export async function recommendations(message, context) {
     const json = recommendationData.match(/{[\s\S]*}/);
     let data = {};
     if (json) {
-      data = JSON.parse(json[0]);
+      try {
+        data = JSON.parse(json[0]);
+      } catch (error) {
+        log.error('Error parsing JSON from Firefall response:', error);
+      }
       log.debug(data);
     } else {
       log.error('No JSON found in the Firefall response');
