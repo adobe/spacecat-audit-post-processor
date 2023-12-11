@@ -124,13 +124,8 @@ export async function recommendations(message, context) {
     const recommendationData = responseData.generations[0][0].text;
     log.info('Recommendations:', recommendationData);
 
-    let data = {};
-    try {
-      data = JSON.parse(recommendationData);
-      log.debug(`Parsed JSON from Firefall response: ${data}`);
-    } catch (error) {
-      log.error('Error parsing JSON from Firefall response:', error);
-    }
+    const data = JSON.parse(recommendationData);
+    log.debug(`parsed recommendations: ${data}`);
 
     const blocks = [
       {
