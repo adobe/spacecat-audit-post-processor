@@ -121,11 +121,18 @@ export async function recommendations(message, context) {
     });
 
     const responseData = await response.json();
+
+    log.debug('Response from Firefall API:', responseData);
+
     const recommendationData = responseData.generations[0][0].text;
+
+    log.debug(`generations: ${responseData.generations[0][0]}`);
     log.info('Recommendations:', recommendationData);
 
     const data = JSON.parse(recommendationData);
     log.debug(`parsed recommendations: ${data}`);
+    const { insights } = data;
+    log.debug(`insights: ${insights}`);
 
     const blocks = [
       {
@@ -161,9 +168,9 @@ export async function recommendations(message, context) {
       fields: scoreFields,
     });
 
-    log.debug(`Adding insights and recommendations to Slack message. Insights: ${recommendationData.insights}`);
+    log.debug(`Adding insights and recommendations to Slack message. Insights: ${data.insights}`);
 
-    recommendationData.insights.forEach((item, index) => {
+    data.insights.forEach((item, index) => {
       blocks.push({
         type: 'section',
         text: {
@@ -173,9 +180,9 @@ export async function recommendations(message, context) {
       });
     });
 
-    log.debug(`Adding code snippets to Slack message. Code snippets: ${recommendationData.code}`);
+    log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
 
-    recommendationData.code.forEach((codeItem) => {
+    data.code.forEach((codeItem) => {
       blocks.push({
         type: 'section',
         text: {
