@@ -21,7 +21,7 @@ markdown_diff : {{mdDiff}}
 score_before: {{scoreBefore}}
 score_after: {{scoreAfter}}
 
-Example of Expected Insights, Recommendations and code changes:
+Example of Expected Insights, Recommendations and code changes, the returned message should always be a valid JSON object:
 {
   insights: [
     {
