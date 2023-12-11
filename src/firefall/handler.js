@@ -161,9 +161,9 @@ export async function recommendations(message, context) {
       fields: scoreFields,
     });
 
-    log.debug(`Adding insights and recommendations to Slack message. Insights: ${data.insights}`);
+    log.debug(`Adding insights and recommendations to Slack message. Insights: ${recommendationData.insights}`);
 
-    data.insights.forEach((item, index) => {
+    recommendationData.insights.forEach((item, index) => {
       blocks.push({
         type: 'section',
         text: {
@@ -173,9 +173,9 @@ export async function recommendations(message, context) {
       });
     });
 
-    log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
+    log.debug(`Adding code snippets to Slack message. Code snippets: ${recommendationData.code}`);
 
-    data.code.forEach((codeItem) => {
+    recommendationData.code.forEach((codeItem) => {
       blocks.push({
         type: 'section',
         text: {
