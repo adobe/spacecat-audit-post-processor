@@ -35,17 +35,7 @@ Example of Expected Insights, Recommendations and code changes, the returned mes
   ],
   code: [
     {
-      recommendation: "@@ -137,6 +137,12 @@ function setup() {
-                              window.hlx.codeBasePath = '';
-                              window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';
-
-                           -  // timeout for 2 seconds
-                           -  const end = Date.now() + 2 * 1000;
-                           -  while (Date.now() < end) {
-                           -    console.log("test")
-                           -  }
-                           -
-                              const scriptEl = document.querySelector('script[src$="/scripts/scripts.js"]');"
+      recommendation: "@@ -137,6 +137,12 @@ function setup() {\n  window.hlx.codeBasePath = '';\n  window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';\n\n-  // timeout for 2 seconds\n-  const end = Date.now() + 2 * 1000;\n-  while (Date.now() < end) {\n-    console.log(\"test\")\n-  }\n\n  const scriptEl = document.querySelector('script[src$=\"/scripts/scripts.js\"
     }
   ]
 }
