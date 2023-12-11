@@ -180,17 +180,17 @@ export async function recommendations(message, context) {
       });
     });
 
-    // log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
+    log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
 
-    // data.code.forEach((codeItem) => {
-    //   blocks.push({
-    //     type: 'section',
-    //     text: {
-    //       type: 'mrkdwn',
-    //       text: `\`\`\`${codeItem}\`\`\``,
-    //     },
-    //   });
-    // });
+    data.code.forEach((codeItem) => {
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `\`\`\`${codeItem.recommendation}\`\`\``,
+        },
+      });
+    });
 
     log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
 
