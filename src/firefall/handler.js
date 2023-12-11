@@ -183,6 +183,7 @@ export async function recommendations(message, context) {
     log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
 
     if (typeof data.code === 'object') {
+      log.debug('Code is an array');
       data.code.forEach((codeItem) => {
         blocks.push({
           type: 'section',
@@ -193,6 +194,7 @@ export async function recommendations(message, context) {
         });
       });
     } else if (typeof data.code === 'string') {
+      log.debug('Code is a string');
       blocks.push({
         type: 'section',
         text: {
@@ -200,6 +202,8 @@ export async function recommendations(message, context) {
           text: `\`\`\`${data.code}\`\`\``,
         },
       });
+    } else {
+      log.debug('Code is not an array or a string');
     }
 
     log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
