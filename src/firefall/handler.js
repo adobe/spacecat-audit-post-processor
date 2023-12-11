@@ -124,7 +124,14 @@ export async function recommendations(message, context) {
     const recommendationData = responseData.generations[0][0].text;
     log.info('Recommendations:', recommendationData);
 
-    const data = JSON.parse(responseData.generations[0][0].text);
+    const json = recommendationData.match(/{[\s\S]*}/);
+    let data = {};
+    if (json) {
+      data = JSON.parse(json[0]);
+      log.debug(data);
+    } else {
+      log.error('No JSON found in the Firefall response');
+    }
 
     const blocks = [
       {
