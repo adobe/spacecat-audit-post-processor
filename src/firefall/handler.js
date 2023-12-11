@@ -189,7 +189,7 @@ export async function recommendations(message, context) {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `\`\`\`${codeItem.recommendation}\`\`\``,
+            text: `\`\`\`${codeItem}\`\`\``,
           },
         });
       });
