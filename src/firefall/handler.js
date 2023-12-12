@@ -12,23 +12,10 @@
 
 import { isObject, isString } from '@adobe/spacecat-shared-utils';
 import { Response } from '@adobe/fetch';
-import * as fs from 'fs';
 import { postSlackMessage } from '../support/slack.js';
+import { getPrompt } from '../support/utils.js';
 
-const PROMPT_FILENAME = './static/prompts/firefall.prompt';
-
-async function getPrompt(log, placeholders) {
-  try {
-    let prompt = fs.readFileSync(PROMPT_FILENAME, { encoding: 'utf8', flag: 'r' });
-    log.debug('Prompt file content:', prompt);
-    prompt = prompt.replace(/{{(.*?)}}/g, (match, key) => (key in placeholders ? placeholders[key] : match));
-    return prompt;
-  } catch (error) {
-    log.error('Error reading prompt file:', error);
-    return null;
-  }
-}
-
+// utils
 function getEmojiForChange(before, after) {
   if (after < before) return ':warning:'; // Emoji for increase
   if (after > before) return ':large_green_circle:'; // Emoji for decrease
@@ -77,6 +64,8 @@ export async function recommendations(message, context) {
 
   log.debug(`Fetched Audit Results for ${siteId}`, latestAuditResult);
 
+  // fetch all of the above from utils??
+
   const { gitHubDiff } = latestAuditResult;
   const { markdownContext: { markdownDiff } } = latestAuditResult;
   const scoresAfter = latestAuditResult.scores;
@@ -89,7 +78,7 @@ export async function recommendations(message, context) {
     scoreAfter: scoresAfter ? scoresAfter.toString() : 'no scores',
   };
 
-  const prompt = await getPrompt(log, placeholders);
+  const prompt = await getPrompt(placeholders);
   if (!isString(prompt)) {
     log.error('Prompt is not available');
     return new Response({ error: 'Prompt is not available' }, { status: 500 });
@@ -134,6 +123,7 @@ export async function recommendations(message, context) {
     const { insights } = data;
     log.debug(`insights: ${insights}`);
 
+    // slack util
     const blocks = [
       {
         type: 'section',

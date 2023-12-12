@@ -27,15 +27,11 @@ Example of Expected Insights, Recommendations and code changes, the returned mes
     {
       insight: "The addition of large, unoptimized images in the recent code update directly contributed to a 15% increase in load time, as reflected in the reduced Lighthouse 'speed-index' score.",
       recommendation: "Optimize image sizes and implement lazy loading to improve load times and recover Lighthouse performance scores.",
+      code: "@@ -137,6 +137,12 @@ function setup() {\n  window.hlx.codeBasePath = '';\n  window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';\n\n-  // timeout for 2 seconds\n-  const end = Date.now() + 2 * 1000;\n-  while (Date.now() < end) {\n-    console.log(\"test\")\n-  }\n\n  const scriptEl = document.querySelector('script[src$=\"/scripts/scripts.js\"
     },
     {
       insight: "The addition a third-party api is adding to the 'total-blocking-time' and decreasing the overall 'performance' score as a result.",
       recommendation: "Do not load the third-party api until absolutely required; Either by using an intersection observer to load it only once it reaches the viewport, or by delaying it's loading until the user interacts with that element."
     },
-  ],
-  code: [
-    {
-      recommendation: "@@ -137,6 +137,12 @@ function setup() {\n  window.hlx.codeBasePath = '';\n  window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';\n\n-  // timeout for 2 seconds\n-  const end = Date.now() + 2 * 1000;\n-  while (Date.now() < end) {\n-    console.log(\"test\")\n-  }\n\n  const scriptEl = document.querySelector('script[src$=\"/scripts/scripts.js\"
-    }
   ]
 }
