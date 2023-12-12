@@ -49,6 +49,15 @@ describe('Utils functions', () => {
     expect(prompt).to.equal(`Testing placeholders: ${testPlaceholder}`);
   });
 
+  it('should return the content of a prompt file and ignore not existing placeholders', async () => {
+    readFileSyncStub.returns('Testing placeholders: {{notExisting}}');
+
+    const placeholders = {};
+
+    const prompt = await getPrompt(placeholders);
+    expect(prompt).to.equal('Testing placeholders: {{notExisting}}');
+  });
+
   it('should log an error and return null if reading of the prompt file fails', async () => {
     const fsError = new Error('Test Failure');
     readFileSyncStub.throws(fsError);

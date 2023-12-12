@@ -14,6 +14,7 @@ import { isObject, isString } from '@adobe/spacecat-shared-utils';
 import { Response } from '@adobe/fetch';
 import { postSlackMessage } from '../support/slack.js';
 import { getPrompt } from '../support/utils.js';
+import FirefallClient from '../support/firefall-client.js';
 
 // utils
 function getEmojiForChange(before, after) {
@@ -84,128 +85,101 @@ export async function recommendations(message, context) {
     return new Response({ error: 'Prompt is not available' }, { status: 500 });
   }
 
-  const body = JSON.stringify({
-    dialogue: {
-      question: prompt,
+  const firefallClient = FirefallClient(
+    firefallAPIEndpoint,
+    firefallAPIKey,
+    firefallAPIAuth,
+    firefallIMSOrg,
+  );
+
+  const data = firefallClient.fetchFirefallData(prompt);
+
+  log.debug(`parsed recommendations: ${data}`);
+  const { insights } = data;
+  log.debug(`insights: ${insights}`);
+
+  // slack util
+  const blocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `*Insights and Recommendations:* for ${url}`,
+      },
     },
-    llm_metadata: {
-      llm_type: 'azure_chat_openai',
-      model_name: 'gpt-4',
-      temperature: 0.5,
-    },
+  ];
+
+  const scoreFields = [];
+
+  log.debug('Creating Slack message');
+  log.debug(`Adding score changes to Slack message. Scores before: ${scoresBefore}, Scores after: ${scoresAfter}`);
+
+  Object.keys(scoresBefore).forEach((key) => {
+    const before = scoresBefore[key];
+    const after = scoresAfter[key];
+    const emoji = getEmojiForChange(Number(before), Number(after));
+    scoreFields.push({
+      type: 'mrkdwn',
+      text: `${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`,
+    });
   });
 
-  log.debug('Request body for Firefall API :', body);
+  blocks.push({
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: '*Score Changes:*',
+    },
+    fields: scoreFields,
+  });
 
-  try {
-    const response = await fetch(firefallAPIEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${firefallAPIAuth}`,
-        'x-api-key': firefallAPIKey,
-        'x-gw-ims-org-id': firefallIMSOrg,
-      },
-      body,
-    });
+  log.debug(`Adding insights and recommendations to Slack message. Insights: ${data.insights}`);
 
-    const responseData = await response.json();
-
-    log.debug('Response from Firefall API:', responseData);
-
-    const recommendationData = responseData.generations[0][0].text;
-
-    log.debug(`generations: ${responseData.generations[0][0]}`);
-    log.info('Recommendations:', recommendationData);
-
-    const data = JSON.parse(recommendationData);
-    log.debug(`parsed recommendations: ${data}`);
-    const { insights } = data;
-    log.debug(`insights: ${insights}`);
-
-    // slack util
-    const blocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `*Insights and Recommendations:* for ${url}`,
-        },
-      },
-    ];
-
-    const scoreFields = [];
-
-    log.debug('Creating Slack message');
-    log.debug(`Adding score changes to Slack message. Scores before: ${scoresBefore}, Scores after: ${scoresAfter}`);
-
-    Object.keys(scoresBefore).forEach((key) => {
-      const before = scoresBefore[key];
-      const after = scoresAfter[key];
-      const emoji = getEmojiForChange(Number(before), Number(after));
-      scoreFields.push({
-        type: 'mrkdwn',
-        text: `${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`,
-      });
-    });
-
+  data.insights.forEach((item, index) => {
     blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Score Changes:*',
+        text: `${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`,
       },
-      fields: scoreFields,
     });
+  });
 
-    log.debug(`Adding insights and recommendations to Slack message. Insights: ${data.insights}`);
+  log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
 
-    data.insights.forEach((item, index) => {
+  if (typeof data.code === 'object') {
+    log.debug('Code is an array');
+    data.code.forEach((codeItem) => {
       blocks.push({
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`,
+          text: `\`\`\`${codeItem}\`\`\``,
         },
       });
     });
-
-    log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
-
-    if (typeof data.code === 'object') {
-      log.debug('Code is an array');
-      data.code.forEach((codeItem) => {
-        blocks.push({
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `\`\`\`${codeItem}\`\`\``,
-          },
-        });
-      });
-    } else if (typeof data.code === 'string') {
-      log.debug('Code is a string');
-      blocks.push({
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `\`\`\`${data.code}\`\`\``,
-        },
-      });
-    } else {
-      log.debug('Code is not an array or a string');
-    }
-
-    log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
-
-    await postSlackMessage(slackToken, {
-      blocks,
-      channel: channelId,
-      ts: threadTs,
+  } else if (typeof data.code === 'string') {
+    log.debug('Code is a string');
+    blocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `\`\`\`${data.code}\`\`\``,
+      },
     });
-
-    return new Response(recommendationData);
-  } catch (error) {
-    throw new Error(`Error getting recommendations from Firefall API: ${error}`);
+  } else {
+    log.debug('Code is not an array or a string');
   }
+
+  log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
+
+  await postSlackMessage(slackToken, {
+    blocks,
+    channel: channelId,
+    ts: threadTs,
+  });
+
+  return new Response({
+    status: 200,
+  });
 }
