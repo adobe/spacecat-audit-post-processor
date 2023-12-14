@@ -12,7 +12,7 @@
 
 import { isObject, isString } from '@adobe/spacecat-shared-utils';
 import { Response } from '@adobe/fetch';
-import { postSlackMessage } from '../support/slack.js';
+import { markdown, postSlackMessage, section } from '../support/slack.js';
 import { getPrompt } from '../support/utils.js';
 import FirefallClient from '../support/firefall-client.js';
 
@@ -23,7 +23,44 @@ function getEmojiForChange(before, after) {
   return ':heavy_minus_sign:'; // Emoji for no change
 }
 
-export async function recommendations(message, context) {
+function buildSlackMessage(url, data, scoresBefore, scoresAfter) {
+  const blocks = [];
+  blocks.push(section({
+    text: markdown(`*Insights and Recommendations:* for ${url}`),
+  }));
+
+  const scoreFields = [];
+
+  if (scoresBefore) {
+    Object.keys(scoresBefore).forEach((key) => {
+      const before = scoresBefore[key];
+      const after = scoresAfter[key];
+      const emoji = getEmojiForChange(Number(before), Number(after));
+      scoreFields.push(markdown(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`));
+    });
+  }
+
+  blocks.push(section({
+    text: markdown('*Score Changes:*'),
+    fields: scoreFields,
+  }));
+
+  data.insights.forEach((item, index) => {
+    blocks.push(section({
+      text: markdown(`${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`),
+    }));
+  });
+
+  data.code.forEach((codeItem) => {
+    blocks.push(section({
+      text: markdown(`\`\`\`${codeItem}\`\`\``),
+    }));
+  });
+
+  return blocks;
+}
+
+export async function getRecommendations(message, context) {
   const {
     type, url, auditResult: { siteId }, auditContext: { slackContext: { channelId, threadTs } },
   } = message;
@@ -43,10 +80,7 @@ export async function recommendations(message, context) {
   }
 
   const audits = await dataAccess.getAuditsForSite(siteId, type);
-
-  log.debug(`Fetched Audits for ${siteId}`, audits);
-
-  if (!audits) {
+  if (!audits || audits.length === 0) {
     log.error(`No audits found for site ${siteId}`);
     return new Response({ error: `No audits found for site ${siteId}` }, { status: 404 });
   }
@@ -55,17 +89,10 @@ export async function recommendations(message, context) {
   audits.sort((a, b) => new Date(b.state.auditedAt) - new Date(a.state.auditedAt));
 
   const latestAuditResult = await audits[0].getAuditResult();
-
   if (!latestAuditResult) {
     log.error(`No audit result found for site ${siteId}`);
     return new Response({ error: `No audit result found for site ${siteId}` }, { status: 404 });
   }
-
-  // get previous scores
-
-  log.debug(`Fetched Audit Results for ${siteId}`, latestAuditResult);
-
-  // fetch all of the above from utils??
 
   const { gitHubDiff } = latestAuditResult;
   const { markdownContext: { markdownDiff } } = latestAuditResult;
@@ -92,87 +119,11 @@ export async function recommendations(message, context) {
     firefallIMSOrg,
   );
 
-  const data = firefallClient.fetchFirefallData(prompt);
+  const data = await firefallClient.fetchFirefallData(prompt);
 
-  log.debug(`parsed recommendations: ${data}`);
-  const { insights } = data;
-  log.debug(`insights: ${insights}`);
-
-  // slack util
-  const blocks = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*Insights and Recommendations:* for ${url}`,
-      },
-    },
-  ];
-
-  const scoreFields = [];
-
-  log.debug('Creating Slack message');
-  log.debug(`Adding score changes to Slack message. Scores before: ${scoresBefore}, Scores after: ${scoresAfter}`);
-
-  Object.keys(scoresBefore).forEach((key) => {
-    const before = scoresBefore[key];
-    const after = scoresAfter[key];
-    const emoji = getEmojiForChange(Number(before), Number(after));
-    scoreFields.push({
-      type: 'mrkdwn',
-      text: `${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`,
-    });
-  });
-
-  blocks.push({
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: '*Score Changes:*',
-    },
-    fields: scoreFields,
-  });
-
-  log.debug(`Adding insights and recommendations to Slack message. Insights: ${data.insights}`);
-
-  data.insights.forEach((item, index) => {
-    blocks.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`,
-      },
-    });
-  });
-
-  log.debug(`Adding code snippets to Slack message. Code snippets: ${data.code}`);
-
-  if (typeof data.code === 'object') {
-    log.debug('Code is an array');
-    data.code.forEach((codeItem) => {
-      blocks.push({
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `\`\`\`${codeItem}\`\`\``,
-        },
-      });
-    });
-  } else if (typeof data.code === 'string') {
-    log.debug('Code is a string');
-    blocks.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `\`\`\`${data.code}\`\`\``,
-      },
-    });
-  } else {
-    log.debug('Code is not an array or a string');
-  }
+  const blocks = buildSlackMessage(url, data, scoresBefore, scoresAfter);
 
   log.debug(`Posting Slack message to channel: ${channelId}, thread: ${threadTs} with blocks: ${blocks}`);
-
   await postSlackMessage(slackToken, {
     blocks,
     channel: channelId,

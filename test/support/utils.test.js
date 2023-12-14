@@ -16,7 +16,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
-import { getPrompt } from '../src/support/utils.js';
+import { getPrompt } from '../../src/support/utils.js';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);

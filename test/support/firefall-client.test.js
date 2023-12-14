@@ -14,7 +14,7 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import { h1 } from '@adobe/fetch';
-import FirefallClient from '../src/support/firefall-client.js';
+import FirefallClient from '../../src/support/firefall-client.js';
 
 const { expect } = chai;
 global.fetch = h1;
@@ -74,6 +74,7 @@ describe('FirefallClient', () => {
     expect(logStub.error.calledOnce).to.be.true;
     expect(logStub.error.calledWith(`Could not obtain data from Firefall: ${statusText}`)).to.be.true;
   });
+
   it('should return null and log error if fetching data fails', async () => {
     const client = FirefallClient('http://valid.url', 'key', 'auth', 'org');
     const error = new Error('Test error');

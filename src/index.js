@@ -15,7 +15,7 @@ import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
 import { toBoolean, resolveSecretsName } from '@adobe/spacecat-shared-utils';
 
-import { recommendations } from './firefall/handler.js';
+import { getRecommendations } from './firefall/handler.js';
 
 /**
  * Wrapper to turn an SQS record into a function param
@@ -62,7 +62,7 @@ async function run(message, context) {
 
   if (toBoolean(firefallIntegrationEnabled)) {
     log.info('Firefall integration enabled, processing message', message);
-    return recommendations(message, context);
+    return getRecommendations(message, context);
   }
 
   log.info('Firefall integration disabled, skipping message', message);
