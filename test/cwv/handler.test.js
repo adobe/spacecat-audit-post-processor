@@ -210,4 +210,27 @@ describe('cwv handler', () => {
     expect(logSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
     expect(logSpy).to.have.been.calledWith(`Slack notification sent for ${message.url}`);
   });
+
+  it('sending the slack message fails', async () => {
+    message.auditResult = auditResultsAllAboveThreshold;
+    context.rumApiClient = {
+      createBacklink: sandbox.stub().rejects('I don\'t feel like generating a backlink today'),
+    };
+    const infoLogSpy = sandbox.spy(context.log, 'info');
+    const errorLogSpy = sandbox.spy(context.log, 'error');
+    const { channel, ts } = message.auditContext.slackContext;
+
+    nock('https://slack.com', {
+      reqheaders: {
+        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
+      },
+    })
+      .get('/api/chat.postMessage')
+      .query(getQueryParams(slackRequestDataWithoutBacklink, channel, ts))
+      .reply(500, 'invalid-');
+
+    await expect(cwv(message, context)).to.be.rejectedWith('Failed to send slack message. Status: 500');
+    expect(infoLogSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
+    expect(errorLogSpy).to.have.been.calledWith(`Failed to send Slack message for ${message.url}. Reason: Failed to send slack message. Status: 500`);
+  });
 });

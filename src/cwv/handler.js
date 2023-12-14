@@ -117,12 +117,17 @@ export default async function cwvHandler(message, context) {
 
   const { channel, ts } = auditContext.slackContext;
 
-  // send alert to the slack channel - group under a thread if ts value exists
-  await postSlackMessage(token, {
-    blocks: buildSlackMessage(url, overThreshold, backlink),
-    channel,
-    ts,
-  });
+  try {
+    // send alert to the slack channel - group under a thread if ts value exists
+    await postSlackMessage(token, {
+      blocks: buildSlackMessage(url, overThreshold, backlink),
+      channel,
+      ts,
+    });
+  } catch (e) {
+    log.error(`Failed to send Slack message for ${url}. Reason: ${e.message}`);
+    throw e;
+  }
 
   log.info(`Slack notification sent for ${url}`);
 
