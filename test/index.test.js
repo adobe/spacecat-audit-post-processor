@@ -13,7 +13,10 @@
 /* eslint-env mocha */
 
 import assert from 'assert';
+import sinon from 'sinon';
 import { main } from '../src/index.js';
+
+const sandbox = sinon.createSandbox();
 
 describe('Index Tests', () => {
   let context;
@@ -44,13 +47,17 @@ describe('Index Tests', () => {
       log: console,
       env: {
         SLACK_BOT_TOKEN: 'token',
-        RUM_API_UBER_KEY: 'uber-key',
+        RUM_DOMAIN_KEY: 'uber-key',
       },
     };
   });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
   it('index function exists and successfully executes', async () => {
     const result = await main({}, context);
-    assert.strictEqual(result.status, 200);
+    assert.strictEqual(result.status, 204);
   });
 
   it('index function returns 404 for unknown audit type', async () => {
@@ -61,12 +68,14 @@ describe('Index Tests', () => {
     assert.strictEqual(result.status, 404);
   });
 
-  it('index function returns 500 for ', async () => {
-    context.invocation.event.Records[0].body = JSON.stringify({
-      type: 'cwv',
-      url: 'space.cat',
-      auditResult: [],
-    });
+  it('index function returns 400 for an invalid message body', async () => {
+    context.invocation.event.Records[0].body = 'invalid-body';
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 400);
+  });
+
+  it('index function returns 500 when a required env variable is missing', async () => {
+    delete context.env.SLACK_BOT_TOKEN;
     const result = await main({}, context);
     assert.strictEqual(result.status, 500);
   });

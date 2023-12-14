@@ -20,7 +20,6 @@ import nock from 'nock';
 import { auditResultsAllAboveThreshold, auditResultsAllBelowThreshold } from './audit-results.js';
 import cwv, { getColorEmoji } from '../../src/cwv/handler.js';
 import { slackRequestData, slackRequestDataWithoutBacklink } from './slack-request-data.js';
-import { wrongKeyResponse, successKeyResponse } from '../support/rumapi-data.js';
 import { getQueryParams } from '../../src/support/slack.js';
 
 chai.use(sinonChai);
@@ -49,7 +48,7 @@ describe('cwv handler', () => {
       log: console,
       env: {
         SLACK_BOT_TOKEN: 'token',
-        RUM_API_UBER_KEY: 'uber-key',
+        RUM_DOMAIN_KEY: 'uber-key',
       },
     };
   });
@@ -60,46 +59,48 @@ describe('cwv handler', () => {
   });
 
   it('rejects when url is missing', async () => {
-    delete context.env.SLACK_BOT_TOKEN;
-    await expect(cwv(message, context)).to.be.rejectedWith('Slack bot token is not set');
-  });
-
-  it('rejects when url is missing', async () => {
     delete message.url;
-    await expect(cwv(message, context)).to.be.rejectedWith('Required parameters missing in the message body');
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
   });
 
   it('rejects when finalUrl is missing', async () => {
     delete message.auditContext.finalUrl;
-    await expect(cwv(message, context)).to.be.rejectedWith('Required parameters missing in audit context');
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
   });
 
   it('rejects when auditContext is missing', async () => {
     delete message.auditContext;
-    await expect(cwv(message, context)).to.be.rejectedWith('Required parameters missing in the message body');
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
   });
 
   it('rejects when auditContext is missing', async () => {
     delete message.auditResult;
-    await expect(cwv(message, context)).to.be.rejectedWith('Required parameters missing in the message body');
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
   });
 
   it('rejects when auditContext is not an array', async () => {
     message.auditResult = {};
-    await expect(cwv(message, context)).to.be.rejectedWith('Audit result is not an array');
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
   });
 
   it('rejects when slack context is missing', async () => {
     delete message.auditContext.slackContext;
-    await expect(cwv(message, context)).to.be.rejectedWith('Required parameters missing in audit context');
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
   });
 
   it('rejects when slack channel id is missing', async () => {
     delete message.auditContext.slackContext.channel;
-    await expect(cwv(message, context)).to.be.rejectedWith('Required parameters missing in audit context');
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
   });
 
-  it('rejects when slack channel id is missing', async () => {
+  it('responds with correct color emoji based on values', async () => {
     expect(getColorEmoji('unknown')).to.equal(':gray-circle:');
     const gray = [
       { lcp: [null, -1] },
@@ -137,7 +138,7 @@ describe('cwv handler', () => {
       .reply(200);
 
     const resp = await cwv(message, context);
-    expect(resp.status).to.equal(200);
+    expect(resp.status).to.equal(204);
     expect(scope.isDone()).to.be.false; // make sure slack api is not called
     expect(logSpy).to.have.been.calledWith('All CWV values are below threshold for space.cat');
   });
@@ -152,20 +153,19 @@ describe('cwv handler', () => {
       .reply(200);
 
     const resp = await cwv(message, context);
-    expect(resp.status).to.equal(200);
+    expect(resp.status).to.equal(204);
     expect(scope.isDone()).to.be.false; // make sure slack api is not called
     expect(logSpy).to.have.been.calledWith('All CWV values are below threshold for space.cat');
   });
 
   it('builds and sends the slack message when audit result contains values above threshold', async () => {
     message.auditResult = auditResultsAllAboveThreshold;
+    context.rumApiClient = {
+      createBacklink: sandbox.stub().resolves('https://main--franklin-dashboard--adobe.hlx.live/views/rum-dashboard?interval=7&offset=0&limit=100&url=www.space.cat&domainkey=scoped-domain-key'),
+    };
     const logSpy = sandbox.spy(context.log, 'info');
     const { channel, ts } = message.auditContext.slackContext;
 
-    nock('https://helix-pages.anywhere.run')
-      .post('/helix-services/run-query@v3/rotate-domainkeys')
-      .query(true)
-      .reply(200, successKeyResponse);
     nock('https://slack.com', {
       reqheaders: {
         authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
@@ -180,19 +180,18 @@ describe('cwv handler', () => {
       });
 
     const resp = await cwv(message, context);
-    expect(resp.status).to.equal(200);
+    expect(resp.status).to.equal(204);
     expect(logSpy).to.have.been.calledWith(`Slack notification sent for ${message.url}`);
   });
 
-  it('builds and sends the slack message without backlink when no domain key generated', async () => {
+  it('builds and sends the slack message without backlink when no backlink generated', async () => {
     message.auditResult = auditResultsAllAboveThreshold;
+    context.rumApiClient = {
+      createBacklink: sandbox.stub().rejects('I don\'t feel like generating a backlink today'),
+    };
     const logSpy = sandbox.spy(context.log, 'info');
     const { channel, ts } = message.auditContext.slackContext;
 
-    nock('https://helix-pages.anywhere.run')
-      .post('/helix-services/run-query@v3/rotate-domainkeys')
-      .query(true)
-      .reply(200, wrongKeyResponse);
     nock('https://slack.com', {
       reqheaders: {
         authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
@@ -207,8 +206,8 @@ describe('cwv handler', () => {
       });
 
     const resp = await cwv(message, context);
-    expect(resp.status).to.equal(200);
-    expect(logSpy).to.have.been.calledWith('Could not generate domain key. Will not add backlink to result');
+    expect(resp.status).to.equal(204);
+    expect(logSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
     expect(logSpy).to.have.been.calledWith(`Slack notification sent for ${message.url}`);
   });
 });

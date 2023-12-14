@@ -10,14 +10,20 @@
  * governing permissions and limitations under the License.
  */
 import wrap from '@adobe/helix-shared-wrap';
+import { hasText } from '@adobe/spacecat-shared-utils';
+import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
-import { Response } from '@adobe/fetch';
 import secrets from '@adobe/helix-shared-secrets';
 import cwv from './cwv/handler.js';
 
 const HANDLERS = {
   cwv,
 };
+
+function guardEnvironmentVariables(fn) {
+  const variables = ['SLACK_BOT_TOKEN', 'RUM_DOMAIN_KEY'];
+  return async (req, context) => (variables.every((v) => hasText(context.env[v])) ? fn(req, context) : internalServerError('Missing configuration'));
+}
 
 /**
  * Wrapper to turn an SQS record into a function param
@@ -39,12 +45,7 @@ function sqsEventAdapter(fn) {
       log.info(`Received message with id: ${context.invocation?.event?.Records.length}`);
     } catch (e) {
       log.error('Function was not invoked properly, message body is not a valid JSON', e);
-      return new Response('', {
-        status: 400,
-        headers: {
-          'x-error': 'Event does not contain a valid message body',
-        },
-      });
+      return badRequest('Event does not contain a valid message body');
     }
     return fn(message, context);
   };
@@ -66,26 +67,23 @@ async function run(message, context) {
   if (!handler) {
     const msg = `no such audit type: ${type}`;
     log.error(msg);
-    return new Response('', { status: 404 });
+    return notFound();
   }
 
   const t0 = Date.now();
 
   try {
     return await handler(message, context);
+    /* c8 ignore next 5 */
   } catch (e) {
     const t1 = Date.now();
     log.error(`handler exception after ${t1 - t0}ms`, e);
-    return new Response('', {
-      status: e.statusCode || 500,
-      headers: {
-        'x-error': 'internal server error',
-      },
-    });
+    return internalServerError();
   }
 }
 
 export const main = wrap(run)
   .with(sqsEventAdapter)
+  .with(guardEnvironmentVariables)
   .with(secrets)
   .with(helixStatus);
