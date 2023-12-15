@@ -13,11 +13,78 @@
 /* eslint-env mocha */
 
 import assert from 'assert';
-import { main } from '../src/index.js';
+import sinon from 'sinon';
+import { main, HANDLERS } from '../src/index.js';
+
+const sandbox = sinon.createSandbox();
 
 describe('Index Tests', () => {
-  it('index function is present', async () => {
-    const result = await main();
-    assert.strictEqual(result, 'Hello, world.');
+  let context;
+  beforeEach('setup', () => {
+    context = {
+      invocation:
+          {
+            event: {
+              Records: [
+                {
+                  messageId: 'message-1',
+                  body: JSON.stringify({
+                    type: 'cwv',
+                    url: 'space.cat',
+                    auditContext: {
+                      finalUrl: 'www.space.cat',
+                      slackContext: {
+                        channel: 'channel-id',
+                        ts: 'thread-id',
+                      },
+                    },
+                    auditResult: [],
+                  }),
+                },
+              ],
+            },
+          },
+      log: console,
+      env: {
+        SLACK_BOT_TOKEN: 'token',
+        RUM_DOMAIN_KEY: 'uber-key',
+      },
+    };
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it('index function exists and successfully executes', async () => {
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 204);
+  });
+
+  it('index function returns 404 for unknown audit type', async () => {
+    context.invocation.event.Records[0].body = JSON.stringify({
+      type: '404',
+    });
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 404);
+  });
+
+  it('index function returns 400 for an invalid message body', async () => {
+    context.invocation.event.Records[0].body = 'invalid-body';
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 400);
+  });
+
+  it('index function returns 500 when a required env variable is missing', async () => {
+    delete context.env.SLACK_BOT_TOKEN;
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 500);
+  });
+
+  it('index function returns 500 when a handler fails', async () => {
+    sinon.stub(HANDLERS, 'cwv').throws(new Error('Test error'));
+
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 500);
+    HANDLERS.cwv.restore();
   });
 });
