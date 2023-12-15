@@ -88,9 +88,9 @@ async function getBacklink(context, url) {
 
 function isValidMessage(message) {
   return hasText(message.url)
-      && hasText(message.auditContext?.finalUrl)
-      && hasText(message.auditContext?.slackContext?.channel)
-      && isArray(message.auditResult);
+    && hasText(message.auditContext?.finalUrl)
+    && hasText(message.auditContext?.slackContext?.channel)
+    && isArray(message.auditResult);
 }
 
 export default async function cwvHandler(message, context) {
