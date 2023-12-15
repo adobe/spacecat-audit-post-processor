@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Adobe. All rights reserved.
+ * Copyright 2023 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -10,12 +10,22 @@
  * governing permissions and limitations under the License.
  */
 import wrap from '@adobe/helix-shared-wrap';
+import { toBoolean, hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
+import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
-import { toBoolean, resolveSecretsName } from '@adobe/spacecat-shared-utils';
-
+import cwv from './cwv/handler.js';
 import { getRecommendations } from './firefall/handler.js';
+
+export const HANDLERS = {
+  cwv,
+};
+
+function guardEnvironmentVariables(fn) {
+  const variables = ['SLACK_BOT_TOKEN', 'RUM_DOMAIN_KEY'];
+  return async (req, context) => (variables.every((v) => hasText(context.env[v])) ? fn(req, context) : internalServerError('Missing configuration'));
+}
 
 /**
  * Wrapper to turn an SQS record into a function param
@@ -37,42 +47,60 @@ function sqsEventAdapter(fn) {
       log.info(`Received message with id: ${context.invocation?.event?.Records.length}`);
     } catch (e) {
       log.error('Function was not invoked properly, message body is not a valid JSON', e);
-      return new Response('', {
-        status: 400,
-        headers: {
-          'x-error': 'Event does not contain a valid message body',
-        },
-      });
+      return badRequest('Event does not contain a valid message body');
     }
     return fn(message, context);
   };
 }
 
 /**
- * This is the main function
- * @param {object} message the message object received from SQS
- * @param {UniversalContext} context the context of the universal serverless function
- * @returns {Response} a response
+ * Processes an audit result message received from SQS and sends notifications to specified
+ * outlets such as slack.
+ * @param {object} message - The audit result message received from SQS.
+ * @param {UniversalContext} context - The universal AWS context from Helix.
+ * @returns {Promise<Response>} - Result of the post process
+ *
  */
 async function run(message, context) {
   const { log } = context;
   const {
     FIREFALL_INTEGRATION_ENABLED: firefallIntegrationEnabled,
   } = context.env;
+  const {
+    type,
+    url,
+  } = message;
 
-  if (toBoolean(firefallIntegrationEnabled)) {
-    log.info('Firefall integration enabled, processing message', message);
-    return getRecommendations(message, context);
+  log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
+
+  const handler = HANDLERS[type];
+  if (!handler) {
+    const msg = `no such audit type: ${type}`;
+    log.error(msg);
+    return notFound();
   }
 
-  log.info('Firefall integration disabled, skipping message', message);
-  return new Response('', {
-    status: 200,
-  });
+  const t0 = Date.now();
+
+  try {
+    if (toBoolean(firefallIntegrationEnabled)) {
+      log.info('Firefall integration enabled, processing message', message);
+      getRecommendations(message, context);
+    } else {
+      log.info('Firefall integration disabled, skipping message', message);
+    }
+
+    return await handler(message, context);
+  } catch (e) {
+    const t1 = Date.now();
+    log.error(`handler exception after ${t1 - t0}ms`, e);
+    return internalServerError();
+  }
 }
 
 export const main = wrap(run)
   .with(dataAccess)
   .with(sqsEventAdapter)
+  .with(guardEnvironmentVariables)
   .with(secrets, { name: resolveSecretsName })
   .with(helixStatus);
