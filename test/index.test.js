@@ -14,7 +14,7 @@
 
 import assert from 'assert';
 import sinon from 'sinon';
-import { main } from '../src/index.js';
+import { main, HANDLERS } from '../src/index.js';
 
 const sandbox = sinon.createSandbox();
 
@@ -76,6 +76,13 @@ describe('Index Tests', () => {
 
   it('index function returns 500 when a required env variable is missing', async () => {
     delete context.env.SLACK_BOT_TOKEN;
+    const result = await main({}, context);
+    assert.strictEqual(result.status, 500);
+  });
+
+  it('index function returns 500 when a handler fails', async () => {
+    sinon.stub(HANDLERS, 'cwv').throws(new Error('Test error'));
+
     const result = await main({}, context);
     assert.strictEqual(result.status, 500);
   });

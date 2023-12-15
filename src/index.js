@@ -16,7 +16,7 @@ import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import cwv from './cwv/handler.js';
 
-const HANDLERS = {
+export const HANDLERS = {
   cwv,
 };
 
@@ -79,7 +79,6 @@ async function run(message, context) {
 
   try {
     return await handler(message, context);
-    /* c8 ignore next 5 */
   } catch (e) {
     const t1 = Date.now();
     log.error(`handler exception after ${t1 - t0}ms`, e);
