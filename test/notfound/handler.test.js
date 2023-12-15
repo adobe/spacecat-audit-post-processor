@@ -185,7 +185,7 @@ describe('not found handler', () => {
       },
     })
       .get('/api/chat.postMessage')
-      .query(getQueryParams(slack404RequestData, channel, ts))
+      .query(getQueryParams(slack404RequestDataWithoutBacklink, channel, ts))
       .reply(500, 'invalid-');
 
     const resp = await notFound(message, context);

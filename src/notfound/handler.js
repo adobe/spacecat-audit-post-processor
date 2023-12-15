@@ -32,7 +32,7 @@ async function getBacklink(context, url) {
   }
 }
 
-async function buildSlackMessage(url, finalUrl, auditResult, rumApiKey, log) {
+function buildSlackMessage(url, finalUrl, auditResult, backlink) {
   const blocks = [];
 
   blocks.push(section({
@@ -41,7 +41,7 @@ async function buildSlackMessage(url, finalUrl, auditResult, rumApiKey, log) {
 
   for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {
     const topLine = section({
-      text: markdown(`:arrow-red: *<${auditResult[i].url}|${auditResult[i].url}>*`),
+      text: markdown(`:arrow-red2: *<${auditResult[i].url}|${auditResult[i].url}>*`),
     });
 
     const stats = section({
@@ -54,8 +54,6 @@ async function buildSlackMessage(url, finalUrl, auditResult, rumApiKey, log) {
     blocks.push(topLine);
     blocks.push(stats);
   }
-
-  const backlink = await getBacklink(finalUrl, log);
 
   if (backlink) {
     blocks.push(section({
@@ -88,7 +86,7 @@ export default async function notFoundHandler(message, context) {
   try {
     // send alert to the slack channel - group under a thread if ts value exists
     await postSlackMessage(token, {
-      blocks: buildSlackMessage(url, auditResult, backlink),
+      blocks: buildSlackMessage(url, auditContext.finalUrl, auditResult, backlink),
       channel,
       ts,
     });

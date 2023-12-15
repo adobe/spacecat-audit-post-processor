@@ -11,7 +11,7 @@
  */
 export const notFoundSourcesResults = [
   {
-    topurl: 'https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html',
+    url: 'https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html',
     pageviews: '1300',
     source: 'https://www.google.com/',
   },

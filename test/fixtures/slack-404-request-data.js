@@ -15,14 +15,14 @@ export const slack404RequestData = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: 'For *space.cat*, 3 page(s) had 404s in the *last week* for the real users.\n More information is below (up to three pages):',
+      text: 'For *space.cat*, 3 page(s) had 404s *last week* for the real users.\n More information is below (up to three pages):',
     },
   },
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: ':arrow-red: *<https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html|https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html>*',
+      text: ':arrow-red2: *<https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html|https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html>*',
     },
   },
   {
@@ -30,7 +30,11 @@ export const slack404RequestData = [
     fields: [
       {
         type: 'mrkdwn',
-        text: ':mag: *Pageviews:* 1300',
+        text: ':mag: *Pageviews:* 1,300',
+      },
+      {
+        type: 'mrkdwn',
+        text: ':mag: *Source:* https://www.google.com/',
       },
     ],
   },
@@ -38,7 +42,7 @@ export const slack404RequestData = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: ':arrow-red: *<https://www.adobe.com/sea/|https://www.adobe.com/sea/>*',
+      text: ':arrow-red2: *<https://www.adobe.com/sea/|https://www.adobe.com/sea/>*',
     },
   },
   {
@@ -48,13 +52,17 @@ export const slack404RequestData = [
         type: 'mrkdwn',
         text: ':mag: *Pageviews:* 800',
       },
+      {
+        type: 'mrkdwn',
+        text: ':mag: *Source:* https://www.bing.com/',
+      },
     ],
   },
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: ':arrow-red: *<https://www.adobe.com/express/|https://www.adobe.com/express/>*',
+      text: ':arrow-red2: *<https://www.adobe.com/express/|https://www.adobe.com/express/>*',
     },
   },
   {
@@ -63,6 +71,10 @@ export const slack404RequestData = [
       {
         type: 'mrkdwn',
         text: ':mag: *Pageviews:* 500',
+      },
+      {
+        type: 'mrkdwn',
+        text: ':mag: *Source:* https://www.snapchat.com/',
       },
     ],
   },
@@ -80,14 +92,14 @@ export const slack404RequestDataWithoutBacklink = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: 'For *space.cat*, 3 page(s) had 404s in the *last week* for the real users.\n More information is below (up to three pages):',
+      text: 'For *space.cat*, 3 page(s) had 404s *last week* for the real users.\n More information is below (up to three pages):',
     },
   },
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: ':arrow-red: *<https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html|https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html>*',
+      text: ':arrow-red2: *<https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html|https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html>*',
     },
   },
   {
@@ -95,7 +107,11 @@ export const slack404RequestDataWithoutBacklink = [
     fields: [
       {
         type: 'mrkdwn',
-        text: ':mag: *Pageviews:* 1300',
+        text: ':mag: *Pageviews:* 1,300',
+      },
+      {
+        type: 'mrkdwn',
+        text: ':mag: *Source:* https://www.google.com/',
       },
     ],
   },
@@ -103,7 +119,7 @@ export const slack404RequestDataWithoutBacklink = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: ':arrow-red: *<https://www.adobe.com/sea/|https://www.adobe.com/sea/>*',
+      text: ':arrow-red2: *<https://www.adobe.com/sea/|https://www.adobe.com/sea/>*',
     },
   },
   {
@@ -113,13 +129,17 @@ export const slack404RequestDataWithoutBacklink = [
         type: 'mrkdwn',
         text: ':mag: *Pageviews:* 800',
       },
+      {
+        type: 'mrkdwn',
+        text: ':mag: *Source:* https://www.bing.com/',
+      },
     ],
   },
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: ':arrow-red: *<https://www.adobe.com/express/|https://www.adobe.com/express/>*',
+      text: ':arrow-red2: *<https://www.adobe.com/express/|https://www.adobe.com/express/>*',
     },
   },
   {
@@ -128,6 +148,10 @@ export const slack404RequestDataWithoutBacklink = [
       {
         type: 'mrkdwn',
         text: ':mag: *Pageviews:* 500',
+      },
+      {
+        type: 'mrkdwn',
+        text: ':mag: *Source:* https://www.snapchat.com/',
       },
     ],
   },
