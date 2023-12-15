@@ -10,14 +10,22 @@
  * governing permissions and limitations under the License.
  */
 import wrap from '@adobe/helix-shared-wrap';
+import { hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
+import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
-import { Response } from '@adobe/fetch';
 import secrets from '@adobe/helix-shared-secrets';
 import cwv from './cwv/handler.js';
+import notFoundHandler from './notfound/handler.js';
 
-const HANDLERS = {
+export const HANDLERS = {
   cwv,
+  404: notFoundHandler,
 };
+
+function guardEnvironmentVariables(fn) {
+  const variables = ['SLACK_BOT_TOKEN', 'RUM_DOMAIN_KEY'];
+  return async (req, context) => (variables.every((v) => hasText(context.env[v])) ? fn(req, context) : internalServerError('Missing configuration'));
+}
 
 /**
  * Wrapper to turn an SQS record into a function param
@@ -39,26 +47,26 @@ function sqsEventAdapter(fn) {
       log.info(`Received message with id: ${context.invocation?.event?.Records.length}`);
     } catch (e) {
       log.error('Function was not invoked properly, message body is not a valid JSON', e);
-      return new Response('', {
-        status: 400,
-        headers: {
-          'x-error': 'Event does not contain a valid message body',
-        },
-      });
+      return badRequest('Event does not contain a valid message body');
     }
     return fn(message, context);
   };
 }
 
 /**
- * This is the main function
- * @param {object} message the message object received from SQS
- * @param {UniversalContext} context the context of the universal serverless function
- * @returns {Response} a response
+ * Processes an audit result message received from SQS and sends notifications to specified
+ * outlets such as slack.
+ * @param {object} message - The audit result message received from SQS.
+ * @param {UniversalContext} context - The universal AWS context from Helix.
+ * @returns {Promise<Response>} - Result of the post process
+ *
  */
 async function run(message, context) {
   const { log } = context;
-  const { type, url } = message;
+  const {
+    type,
+    url,
+  } = message;
 
   log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
 
@@ -66,7 +74,7 @@ async function run(message, context) {
   if (!handler) {
     const msg = `no such audit type: ${type}`;
     log.error(msg);
-    return new Response('', { status: 404 });
+    return notFound();
   }
 
   const t0 = Date.now();
@@ -76,16 +84,12 @@ async function run(message, context) {
   } catch (e) {
     const t1 = Date.now();
     log.error(`handler exception after ${t1 - t0}ms`, e);
-    return new Response('', {
-      status: e.statusCode || 500,
-      headers: {
-        'x-error': 'internal server error',
-      },
-    });
+    return internalServerError();
   }
 }
 
 export const main = wrap(run)
   .with(sqsEventAdapter)
-  .with(secrets)
+  .with(guardEnvironmentVariables)
+  .with(secrets, { name: resolveSecretsName })
   .with(helixStatus);

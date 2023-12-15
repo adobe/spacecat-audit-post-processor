@@ -10,10 +10,12 @@
  * governing permissions and limitations under the License.
  */
 
+import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
+import { hasText, isArray } from '@adobe/spacecat-shared-utils';
+import { badRequest, internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import humanFormat from 'human-format';
 import commaNumber from 'comma-number';
-import { postSlackMessage, markdown, section } from '../support/slack.js';
-import { generateDomainKey } from '../support/rumapi.js';
+import { markdown, postSlackMessage, section } from '../support/slack.js';
 
 const COLOR_EMOJIS = {
   gray: ':gray-circle:',
@@ -22,60 +24,25 @@ const COLOR_EMOJIS = {
   yellow: ':yellow:',
 };
 
-const SCORES = {
-  lcp: { 0: COLOR_EMOJIS.green, 2500: COLOR_EMOJIS.yellow, 4000: COLOR_EMOJIS.red },
-  cls: { 0: COLOR_EMOJIS.green, 0.1: COLOR_EMOJIS.yellow, 0.25: COLOR_EMOJIS.red },
-  inp: { 0: COLOR_EMOJIS.green, 200: COLOR_EMOJIS.yellow, 500: COLOR_EMOJIS.red },
+const THRESHOLDS = {
+  lcp: { soft: 2500, hard: 4000 },
+  cls: { soft: 0.1, hard: 0.25 },
+  inp: { soft: 200, hard: 500 },
 };
 
-const timeScale = new humanFormat.Scale({
-  ms: 1,
-  s: 1000,
-});
+const BACKLINK_EXPIRY_DAYS = 7;
 
-function verifyParameters(message, context) {
-  const { env: { SLACK_BOT_TOKEN: token } } = context;
-  const {
-    url, auditContext, auditResult,
-  } = message;
+const timeScale = new humanFormat.Scale({ ms: 1, s: 1000 });
 
-  if (!token) {
-    throw Error('Slack bot token is not set');
-  }
-
-  if (!url || typeof auditContext !== 'object' || !auditResult) {
-    throw Error('Required parameters missing in the message body');
-  }
-
-  if (!Array.isArray(auditResult)) {
-    throw Error('Audit result is not an array');
-  }
-
-  const { finalUrl, slackContext } = auditContext;
-
-  if (!finalUrl || typeof slackContext !== 'object' || !slackContext.channel) {
-    throw Error('Required parameters missing in audit context');
-  }
-}
 export function getColorEmoji(type, value) {
-  const scores = SCORES[type];
-  if (!scores) return COLOR_EMOJIS.gray;
-  const pair = Object.entries(scores).reverse()
-    .find((e) => Number.isFinite(value) && value >= e[0]);
-  return pair ? pair[1] : COLOR_EMOJIS.gray;
+  const threshold = THRESHOLDS[type];
+  if (!threshold || !Number.isFinite(value) || value < 0) return COLOR_EMOJIS.gray;
+  if (value >= threshold.hard) return COLOR_EMOJIS.red;
+  if (value >= threshold.soft) return COLOR_EMOJIS.yellow;
+  return COLOR_EMOJIS.green;
 }
 
-async function createBacklink(rumApiKey, finalUrl, log) {
-  try {
-    const domainkey = await generateDomainKey(rumApiKey, finalUrl);
-    return `https://main--franklin-dashboard--adobe.hlx.live/views/rum-dashboard?interval=7&offset=0&limit=100&url=${finalUrl}&domainkey=${domainkey}`;
-  } catch (e) {
-    log.info('Could not generate domain key. Will not add backlink to result');
-    return null;
-  }
-}
-
-async function buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log) {
+function buildSlackMessage(url, overThreshold, backlink) {
   const blocks = [];
 
   blocks.push(section({
@@ -100,8 +67,6 @@ async function buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log) {
     blocks.push(stats);
   }
 
-  const backlink = await createBacklink(rumApiKey, finalUrl, log);
-
   if (backlink) {
     blocks.push(section({
       text: markdown(`*To access the full report <${backlink}|click here> :link:* _(expires in 7 days)_`),
@@ -111,27 +76,60 @@ async function buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log) {
   return blocks;
 }
 
+async function getBacklink(context, url) {
+  try {
+    const rumApiClient = RUMAPIClient.createFrom(context);
+    return await rumApiClient.createRUMBacklink(url, BACKLINK_EXPIRY_DAYS);
+  } catch (e) {
+    context.log.warn(`Failed to get a backlink for ${url}`);
+    return null;
+  }
+}
+
+function isValidMessage(message) {
+  return hasText(message.url)
+      && hasText(message.auditContext?.finalUrl)
+      && hasText(message.auditContext?.slackContext?.channel)
+      && isArray(message.auditResult);
+}
+
 export default async function cwvHandler(message, context) {
+  const { log } = context;
   const { url, auditResult, auditContext } = message;
-  const { log, env: { RUM_API_UBER_KEY: rumApiKey, SLACK_BOT_TOKEN: token } } = context;
+  const { env: { SLACK_BOT_TOKEN: token } } = context;
 
-  verifyParameters(message, context);
-
-  const { finalUrl, slackContext: { channel, ts } } = auditContext;
-
-  const overThreshold = auditResult
-    .filter((result) => result.avglcp > 2500 || result.avgcls > 0.1 || result.avginp > 200);
-
-  if (overThreshold.length === 0) {
-    log.info(`All CWV values are below threshold for ${url}`);
-    return new Response(200);
+  if (!isValidMessage(message)) {
+    return badRequest('Required parameters missing in the message body');
   }
 
-  const blocks = await buildSlackMessage(url, finalUrl, overThreshold, rumApiKey, log);
+  // filter out the audit results values of which are considered good core web vitals
+  const overThreshold = auditResult
+    .filter((result) => Object.keys(THRESHOLDS).some((type) => result[`avg${type}`] > THRESHOLDS[type].soft));
 
-  await postSlackMessage(token, { blocks, channel, ts });
+  // if all cwv values are below threshold, then don't send an alert
+  if (overThreshold.length === 0) {
+    log.info(`All CWV values are below threshold for ${url}`);
+    return noContent();
+  }
+
+  // create a backlink to rum dashboard to be included in alert message
+  const backlink = await getBacklink(context, auditContext.finalUrl);
+
+  const { channel, ts } = auditContext.slackContext;
+
+  try {
+    // send alert to the slack channel - group under a thread if ts value exists
+    await postSlackMessage(token, {
+      blocks: buildSlackMessage(url, overThreshold, backlink),
+      channel,
+      ts,
+    });
+  } catch (e) {
+    log.error(`Failed to send Slack message for ${url}. Reason: ${e.message}`);
+    return internalServerError(`Failed to send Slack message for ${url}`);
+  }
 
   log.info(`Slack notification sent for ${url}`);
 
-  return new Response(200);
+  return noContent();
 }
