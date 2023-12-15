@@ -77,7 +77,6 @@
     "chai-as-promised": "7.1.1",
     "dotenv": "16.3.1",
     "eslint": "8.50.0",
-    "esmock": "2.5.1",
     "husky": "8.0.3",
     "jsdoc-to-markdown": "8.0.0",
     "junit-report-builder": "3.0.1",

@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 import wrap from '@adobe/helix-shared-wrap';
-import { hasText } from '@adobe/spacecat-shared-utils';
+import { hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
@@ -52,14 +52,19 @@ function sqsEventAdapter(fn) {
 }
 
 /**
- * This is the main function
- * @param {object} message the message object received from SQS
- * @param {UniversalContext} context the context of the universal serverless function
- * @returns {Response} a response
+ * Processes an audit result message received from SQS and sends notifications to specified
+ * outlets such as slack.
+ * @param {object} message - The audit result message received from SQS.
+ * @param {UniversalContext} context - The universal AWS context from Helix.
+ * @returns {Promise<Response>} - Result of the post process
+ *
  */
 async function run(message, context) {
   const { log } = context;
-  const { type, url } = message;
+  const {
+    type,
+    url,
+  } = message;
 
   log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
 
@@ -85,5 +90,5 @@ async function run(message, context) {
 export const main = wrap(run)
   .with(sqsEventAdapter)
   .with(guardEnvironmentVariables)
-  .with(secrets)
+  .with(secrets, { name: resolveSecretsName })
   .with(helixStatus);

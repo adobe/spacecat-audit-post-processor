@@ -189,7 +189,8 @@ describe('cwv handler', () => {
     context.rumApiClient = {
       createBacklink: sandbox.stub().rejects('I don\'t feel like generating a backlink today'),
     };
-    const logSpy = sandbox.spy(context.log, 'info');
+    const infoLogSpy = sandbox.spy(context.log, 'info');
+    const warnLogSpy = sandbox.spy(context.log, 'warn');
     const { channel, ts } = message.auditContext.slackContext;
 
     nock('https://slack.com', {
@@ -207,8 +208,8 @@ describe('cwv handler', () => {
 
     const resp = await cwv(message, context);
     expect(resp.status).to.equal(204);
-    expect(logSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
-    expect(logSpy).to.have.been.calledWith(`Slack notification sent for ${message.url}`);
+    expect(warnLogSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
+    expect(infoLogSpy).to.have.been.calledWith(`Slack notification sent for ${message.url}`);
   });
 
   it('sending the slack message fails', async () => {
@@ -216,7 +217,7 @@ describe('cwv handler', () => {
     context.rumApiClient = {
       createBacklink: sandbox.stub().rejects('I don\'t feel like generating a backlink today'),
     };
-    const infoLogSpy = sandbox.spy(context.log, 'info');
+    const warnLogSpy = sandbox.spy(context.log, 'warn');
     const errorLogSpy = sandbox.spy(context.log, 'error');
     const { channel, ts } = message.auditContext.slackContext;
 
@@ -229,8 +230,9 @@ describe('cwv handler', () => {
       .query(getQueryParams(slackRequestDataWithoutBacklink, channel, ts))
       .reply(500, 'invalid-');
 
-    await expect(cwv(message, context)).to.be.rejectedWith('Failed to send slack message. Status: 500');
-    expect(infoLogSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(500);
+    expect(warnLogSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
     expect(errorLogSpy).to.have.been.calledWith(`Failed to send Slack message for ${message.url}. Reason: Failed to send slack message. Status: 500`);
   });
 });
