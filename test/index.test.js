@@ -85,5 +85,6 @@ describe('Index Tests', () => {
 
     const result = await main({}, context);
     assert.strictEqual(result.status, 500);
+    HANDLERS.cwv.restore();
   });
 });
