@@ -10,16 +10,17 @@
  * governing permissions and limitations under the License.
  */
 import wrap from '@adobe/helix-shared-wrap';
-import { toBoolean, hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
+import { hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
 import cwv from './cwv/handler.js';
-import { getRecommendations } from './firefall/handler.js';
+import lhs from './lhs/handler.js';
 
 export const HANDLERS = {
   cwv,
+  lhs,
 };
 
 function guardEnvironmentVariables(fn) {
@@ -64,9 +65,6 @@ function sqsEventAdapter(fn) {
 async function run(message, context) {
   const { log } = context;
   const {
-    FIREFALL_INTEGRATION_ENABLED: firefallIntegrationEnabled,
-  } = context.env;
-  const {
     type,
     url,
   } = message;
@@ -83,13 +81,6 @@ async function run(message, context) {
   const t0 = Date.now();
 
   try {
-    if (toBoolean(firefallIntegrationEnabled)) {
-      log.info('Firefall integration enabled, processing message', message);
-      getRecommendations(message, context);
-    } else {
-      log.info('Firefall integration disabled, skipping message', message);
-    }
-
     return await handler(message, context);
   } catch (e) {
     const t1 = Date.now();

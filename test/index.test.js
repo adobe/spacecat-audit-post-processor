@@ -88,17 +88,4 @@ describe('Index Tests', () => {
     assert.strictEqual(result.status, 500);
     HANDLERS.cwv.restore();
   });
-
-  it('obtains recommendations from firefall if integration is enabled', async () => {
-    context.env.FIREFALL_INTEGRATION_ENABLED = 'true';
-    const logStub = sandbox.stub(console, 'info');
-    await main({}, context);
-    assert.strictEqual(logStub.calledWithMatch('Firefall integration enabled, processing message'), true);
-  });
-
-  it('does not obtains recommendations from firefall if integration is disabled', async () => {
-    const logStub = sandbox.stub(console, 'info');
-    await main({}, context);
-    assert.strictEqual(logStub.calledWithMatch('Firefall integration disabled, skipping message'), true);
-  });
 });
