@@ -91,5 +91,5 @@ async function run(message, context) {
 export const main = wrap(run)
   .with(sqsEventAdapter)
   .with(guardEnvironmentVariables)
-  .with(helixStatus)
-  .with(secrets, { name: resolveSecretsName });
+  .with(secrets, { name: resolveSecretsName })
+  .with(helixStatus);
