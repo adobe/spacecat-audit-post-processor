@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.0.0...v1.1.0) (2023-12-18)
+
+
+### Features
+
+* add 404 auditing postprocessing ([84e83e3](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/84e83e3491d5f7a4f53726c22edb64df28776719))
+
 # 1.0.0 (2023-12-15)
 
 
