@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.0...v1.1.1) (2023-12-18)
+
+
+### Bug Fixes
+
+* wrapper oder (force release) ([4213363](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/4213363e5943b15776dab8c4cf7a9bcb68f8e67e))
+
 # [1.1.0](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.0.0...v1.1.0) (2023-12-18)
 
 
