@@ -62,7 +62,7 @@ describe('Index Tests', () => {
 
   it('index function returns 404 for unknown audit type', async () => {
     context.invocation.event.Records[0].body = JSON.stringify({
-      type: '404',
+      type: 'unknown',
     });
     const result = await main({}, context);
     assert.strictEqual(result.status, 404);

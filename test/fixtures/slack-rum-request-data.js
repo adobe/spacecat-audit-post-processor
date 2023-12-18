@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-export const slackRequestData = [
+export const slackRumRequestData = [
   {
     type: 'section',
     text: {
@@ -111,7 +111,7 @@ export const slackRequestData = [
   },
 ];
 
-export const slackRequestDataWithoutBacklink = [
+export const slackRUMRequestDataWithoutBacklink = [
   {
     type: 'section',
     text: {

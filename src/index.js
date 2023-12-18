@@ -15,9 +15,11 @@ import { badRequest, internalServerError, notFound } from '@adobe/spacecat-share
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import cwv from './cwv/handler.js';
+import notFoundHandler from './notfound/handler.js';
 
 export const HANDLERS = {
   cwv,
+  404: notFoundHandler,
 };
 
 function guardEnvironmentVariables(fn) {
