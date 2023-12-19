@@ -17,10 +17,12 @@ import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
 import cwv from './cwv/handler.js';
 import lhs from './lhs/handler.js';
+import notFoundHandler from './notfound/handler.js';
 
 export const HANDLERS = {
   cwv,
   lhs,
+  404: notFoundHandler,
 };
 
 function guardEnvironmentVariables(fn) {

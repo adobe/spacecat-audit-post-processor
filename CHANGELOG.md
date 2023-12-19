@@ -1,3 +1,25 @@
+## [1.1.1](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.0...v1.1.1) (2023-12-18)
+
+
+### Bug Fixes
+
+* update secrets dep ([9b83a1b](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/9b83a1b0d1c3e64e411b6b743c5ee000e6aef53f))
+* wrapper oder (force release) ([4213363](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/4213363e5943b15776dab8c4cf7a9bcb68f8e67e))
+
+## [1.1.1](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.0...v1.1.1) (2023-12-18)
+
+
+### Bug Fixes
+
+* wrapper oder (force release) ([4213363](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/4213363e5943b15776dab8c4cf7a9bcb68f8e67e))
+
+# [1.1.0](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.0.0...v1.1.0) (2023-12-18)
+
+
+### Features
+
+* add 404 auditing postprocessing ([84e83e3](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/84e83e3491d5f7a4f53726c22edb64df28776719))
+
 # 1.0.0 (2023-12-15)
 
 

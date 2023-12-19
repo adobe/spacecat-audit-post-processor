@@ -79,7 +79,7 @@ function buildSlackMessage(url, overThreshold, backlink) {
 async function getBacklink(context, url) {
   try {
     const rumApiClient = RUMAPIClient.createFrom(context);
-    return await rumApiClient.createBacklink(url, BACKLINK_EXPIRY_DAYS);
+    return await rumApiClient.createRUMBacklink(url, BACKLINK_EXPIRY_DAYS);
   } catch (e) {
     context.log.warn(`Failed to get a backlink for ${url}`);
     return null;
