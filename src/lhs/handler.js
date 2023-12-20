@@ -60,7 +60,7 @@ export default async function lhsHandler(message, context) {
   }
   log.info('Firefall integration enabled, processing message', message);
 
-  const lhsData = await getLHSData(type, siteId, dataAccess, log);
+  const lhsData = await getLHSData(type, { siteId, url }, auditResult.finalUrl, dataAccess, log);
   const prompt = await getPrompt(lhsData);
 
   if (!isString(prompt)) {
@@ -69,7 +69,7 @@ export default async function lhsHandler(message, context) {
   }
 
   const data = await getRecommendations(context.env, prompt, log);
-  const blocks = buildSlackMessage(url, data, lhsData.scoresBefore, lhsData.scoresAfter);
+  const blocks = buildSlackMessage(url, data, lhsData);
 
   try {
     await postSlackMessage(slackToken, {

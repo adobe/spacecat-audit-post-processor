@@ -11,7 +11,6 @@
  */
 
 import { isValidUrl } from '@adobe/spacecat-shared-utils';
-import { createPatch } from 'diff';
 
 import { fetch } from './utils.js';
 
@@ -38,38 +37,21 @@ function ContentClient(log = console) {
   }
 
   /**
-   * Creates a diff patch between two strings. Helper function for testability.
-   * @param {string} url - The URL of the Markdown file.
-   * @param {string} oldContent - The old Markdown content.
-   * @param {string} newContent - The new Markdown content.
-   * @returns {string} The diff patch between the old and new content.
-   */
-  function createDiffPatch(url, oldContent, newContent) {
-    return createPatch(url, oldContent, newContent);
-  }
-
-  /**
-   * Asynchronously fetches the Markdown content from a specified audit URL and
-   * calculates the difference between this content and the Markdown content from
-   * the latest audit, if any exists.
+   * Asynchronously fetches the Markdown content from a specified audit URL.
    *
    * @async
    * @param {string} baseURL - The baseURL of the audited site.
    * @param {string} contentUrl - The URL of the content page used in the audit.
-   * @param {Object} lastAuditMarkdownContext - The Markdown context of the latest audit.
    * @returns {Promise<Object|null>} A promise that resolves to an object containing the
-   * Markdown content and its diff with the latest audit, or `null` if there was an
-   * error or the final URL was not found. The object has the following shape:
+   * Markdown content, or `null` if there was an error or the final URL was not found.
+   * The object has the following shape:
    *   {
-   *     diff: string|null,      // The diff between the latest audit's Markdown content
-   *                             // and the current Markdown content in patch format,
    *     content: string         // The Markdown content fetched from the final URL.
    *   }
    * @throws Will throw an error if there's a network issue or some other error while
    * downloading the Markdown content.
    */
-  async function fetchMarkdownDiff(baseURL, contentUrl, lastAuditMarkdownContext = {}) {
-    let markdownDiff = null;
+  async function fetchMarkdown(baseURL, contentUrl) {
     let markdownContent = null;
 
     if (!isValidUrl(contentUrl)) {
@@ -88,28 +70,18 @@ function ContentClient(log = console) {
       markdownContent = await response.text();
 
       log.info(`Downloaded Markdown content from ${markdownUrl} for site ${baseURL}`);
-
-      const oldContent = lastAuditMarkdownContext?.markdownContent || '';
-
-      if (oldContent !== markdownContent) {
-        markdownDiff = createDiffPatch(markdownUrl, oldContent, markdownContent);
-        log.info(`Found Markdown diff ${markdownDiff.length} characters long for site ${baseURL}`);
-      } else {
-        log.info(`No Markdown diff found for site ${baseURL}`);
-      }
     } catch (err) {
       log.error(`Error while downloading Markdown content for site ${baseURL}:`, err);
       return null;
     }
 
     return {
-      markdownDiff,
       markdownContent,
     };
   }
 
   return {
-    fetchMarkdownDiff,
+    fetchMarkdown,
   };
 }
 

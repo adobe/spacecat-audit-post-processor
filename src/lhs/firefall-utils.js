@@ -13,8 +13,10 @@
 import { isObject } from '@adobe/spacecat-shared-utils';
 import { internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { markdown, section } from '../support/slack.js';
+import ContentClient from '../support/content-client.js';
 
-export async function getLHSData(type, siteId, dataAccess, log = console) {
+export async function getLHSData(type, site, finalUrl, dataAccess, log = console) {
+  const { url, siteId } = site;
   if (!dataAccess || !isObject(dataAccess)) {
     log.error('Data Access is not available');
     return internalServerError('Data Access is not available');
@@ -36,15 +38,20 @@ export async function getLHSData(type, siteId, dataAccess, log = console) {
   }
 
   const { gitHubDiff } = latestAuditResult;
-  const { markdownContext: { markdownDiff } } = latestAuditResult;
+  const contentClient = ContentClient(log);
+  const markdownContext = await contentClient.fetchMarkdown(
+    url,
+    finalUrl,
+  );
+  const { markdownContent } = markdownContext;
   const scoresAfter = latestAuditResult.scores;
   const scoresBefore = audits[1] ? await audits[1].getScores() : null;
 
   return {
     codeDiff: gitHubDiff || 'no changes',
-    mdDiff: markdownDiff || 'no changes',
-    scoreBefore: scoresBefore ? scoresBefore.toString() : 'no previous scores',
-    scoreAfter: scoresAfter ? scoresAfter.toString() : 'no scores',
+    mdContent: markdownContent || 'no content',
+    scoreBefore: scoresBefore || 'no previous scores',
+    scoreAfter: scoresAfter || 'no scores',
   };
 }
 
@@ -54,7 +61,7 @@ function getEmojiForChange(before, after) {
   return ':heavy_minus_sign:'; // Emoji for no change
 }
 
-export function buildSlackMessage(url, data, scoresBefore, scoresAfter) {
+export function buildSlackMessage(url, data, lhsData) {
   const blocks = [];
   blocks.push(section({
     text: markdown(`*Insights and Recommendations:* for ${url}`),
@@ -62,19 +69,22 @@ export function buildSlackMessage(url, data, scoresBefore, scoresAfter) {
 
   const scoreFields = [];
 
-  if (scoresBefore) {
+  if (lhsData.scoresBefore && lhsData.scoresAfter) {
+    const { scoresBefore } = data;
     Object.keys(scoresBefore).forEach((key) => {
       const before = scoresBefore[key];
-      const after = scoresAfter[key];
+      const after = lhsData.scoresAfter[key];
       const emoji = getEmojiForChange(Number(before), Number(after));
       scoreFields.push(markdown(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`));
     });
   }
 
-  blocks.push(section({
-    text: markdown('*Score Changes:*'),
-    fields: scoreFields,
-  }));
+  if (scoreFields.length > 0) {
+    blocks.push(section({
+      text: markdown('*Score Changes:*'),
+      fields: scoreFields,
+    }));
+  }
 
   data.insights?.forEach((item, index) => {
     blocks.push(section({

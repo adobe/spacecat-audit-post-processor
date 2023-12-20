@@ -233,31 +233,4 @@ describe('cwv handler', () => {
     expect(warnLogSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
     expect(errorLogSpy).to.have.been.calledWith(`Failed to send Slack message for ${message.url}. Reason: Failed to send slack message. Status: 500`);
   });
-
-  it('obtains recommendations from firefly when firefall integration is enabled', async () => {
-    context.env.FIREFALL_INTEGRATION_ENABLED = 'true';
-    message.auditResult = auditResultsAllAboveThreshold;
-    context.rumApiClient = {
-      createBacklink: sandbox.stub().resolves('https://main--franklin-dashboard--adobe.hlx.live/views/rum-dashboard?interval=7&offset=0&limit=100&url=www.space.cat&domainkey=scoped-domain-key'),
-    };
-    const logSpy = sandbox.spy(context.log, 'info');
-    const { channel, ts } = message.auditContext.slackContext;
-
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .get('/api/chat.postMessage')
-      .query(getQueryParams(slackRumRequestData, channel, ts))
-      .reply(200, {
-        ok: 'success',
-        channel: 'ch-1',
-        ts: 'ts-1',
-      });
-
-    const resp = await cwv(message, context);
-    expect(resp.status).to.equal(204);
-    expect(logSpy).to.have.been.calledWith(`Obtaining fix recommendations from Firefall for ${message.url}`);
-  });
 });

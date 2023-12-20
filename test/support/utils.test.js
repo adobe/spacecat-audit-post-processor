@@ -65,4 +65,15 @@ describe('Utils functions', () => {
     expect(prompt).to.be.null;
     expect(logStub.error.calledWith('Error reading prompt file:', fsError.message)).to.be.true;
   });
+
+  it('should return the content of a prompt file when values from placeholders are JSON formatted', async () => {
+    readFileSyncStub.returns('Testing placeholders: {{jsonPlaceholder}}');
+    const placeholders = {
+      jsonPlaceholder: {
+        test: 'test',
+      },
+    };
+    const prompt = await getPrompt(placeholders);
+    expect(prompt).to.equal('Testing placeholders: {"test":"test"}');
+  });
 });

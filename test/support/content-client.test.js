@@ -29,9 +29,9 @@ describe('ContentClient', () => {
     nock.cleanAll();
   });
 
-  describe('fetchMarkdownDiff', () => {
+  describe('fetchMarkdown', () => {
     it('returns null if content URL is not given', async () => {
-      const result = await contentClient.fetchMarkdownDiff(null, null, null);
+      const result = await contentClient.fetchMarkdown(null, null);
       expect(result).to.equal(null);
     });
 
@@ -40,7 +40,7 @@ describe('ContentClient', () => {
         .get('/index.md')
         .reply(200, 'Sample Markdown content');
 
-      await contentClient.fetchMarkdownDiff('example.com', 'http://example.com/');
+      await contentClient.fetchMarkdown('example.com', 'http://example.com/');
 
       expect(nock.isDone()).to.be.true;
     });
@@ -50,7 +50,7 @@ describe('ContentClient', () => {
         .get('/some-page.md')
         .reply(200, 'Sample Markdown content');
 
-      await contentClient.fetchMarkdownDiff('example.com', 'http://example.com/some-page');
+      await contentClient.fetchMarkdown('example.com', 'http://example.com/some-page');
 
       expect(nock.isDone()).to.be.true;
     });
@@ -61,10 +61,9 @@ describe('ContentClient', () => {
         .get('/index.md')
         .reply(200, markdownContentStub);
 
-      const result = await contentClient.fetchMarkdownDiff('example.com', 'http://example.com');
+      const result = await contentClient.fetchMarkdown('example.com', 'http://example.com');
 
       expect(result.markdownContent).to.equal(markdownContentStub);
-      expect(result.markdownDiff).to.include(markdownContentStub);
     });
 
     it('returns null when repo not found', async () => {
@@ -72,38 +71,9 @@ describe('ContentClient', () => {
         .get('/index.md')
         .reply(404);
 
-      const result = await contentClient.fetchMarkdownDiff('example.com', 'http://example.com');
+      const result = await contentClient.fetchMarkdown('example.com', 'http://example.com');
 
       expect(result).to.be.null;
-    });
-
-    it('finds a difference between the latest audit and fetched Markdown content', async () => {
-      const latestAudit = { markdownContent: 'Original Markdown content' };
-      const markdownContentStub = 'Changed Markdown content';
-
-      nock('http://example.com')
-        .get('/index.md')
-        .reply(200, markdownContentStub);
-
-      const result = await contentClient.fetchMarkdownDiff('example.com', 'http://example.com', latestAudit);
-
-      expect(result.markdownContent).to.equal(markdownContentStub);
-      expect(result.markdownDiff).to.include('-Original Markdown content');
-      expect(result.markdownDiff).to.include('+Changed Markdown content');
-    });
-
-    it('does not find a difference if latest audit and fetched Markdown content are identical', async () => {
-      const latestAudit = { markdownContent: 'Sample Markdown content' };
-      const markdownContentStub = 'Sample Markdown content';
-
-      nock('http://example.com')
-        .get('/index.md')
-        .reply(200, markdownContentStub);
-
-      const result = await contentClient.fetchMarkdownDiff('example.com', 'http://example.com', latestAudit);
-
-      expect(result.markdownContent).to.equal(markdownContentStub);
-      expect(result.markdownDiff).to.be.null;
     });
 
     it('handles 404 Not Found response gracefully', async () => {
@@ -111,7 +81,7 @@ describe('ContentClient', () => {
         .get('/index.md')
         .reply(404);
 
-      const result = await contentClient.fetchMarkdownDiff('example.com', 'http://example.com');
+      const result = await contentClient.fetchMarkdown('example.com', 'http://example.com');
 
       expect(result).to.be.null;
     });
@@ -123,7 +93,7 @@ describe('ContentClient', () => {
 
       const logStub = sinon.stub(console, 'error');
 
-      await contentClient.fetchMarkdownDiff('example.com', 'http://example.com');
+      await contentClient.fetchMarkdown('example.com', 'http://example.com');
 
       expect(logStub.calledWithMatch(sinon.match.string, sinon.match.has('message', 'Network Error'))).to.be.true;
     });

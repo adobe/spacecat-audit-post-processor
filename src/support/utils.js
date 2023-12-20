@@ -33,7 +33,18 @@ export const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
 export async function getPrompt(placeholders, log = console) {
   try {
     let prompt = fs.readFileSync(PROMPT_FILENAME, { encoding: 'utf8', flag: 'r' });
-    prompt = prompt.replace(/{{(.*?)}}/g, (match, key) => (key in placeholders ? placeholders[key] : match));
+    prompt = prompt.replace(/{{(.*?)}}/g, (match, key) => {
+      if (key in placeholders) {
+        const value = placeholders[key];
+        if (typeof value === 'object' && value !== null) {
+          return JSON.stringify(value);
+        } else {
+          return value;
+        }
+      } else {
+        return match;
+      }
+    });
     return prompt;
   } catch (error) {
     log.error('Error reading prompt file:', error.message);
