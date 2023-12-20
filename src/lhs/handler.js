@@ -19,6 +19,8 @@ import { postSlackMessage } from '../support/slack.js';
 import { getPrompt } from '../support/utils.js';
 import { buildSlackMessage, getLHSData } from './firefall-utils.js';
 
+const THRESHOLD = 0.9;
+
 function isValidMessage(message) {
   return hasText(message.url)
     && hasText(message.auditContext?.slackContext?.channel)
@@ -32,8 +34,7 @@ export default async function lhsHandler(message, context) {
     type,
     url,
     auditResult,
-    auditResult: { siteId },
-    auditContext: { slackContext: { channelId, threadTs } },
+    auditContext,
   } = message;
   const {
     env: {
@@ -45,8 +46,11 @@ export default async function lhsHandler(message, context) {
     return badRequest('Required parameters missing in the message body');
   }
 
-  if (Object.values(auditResult.scores).every((score) => score >= 0.9)) {
-    log.info(`All LHS values from ${url} are above 90, not posting to Slack`);
+  const { siteId } = auditResult;
+  const { channel, ts } = auditContext.slackContext;
+
+  if (Object.values(auditResult.scores).every((score) => score >= THRESHOLD)) {
+    log.info(`All LHS values from ${url} are above ${THRESHOLD * 100}, not posting to Slack`);
     return noContent();
   }
 
@@ -64,22 +68,21 @@ export default async function lhsHandler(message, context) {
     return internalServerError('Prompt for Firefall is not available.');
   }
 
-  // only send prompt to get recommendations
   const data = await getRecommendations(context.env, prompt, log);
   const blocks = buildSlackMessage(url, data, lhsData.scoresBefore, lhsData.scoresAfter);
 
   try {
     await postSlackMessage(slackToken, {
       blocks,
-      channel: channelId,
-      ts: threadTs,
+      channel,
+      ts,
     });
   } catch (e) {
     log.error(`Failed to send Slack message for ${url}. Reason: ${e.message}`);
     return internalServerError(`Failed to send Slack message for ${url}`);
   }
 
-  log.info(`Slack notification sent for ${url} to ${channelId} in thread ${threadTs}`);
+  log.info(`Slack notification sent for ${url} to ${channel} in thread ${ts}`);
 
   return noContent();
 }

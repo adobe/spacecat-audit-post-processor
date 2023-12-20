@@ -76,13 +76,13 @@ export function buildSlackMessage(url, data, scoresBefore, scoresAfter) {
     fields: scoreFields,
   }));
 
-  data.insights.forEach((item, index) => {
+  data.insights?.forEach((item, index) => {
     blocks.push(section({
       text: markdown(`${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`),
     }));
   });
 
-  data.code.forEach((codeItem) => {
+  data.code?.forEach((codeItem) => {
     blocks.push(section({
       text: markdown(`\`\`\`${codeItem}\`\`\``),
     }));
