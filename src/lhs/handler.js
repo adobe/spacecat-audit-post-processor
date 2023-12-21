@@ -18,6 +18,8 @@ import { getRecommendations } from '../firefall/handler.js';
 import { postSlackMessage } from '../support/slack.js';
 import { getPrompt } from '../support/utils.js';
 import { buildSlackMessage, getLHSData } from './firefall-utils.js';
+import ContentClient from '../support/content-client.js';
+import GithubClient from '../support/github-client.js';
 
 const THRESHOLD = 0.9;
 
@@ -28,17 +30,44 @@ function isValidMessage(message) {
     && isObject(message.auditResult?.scores);
 }
 
+function initServices(config, log) {
+  const {
+    gitHubId,
+    gitHubSecret,
+    dataAccess,
+  } = config;
+  const contentClient = ContentClient(log);
+
+  const gitHubClient = GithubClient(
+    {
+      gitHubId,
+      gitHubSecret,
+    },
+    log,
+  );
+
+  return {
+    contentClient,
+    gitHubClient,
+    dataAccess,
+  };
+}
+
 export default async function lhsHandler(message, context) {
   const { dataAccess, log } = context;
   const {
     type,
     url,
+    gitHubUrl,
     auditResult,
     auditContext,
   } = message;
   const {
     env: {
-      SLACK_BOT_TOKEN: slackToken, FIREFALL_INTEGRATION_ENABLED: firefallIntegrationEnabled = 'false',
+      SLACK_BOT_TOKEN: slackToken,
+      GITHUB_CLIENT_ID: gitHubId,
+      GITHUB_CLIENT_SECRET: gitHubSecret,
+      FIREFALL_INTEGRATION_ENABLED: firefallIntegrationEnabled = 'false',
     },
   } = context;
 
@@ -46,7 +75,7 @@ export default async function lhsHandler(message, context) {
     return badRequest('Required parameters missing in the message body');
   }
 
-  const { siteId } = auditResult;
+  const { siteId, finalUrl } = auditResult;
   const { channel, ts } = auditContext.slackContext;
 
   if (Object.values(auditResult.scores).every((score) => score >= THRESHOLD)) {
@@ -60,7 +89,18 @@ export default async function lhsHandler(message, context) {
   }
   log.info('Firefall integration enabled, processing message', message);
 
-  const lhsData = await getLHSData(type, { siteId, url }, auditResult.finalUrl, dataAccess, log);
+  const services = initServices({
+    gitHubId,
+    gitHubSecret,
+    dataAccess,
+  }, log);
+
+  const lhsData = await getLHSData(
+    services,
+    { siteId, url, gitHubUrl },
+    { type, finalUrl },
+    log,
+  );
   const prompt = await getPrompt(lhsData);
 
   if (!isString(prompt)) {

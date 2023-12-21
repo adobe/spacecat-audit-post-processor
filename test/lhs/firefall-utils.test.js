@@ -23,23 +23,34 @@ chai.use(chaiAsPromised);
 const { expect } = chai;
 
 describe('getLHSData', () => {
-  let type;
+  let audit;
   let site;
-  let finalUrl;
-  let dataAccess;
   let log;
   let latestAuditResult;
   let audits;
+  let services;
 
   beforeEach(() => {
-    type = 'lhs';
-    finalUrl = 'https://example.com';
+    audit = {
+      type: 'lhs',
+      finalUrl: 'https://example.com',
+    };
+
     site = {
       siteId: 'siteId',
       url: 'https://valid.url',
+      gitHubUrl: 'https://example.com',
     };
-    dataAccess = {
-      getAuditsForSite: sinon.stub(),
+    services = {
+      dataAccess: {
+        getAuditsForSite: sinon.stub(),
+      },
+      gitHubClient: {
+        fetchGithubDiff: sinon.stub().resolves('GH_DIFF'),
+      },
+      contentClient: {
+        fetchMarkdown: sinon.stub().resolves({ markdownContent: 'Sample Markdown content' }),
+      },
     };
     log = {
       debug: sinon.stub(),
@@ -48,7 +59,6 @@ describe('getLHSData', () => {
     };
 
     latestAuditResult = {
-      gitHubDiff: 'GH_DIFF',
       scores: {
         performance: 0.8,
         accessibility: 0.2,
@@ -58,16 +68,10 @@ describe('getLHSData', () => {
     };
 
     audits = [{
-      state: {
-        auditedAt: new Date().toISOString(),
-      },
-      getAuditResult: sinon.stub(),
+      getAuditedAt: sinon.stub().resolves(new Date().toISOString()),
       getScores: sinon.stub().resolves(latestAuditResult.scores),
     }, {
-      state: {
-        auditedAt: new Date(0).toISOString(),
-      },
-      getAuditResult: sinon.stub(),
+      getAuditedAt: sinon.stub().resolves(new Date(0).toISOString()),
       getScores: sinon.stub().resolves({
         performance: 0.5,
         accessibility: 0.5,
@@ -83,43 +87,56 @@ describe('getLHSData', () => {
   });
 
   it('should log error and return a 500 response if dataAccess object is not available from context', async () => {
-    dataAccess = null;
-    const data = await getLHSData(type, site, finalUrl, dataAccess, log);
+    services.dataAccess = null;
+    const data = await getLHSData(services, site, audit, log);
     expect(data.status).to.equal(500);
     expect(log.error).to.be.calledWith('Data Access is not available');
   });
 
   it('should log error and return a 404 response if audits cannot be found from provided site', async () => {
-    dataAccess.getAuditsForSite.resolves(null);
-    const data = await getLHSData(type, site, finalUrl, dataAccess, log);
+    services.dataAccess.getAuditsForSite.resolves(null);
+    const data = await getLHSData(services, site, audit, log);
     expect(data.status).to.equal(404);
     expect(log.error).to.be.calledWith(`No audits found for site ${site.siteId}`);
   });
 
   it('should log error and return a 404 response if audit cannot be found, but returns empty list', async () => {
-    dataAccess.getAuditsForSite.resolves([]);
-    const data = await getLHSData(type, site, finalUrl, dataAccess, log);
+    services.dataAccess.getAuditsForSite.resolves([]);
+    const data = await getLHSData(services, site, audit, log);
     expect(data.status).to.equal(404);
     expect(log.error).to.be.calledWith(`No audits found for site ${site.siteId}`);
   });
 
-  it('should log error and return a 404 response if audit result cannot be found from provided site', async () => {
-    dataAccess.getAuditsForSite.resolves(audits);
-    const data = await getLHSData(type, site, finalUrl, dataAccess, log);
-    expect(data.status).to.equal(404);
-    expect(log.error).to.be.calledWith(`No audit result found for site ${site.siteId}`);
-  });
-
-  it('should return lhs scores and diffs', async () => {
-    dataAccess.getAuditsForSite.resolves(audits);
-    audits[0].getAuditResult.resolves(latestAuditResult);
+  it('should leave unavailable values empty', async () => {
+    services.dataAccess.getAuditsForSite.resolves(audits);
+    audits[0].getAuditedAt.rejects();
+    audits[0].getScores.rejects();
+    audits[1].getAuditedAt.rejects();
+    audits[1].getScores.rejects();
+    services.gitHubClient.fetchGithubDiff.rejects();
+    services.contentClient.fetchMarkdown.rejects();
     const markdownContentStub = 'Sample Markdown content';
     nock('https://example.com')
       .get('/index.md')
       .reply(200, markdownContentStub);
-    const data = await getLHSData(type, site, finalUrl, dataAccess, log);
+    const data = await getLHSData(services, site, audit, log);
     expect(data).to.deep.equal({
-      codeDiff: latestAuditResult.gitHubDiff,
+      codeDiff: 'no changes',
+      mdContent: 'no content',
+      scoreAfter: 'no scores',
+      scoreBefore: 'no previous scores',
+    });
+  });
+
+  it('should return lhs scores and diffs', async () => {
+    services.dataAccess.getAuditsForSite.resolves(audits);
+    const markdownContentStub = 'Sample Markdown content';
+    nock('https://example.com')
+      .get('/index.md')
+      .reply(200, markdownContentStub);
+    const data = await getLHSData(services, site, audit, log);
+    expect(data).to.deep.equal({
+      codeDiff: 'GH_DIFF',
       mdContent: markdownContentStub,
       scoreBefore: await audits[1].getScores(),
       scoreAfter: latestAuditResult.scores,
@@ -151,6 +168,32 @@ describe('buildSlackMessage', () => {
   const codeSection = {
     text: {
       text: '```code```',
+      type: 'mrkdwn',
+    },
+    type: 'section',
+  };
+
+  const scoreSection = {
+    fields: [
+      {
+        text: 'Performance: 0.5 -> 0.8 :large_green_circle:',
+        type: 'mrkdwn',
+      },
+      {
+        text: 'Accessibility: 0.5 -> 0.2 :warning:',
+        type: 'mrkdwn',
+      },
+      {
+        text: 'BestPractices: 0.5 -> 0.5 :heavy_minus_sign:',
+        type: 'mrkdwn',
+      },
+      {
+        text: 'Seo: 0.5 -> 0.5 :heavy_minus_sign:',
+        type: 'mrkdwn',
+      },
+    ],
+    text: {
+      text: '*Score Changes:*',
       type: 'mrkdwn',
     },
     type: 'section',
@@ -212,6 +255,7 @@ describe('buildSlackMessage', () => {
     const message = buildSlackMessage(url, data, lhsData);
     expect(message).to.deep.equal([
       titleSection,
+      scoreSection,
       codeSection,
     ]);
   });
@@ -221,6 +265,7 @@ describe('buildSlackMessage', () => {
     const message = buildSlackMessage(url, data, lhsData);
     expect(message).to.deep.equal([
       titleSection,
+      scoreSection,
       insightSection,
     ]);
   });

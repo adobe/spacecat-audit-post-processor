@@ -13,10 +13,12 @@
 import { isObject } from '@adobe/spacecat-shared-utils';
 import { internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { markdown, section } from '../support/slack.js';
-import ContentClient from '../support/content-client.js';
 
-export async function getLHSData(type, site, finalUrl, dataAccess, log = console) {
-  const { url, siteId } = site;
+export async function getLHSData(services, site, audit, log = console) {
+  const { dataAccess, gitHubClient, contentClient } = services;
+  const { url, siteId, gitHubUrl } = site;
+  const { type, finalUrl } = audit;
+
   if (!dataAccess || !isObject(dataAccess)) {
     log.error('Data Access is not available');
     return internalServerError('Data Access is not available');
@@ -28,28 +30,28 @@ export async function getLHSData(type, site, finalUrl, dataAccess, log = console
     return notFound(`No audits found for site ${siteId}`);
   }
 
-  // sort audits by auditedAt so that the latest audit is at the first position
-  audits.sort((a, b) => new Date(b.state.auditedAt) - new Date(a.state.auditedAt));
+  const [latestAudit, previousAudit] = audits;
 
-  const latestAuditResult = await audits[0].getAuditResult();
-  if (!latestAuditResult) {
-    log.error(`No audit result found for site ${siteId}`);
-    return notFound(`No audit result found for site ${siteId}`);
-  }
+  const [latestAuditedAt, previousAuditedAt, scoresAfter, scoresBefore] = await Promise.all([
+    latestAudit.getAuditedAt().catch(() => null),
+    previousAudit.getAuditedAt().catch(() => null),
+    latestAudit.getScores().catch(() => null),
+    previousAudit.getScores().catch(() => null),
+  ]);
 
-  const { gitHubDiff } = latestAuditResult;
-  const contentClient = ContentClient(log);
-  const markdownContext = await contentClient.fetchMarkdown(
-    url,
-    finalUrl,
-  );
-  const { markdownContent } = markdownContext;
-  const scoresAfter = latestAuditResult.scores;
-  const scoresBefore = audits[1] ? await audits[1].getScores() : null;
+  const [gitHubDiff, markdownContext] = await Promise.all([
+    gitHubClient.fetchGithubDiff(
+      url,
+      latestAuditedAt,
+      previousAuditedAt,
+      gitHubUrl,
+    ).catch(() => null),
+    contentClient.fetchMarkdown(url, finalUrl).catch(() => null),
+  ]);
 
   return {
     codeDiff: gitHubDiff || 'no changes',
-    mdContent: markdownContent || 'no content',
+    mdContent: markdownContext?.markdownContent || 'no content',
     scoreBefore: scoresBefore || 'no previous scores',
     scoreAfter: scoresAfter || 'no scores',
   };
@@ -62,41 +64,38 @@ function getEmojiForChange(before, after) {
 }
 
 export function buildSlackMessage(url, data, lhsData) {
-  const blocks = [];
-  blocks.push(section({
-    text: markdown(`*Insights and Recommendations:* for ${url}`),
-  }));
+  const blocks = [
+    section({
+      text: markdown(`*Insights and Recommendations:* for ${url}`),
+    }),
+  ];
 
-  const scoreFields = [];
-
-  if (lhsData.scoresBefore && lhsData.scoresAfter) {
-    const { scoresBefore } = data;
-    Object.keys(scoresBefore).forEach((key) => {
-      const before = scoresBefore[key];
-      const after = lhsData.scoresAfter[key];
+  if (lhsData.scoreBefore && lhsData.scoreAfter) {
+    const scoreFields = Object.entries(lhsData.scoreBefore).map(([key, before]) => {
+      const after = lhsData.scoreAfter[key];
       const emoji = getEmojiForChange(Number(before), Number(after));
-      scoreFields.push(markdown(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`));
+      return markdown(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${before} -> ${after} ${emoji}`);
     });
+
+    if (scoreFields.length > 0) {
+      blocks.push(section({
+        text: markdown('*Score Changes:*'),
+        fields: scoreFields,
+      }));
+    }
   }
 
-  if (scoreFields.length > 0) {
-    blocks.push(section({
-      text: markdown('*Score Changes:*'),
-      fields: scoreFields,
-    }));
-  }
-
-  data.insights?.forEach((item, index) => {
-    blocks.push(section({
+  if (data.insights) {
+    blocks.push(...data.insights.map((item, index) => section({
       text: markdown(`${index + 1}. *Insight:* ${item.insight}\n*Recommendation:* ${item.recommendation}`),
-    }));
-  });
+    })));
+  }
 
-  data.code?.forEach((codeItem) => {
-    blocks.push(section({
+  if (data.code) {
+    blocks.push(...data.code.map((codeItem) => section({
       text: markdown(`\`\`\`${codeItem}\`\`\``),
-    }));
-  });
+    })));
+  }
 
   return blocks;
 }
