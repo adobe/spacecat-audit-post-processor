@@ -58,7 +58,7 @@ export default async function lhsHandler(message, context) {
   const {
     type,
     url,
-    gitHubUrl,
+    gitHubURL,
     auditResult,
     auditContext,
   } = message;
@@ -97,7 +97,7 @@ export default async function lhsHandler(message, context) {
 
   const lhsData = await getLHSData(
     services,
-    { siteId, url, gitHubUrl },
+    { siteId, url, gitHubURL },
     { type, finalUrl },
     log,
   );

@@ -16,7 +16,7 @@ import { markdown, section } from '../support/slack.js';
 
 export async function getLHSData(services, site, audit, log = console) {
   const { dataAccess, gitHubClient, contentClient } = services;
-  const { url, siteId, gitHubUrl } = site;
+  const { url, siteId, gitHubURL } = site;
   const { type, finalUrl } = audit;
 
   if (!dataAccess || !isObject(dataAccess)) {
@@ -44,7 +44,7 @@ export async function getLHSData(services, site, audit, log = console) {
       url,
       latestAuditedAt,
       previousAuditedAt,
-      gitHubUrl,
+      gitHubURL,
     ).catch(() => null),
     contentClient.fetchMarkdown(url, finalUrl).catch(() => null),
   ]);

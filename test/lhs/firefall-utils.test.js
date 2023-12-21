@@ -39,7 +39,7 @@ describe('getLHSData', () => {
     site = {
       siteId: 'siteId',
       url: 'https://valid.url',
-      gitHubUrl: 'https://example.com',
+      gitHubURL: 'https://example.com',
     };
     services = {
       dataAccess: {
