@@ -31,7 +31,8 @@ Example of Expected Insights, Recommendations and code changes, the returned mes
     },
     {
       insight: "The addition a third-party api is adding to the 'total-blocking-time' and decreasing the overall 'performance' score as a result.",
-      recommendation: "Do not load the third-party api until absolutely required; Either by using an intersection observer to load it only once it reaches the viewport, or by delaying it's loading until the user interacts with that element."
+      recommendation: "Do not load the third-party api until absolutely required; Either by using an intersection observer to load it only once it reaches the viewport, or by delaying it's loading until the user interacts with that element.",
+      code: "no changes"
     },
   ]
 }

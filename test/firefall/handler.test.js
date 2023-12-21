@@ -59,11 +59,20 @@ describe('getRecommendations', () => {
   });
 
   it('should return recommendations when data is fetched from firefall', async () => {
+    const responseStub = {
+      insights: [
+        {
+          insight: 'String',
+          recommendation: 'String',
+          code: 'String',
+        },
+      ],
+    };
     fetchStub.resolves({
       ok: true,
-      json: async () => ({ generations: [[{ text: '{"foo": "bar"}' }]] }),
+      json: async () => ({ generations: [[{ text: JSON.stringify(responseStub) }]] }),
     });
     const recommendations = await getRecommendations(env, prompt, logStub);
-    expect(recommendations).to.deep.equal({ foo: 'bar' });
+    expect(recommendations).to.deep.equal(responseStub);
   });
 });

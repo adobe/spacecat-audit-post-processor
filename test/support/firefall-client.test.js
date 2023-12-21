@@ -53,12 +53,25 @@ describe('FirefallClient', () => {
 
   it('should fetch data from Firefall API and return parsed response', async () => {
     const client = FirefallClient('http://valid.url', 'key', 'auth', 'org');
+    const responseStub = {
+      insights: [
+        {
+          insight: 'String',
+          recommendation: 'String',
+          code: 'String',
+        },
+      ],
+    };
     fetchStub.resolves({
       ok: true,
-      json: async () => ({ generations: [[{ text: '{"foo": "bar"}' }]] }),
+      json: async () => ({
+        generations: [[{
+          text: JSON.stringify(responseStub),
+        }]],
+      }),
     });
     const result = await client.fetchFirefallData('prompt');
-    expect(result).to.deep.equal({ foo: 'bar' });
+    expect(result).to.deep.equal(responseStub);
     expect(fetchStub.calledOnce).to.be.true;
   });
 
@@ -83,5 +96,48 @@ describe('FirefallClient', () => {
     expect(result).to.be.null;
     expect(logStub.error.calledOnce).to.be.true;
     expect(logStub.error.calledWith('Error while fetching data from Firefall API, using endpoint: http://valid.url:', error.message)).to.be.true;
+  });
+
+  it('should return null and log error if response does not contain generations object', async () => {
+    const client = FirefallClient('http://valid.url', 'key', 'auth', 'org');
+    fetchStub.resolves({
+      ok: true,
+      json: async () => ({
+        foo: 'bar',
+      }),
+    });
+    const result = await client.fetchFirefallData('prompt');
+    expect(result).to.be.null;
+    expect(logStub.error.calledWith('Could not obtain data from Firefall: Generations object is missing.')).to.be.true;
+  });
+
+  it('should return null and log error if response does not contain insights object', async () => {
+    const client = FirefallClient('http://valid.url', 'key', 'auth', 'org');
+    fetchStub.resolves({
+      ok: true,
+      json: async () => ({
+        generations: [[{
+          text: '{ "foo": "bar" }',
+        }]],
+      }),
+    });
+    const result = await client.fetchFirefallData('prompt');
+    expect(result).to.be.null;
+    expect(logStub.error.calledWith('Could not obtain data from Firefall: Invalid response format.')).to.be.true;
+  });
+
+  it('should return null and log error if response from Firefall is not a json object', async () => {
+    const client = FirefallClient('http://valid.url', 'key', 'auth', 'org');
+    fetchStub.resolves({
+      ok: true,
+      json: async () => ({
+        generations: [[{
+          text: 'foo',
+        }]],
+      }),
+    });
+    const result = await client.fetchFirefallData('prompt');
+    expect(result).to.be.null;
+    expect(logStub.error.calledWith('Returned Data from Firefall is not a JSON object.')).to.be.true;
   });
 });

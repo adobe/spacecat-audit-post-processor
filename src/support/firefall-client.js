@@ -30,6 +30,17 @@ function FirefallClient(
   firefallIMSOrg,
   log = console,
 ) {
+  function validateFirefallResponse(response) {
+    if (!response || typeof response !== 'object' || !Array.isArray(response.insights)) {
+      return false;
+    }
+
+    return response.insights.every((item) => item
+          && typeof item === 'object'
+          && typeof item.insight === 'string'
+          && typeof item.recommendation === 'string'
+          && typeof item.code === 'string');
+  }
   async function fetchFirefallData(prompt) {
     if (!isValidUrl(firefallAPIEndpoint)) {
       log.error(`Firefall API Endpoint is not valid: ${firefallAPIEndpoint}`);
@@ -46,6 +57,7 @@ function FirefallClient(
         question: prompt,
       },
       llm_metadata: {
+        max_tokens: 4000,
         llm_type: 'azure_chat_openai',
         model_name: 'gpt-4',
         temperature: 0.5,
@@ -70,7 +82,22 @@ function FirefallClient(
       }
 
       const responseData = await response.json();
-      return JSON.parse(responseData.generations[0][0].text);
+      if (!responseData.generations?.[0]?.[0]) {
+        log.error('Could not obtain data from Firefall: Generations object is missing.');
+        return null;
+      }
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(responseData.generations[0][0].text);
+      } catch (e) {
+        log.error('Returned Data from Firefall is not a JSON object.');
+        return null;
+      }
+      if (!validateFirefallResponse(parsedResponse)) {
+        log.error('Could not obtain data from Firefall: Invalid response format.');
+        return null;
+      }
+      return parsedResponse;
     } catch (error) {
       log.error(`Error while fetching data from Firefall API, using endpoint: ${firefallAPIEndpoint}:`, error.message);
       return null;
