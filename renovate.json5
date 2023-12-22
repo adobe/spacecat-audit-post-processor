@@ -1,7 +1,7 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    'local>adobe-rnd/spacecat-shared'
+    'local>adobe-rnd/spacecat-audit-post-processor'
   ],
   packageRules: [
     {
