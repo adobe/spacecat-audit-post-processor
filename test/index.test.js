@@ -48,6 +48,7 @@ describe('Index Tests', () => {
       env: {
         SLACK_BOT_TOKEN: 'token',
         RUM_DOMAIN_KEY: 'uber-key',
+        FIREFALL_INTEGRATION_ENABLED: 'false',
       },
     };
   });

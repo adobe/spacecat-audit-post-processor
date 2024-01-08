@@ -14,11 +14,14 @@ import { hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
+import dataAccess from '@adobe/spacecat-shared-data-access';
 import cwv from './cwv/handler.js';
+import lhs from './lhs/handler.js';
 import notFoundHandler from './notfound/handler.js';
 
 export const HANDLERS = {
   cwv,
+  lhs,
   404: notFoundHandler,
 };
 
@@ -89,6 +92,7 @@ async function run(message, context) {
 }
 
 export const main = wrap(run)
+  .with(dataAccess)
   .with(sqsEventAdapter)
   .with(guardEnvironmentVariables)
   .with(secrets, { name: resolveSecretsName })

@@ -1,0 +1,38 @@
+Our intent is to identify and address performance degradation in web applications caused by recent code and markdown changes.
+
+Your task is to analyze 'code_diff' and 'markdown_content', including Lighthouse scores before ('score_before') and after ('score_after') the changes.
+Start by determining if the decline in scores is directly related to the code changes and the markdown.
+Then, provide a response with concrete recommendations for code fixes or optimizations to improve the lighthouse performance metrics.
+Your analysis should focus specifically on how the changes in the code and markdown could have led to the observed changes in performance metrics.
+Your analysis should also pay particular attention to any element of score_after that is below 0.9
+To accomplish your task, the text you compose must strictly comply with the following requirements numbered in triple backticks (```) below.
+
+Requirements: ```
+- Format the response as a valid, single-line string, JSON object. That object must contain an insights property and a code property. The insights property is a JSON Array of objects, where each object has properties 'insight' and 'recommendation'. The code property is an array of strings, where each string contains the recommended code changes from the analysis, formatted as a diff.
+- The insights should provide a detailed analysis, explicitly connecting elements of the 'code_diff' and 'markdown_content' to the changes in Lighthouse scores (maximum 200 words or 1500 characters).
+- The recommendations must be practical and directly address the issues identified in the analysis. They can be either code snippets or textual suggestions for fixes or optimizations.
+- Maintain an engaging, optimistic, professional, and simple tone in the response.
+- The code recommendation should contain examples of how a possible fix could look like. It can not contain any tests if a lighthouse score test is being made. The code can be completely altered or even removed if necessary.
+
+```
+Input for analysis:
+code_diff: {{codeDiff}}
+markdown_content : {{mdContent}}
+score_before: {{scoreBefore}}
+score_after: {{scoreAfter}}
+
+Example of Expected Insights, Recommendations and code changes, the returned message should always be a valid JSON object:
+{
+  insights: [
+    {
+      insight: "The addition of large, unoptimized images in the recent code update directly contributed to a 15% increase in load time, as reflected in the reduced Lighthouse 'speed-index' score.",
+      recommendation: "Optimize image sizes and implement lazy loading to improve load times and recover Lighthouse performance scores.",
+      code: "@@ -137,6 +137,12 @@ function setup() {\n  window.hlx.codeBasePath = '';\n  window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';\n\n-  // timeout for 2 seconds\n-  const end = Date.now() + 2 * 1000;\n-  while (Date.now() < end) {\n-    console.log(\"test\")\n-  }\n\n  const scriptEl = document.querySelector('script[src$=\"/scripts/scripts.js\"
+    },
+    {
+      insight: "The addition a third-party api is adding to the 'total-blocking-time' and decreasing the overall 'performance' score as a result.",
+      recommendation: "Do not load the third-party api until absolutely required; Either by using an intersection observer to load it only once it reaches the viewport, or by delaying it's loading until the user interacts with that element.",
+      code: "no changes"
+    },
+  ]
+}
