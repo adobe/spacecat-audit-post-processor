@@ -1,3 +1,11 @@
+## [1.1.2](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.1...v1.1.2) (2024-01-11)
+
+
+### Bug Fixes
+
+* npm token renovate ([72f6dcd](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/72f6dcd99e759109f7013c678a073ebc55b51338))
+* use correct context ([e3600bb](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/e3600bb827d484563f8cb0e24952c5f941ab8f5d))
+
 ## [1.1.1](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.0...v1.1.1) (2023-12-18)
 
 
