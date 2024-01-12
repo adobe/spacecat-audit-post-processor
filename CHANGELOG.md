@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.3...v1.1.4) (2024-01-12)
+
+
+### Bug Fixes
+
+* rum api client v1.3.1 ([#35](https://github.com/adobe-rnd/spacecat-audit-post-processor/issues/35)) ([88bdb11](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/88bdb1109fc3e23e094667913e64a52dee350bea))
+
 ## [1.1.3](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.2...v1.1.3) (2024-01-12)
 
 
