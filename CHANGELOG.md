@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.4...v1.1.5) (2024-01-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-shared-secrets to v2.2.2 ([#39](https://github.com/adobe-rnd/spacecat-audit-post-processor/issues/39)) ([b4e69d4](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/b4e69d48e9e90208786a022c83434882acb1ad25))
+
 ## [1.1.4](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.3...v1.1.4) (2024-01-12)
 
 
