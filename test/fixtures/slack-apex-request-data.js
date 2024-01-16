@@ -15,6 +15,6 @@ export const slackApexRequestData = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: '*space.cat* does not redirect to any subdomain (ie \'www\')',
+      text: '*<space.cat|space.cat>* does not redirect to any subdomain (ie \'www\')',
     },
   }];
