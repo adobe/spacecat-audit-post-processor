@@ -14,10 +14,12 @@ import { hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
+import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
 
 export const HANDLERS = {
+  apex,
   cwv,
   404: notFoundHandler,
 };
