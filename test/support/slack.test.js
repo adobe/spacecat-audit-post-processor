@@ -113,6 +113,7 @@ describe('slack api', () => {
     })
       .post('/api/files.upload')
       .reply(200, {
+        ok: true,
         file: {
           url_private: 'slack-file-url',
         },
@@ -132,7 +133,7 @@ describe('slack api', () => {
     await expect(uploadSlackFile(null, {})).to.be.rejectedWith('Missing slack bot token');
   });
 
-  it('throws error when slack api returns an invalid response', async () => {
+  it('throws error when slack api request fails with non-successful status codde', async () => {
     const mockFile = new Blob(['test file content'], { type: 'text/plain' });
     nock('https://slack.com', {
       reqheaders: {
@@ -141,6 +142,25 @@ describe('slack api', () => {
     })
       .post('/api/files.upload')
       .reply(500);
+
+    const options = {
+      file: mockFile,
+      fileName: 'test-file.csv',
+      channel: 'channel-id',
+    };
+
+    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack. Reason: Unexpected end of JSON input');
+  });
+
+  it('throws error when slack api returns an invalid response', async () => {
+    const mockFile = new Blob(['test file content'], { type: 'text/plain' });
+    nock('https://slack.com', {
+      reqheaders: {
+        authorization: `Bearer ${token}`,
+      },
+    })
+      .post('/api/files.upload')
+      .reply(200, 'invalid');
 
     const options = {
       file: mockFile,

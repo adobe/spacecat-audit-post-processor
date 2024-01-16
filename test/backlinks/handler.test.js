@@ -38,7 +38,7 @@ describe('backlinks handler', () => {
         },
       },
       auditResult: {
-        broken_backlinks: [
+        brokenBacklinks: [
           {
             title: 'backlink title',
             url_from: 'url-from',

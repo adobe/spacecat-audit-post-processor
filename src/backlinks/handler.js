@@ -59,8 +59,6 @@ function isValidMessage(message) {
     && isObject(message.auditContext?.slackContext);
 }
 
-export const SLACK_API_MESSAGES = 'https://slack.com/api/chat.postMessage';
-export const SLACK_API_FILES = 'https://slack.com/api/files.upload';
 export default async function brokenBacklinksHandler(message, context) {
   const { log } = context;
   const { url, auditResult, auditContext } = message;
@@ -69,8 +67,7 @@ export default async function brokenBacklinksHandler(message, context) {
   if (!isValidMessage(message)) {
     return badRequest('Required parameters missing in the message.');
   }
-
-  const brokenBacklinks = auditResult.broken_backlinks;
+  const { brokenBacklinks } = auditResult;
 
   if (brokenBacklinks.length === 0) {
     log.info(`No broken backlinks detected for ${url}`);
@@ -83,7 +80,7 @@ export default async function brokenBacklinksHandler(message, context) {
   const file = new Blob([csvData], { type: 'text/csv' });
 
   try {
-    const fileName = `broken-backlinks-${url}.csv`;
+    const fileName = `broken-backlinks-${url.replace(/\./g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
     const { fileUrl } = await uploadSlackFile(token, {
       file, fileName, channel,
     });

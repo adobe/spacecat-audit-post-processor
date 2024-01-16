@@ -78,7 +78,20 @@ export async function uploadSlackFile(token, opts) {
       body: formData,
     });
 
-    const responseJson = await response.json();
+    if (!response.ok) {
+      throw new Error(`Slack upload file API request failed. Status: ${response.status}`);
+    }
+
+    let responseJson;
+    try {
+      responseJson = await response.json();
+    } catch (e) {
+      throw new Error(`Failed to parse Slack API response. Error: ${e}`);
+    }
+
+    if (!responseJson.ok) {
+      throw new Error(`Slack message was not acknowledged. Error: ${responseJson.error}`);
+    }
 
     return {
       fileUrl: responseJson.file.url_private,
