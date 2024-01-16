@@ -18,7 +18,7 @@ function buildSlackMessage(url) {
   const blocks = [];
 
   blocks.push(section({
-    text: markdown(`*${url}* does not redirect to any subdomain (ie 'www')`),
+    text: markdown(`*<${url}|${url}>* does not redirect to any subdomain (ie 'www')`),
   }));
 
   return blocks;
