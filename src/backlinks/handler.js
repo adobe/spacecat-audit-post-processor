@@ -44,7 +44,7 @@ function buildSlackMessage(url, fileUrl, fileName, auditResult) {
   const blocks = [];
 
   blocks.push((section({
-    text: markdown(`For *${url}*, ${auditResult.broken_backlinks.length} broken backlink(s) were detected.`),
+    text: markdown(`For *${url}*, ${auditResult.brokenBacklinks.length} broken backlink(s) were detected.`),
   })));
 
   blocks.push((section({
@@ -55,7 +55,7 @@ function buildSlackMessage(url, fileUrl, fileName, auditResult) {
 }
 function isValidMessage(message) {
   return hasText(message.url)
-    && isArray(message.auditResult?.broken_backlinks)
+    && isArray(message.auditResult?.brokenBacklinks)
     && isObject(message.auditContext?.slackContext);
 }
 

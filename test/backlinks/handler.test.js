@@ -120,7 +120,7 @@ describe('backlinks handler', () => {
   });
 
   it('rejects when backlinks are missing in auditResult', async () => {
-    delete message.auditResult.broken_backlinks;
+    delete message.auditResult.brokenBacklinks;
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(400);
   });
@@ -138,7 +138,7 @@ describe('backlinks handler', () => {
   });
 
   it('sends no slack message when there are no broken backlinks', async () => {
-    message.auditResult.broken_backlinks = [];
+    message.auditResult.brokenBacklinks = [];
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
   });
@@ -163,6 +163,7 @@ describe('backlinks handler', () => {
     })
       .post('/api/files.upload')
       .reply(200, {
+        ok: true,
         file: {
           url_private: 'slack-file-url',
         },
