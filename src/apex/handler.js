@@ -36,7 +36,9 @@ export default async function apexHandler(message, context) {
   const { env: { SLACK_BOT_TOKEN: token } } = context;
 
   if (!isValidMessage(message)) {
-    return badRequest('Required parameters missing in the message body');
+    const msg = 'Required parameters missing in the message body';
+    log.info(msg);
+    return badRequest(msg);
   }
 
   if (auditResult.success) {
