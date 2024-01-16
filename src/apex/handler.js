@@ -38,6 +38,7 @@ export default async function apexHandler(message, context) {
   if (!isValidMessage(message)) {
     const msg = 'Required parameters missing in the message body';
     log.info(msg);
+    log.info(`type of: ${typeof message.auditResult?.success}`);
     return badRequest(msg);
   }
 
