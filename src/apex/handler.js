@@ -20,15 +20,15 @@ function buildSlackMessage(results) {
 
   // results array always has two element all the time - verified at the beginning of the handler
   const informativePart = !sorted[0].success
-    ? `Your domains are experiencing issues. Requests to both *<${sorted[0].url}|${sorted[0].url}>* and *<${sorted[1].url}|${sorted[1].url}>* *fail*`
-    : `One of your domains is experiencing issues. Requests to *<${sorted[0].url}|${sorted[0].url}>* work, but *fail* for *<${sorted[1].url}|${sorted[1].url}>*`;
+    ? `Your domains are encountering difficulties. Requests to both *<${sorted[0].url}|${sorted[0].url}>* and *<${sorted[1].url}|${sorted[1].url}>* *fail* :red:`
+    : `One of your domains is encountering difficulties. While requests to *<${sorted[0].url}|${sorted[0].url}>* are successful :checked:, those to *<${sorted[1].url}|${sorted[1].url}>* fail :red:.`;
 
   blocks.push(section({
-    text: markdown(`${informativePart}. Confirm redirection settings according to your preference.`),
+    text: markdown(informativePart),
   }));
 
   blocks.push(section({
-    text: markdown('Failure to address this promptly may lead to SEO implications. Act swiftly to prevent possible loss of organic traffic.'),
+    text: markdown('Please verify and adjust the redirection settings as per your requirements. Delay in resolving this issue could result in SEO repercussions, potentially leading to a decrease in organic traffic. Prompt action is advised to mitigate this risk.'),
   }));
 
   return blocks;

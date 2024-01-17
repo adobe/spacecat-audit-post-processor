@@ -15,14 +15,14 @@ export const slackApexRequestData = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: 'One of your domains is experiencing issues. Requests to *<https://www.adobe.com/|https://www.adobe.com/>* work, but *fail* for *<https://adobe.com/|https://adobe.com/>*. Confirm redirection settings according to your preference.',
+      text: 'One of your domains is encountering difficulties. While requests to *<https://www.adobe.com/|https://www.adobe.com/>* are successful :checked:, those to *<https://adobe.com/|https://adobe.com/>* fail :red:.',
     },
   },
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: 'Failure to address this promptly may lead to SEO implications. Act swiftly to prevent possible loss of organic traffic.',
+      text: 'Please verify and adjust the redirection settings as per your requirements. Delay in resolving this issue could result in SEO repercussions, potentially leading to a decrease in organic traffic. Prompt action is advised to mitigate this risk.',
     },
   },
 ];
@@ -32,14 +32,14 @@ export const slackAllFailsRequestData = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: 'Your domains are experiencing issues. Requests to both *<https://adobe.com/|https://adobe.com/>* and *<https://www.adobe.com/|https://www.adobe.com/>* *fail*. Confirm redirection settings according to your preference.',
+      text: 'Your domains are encountering difficulties. Requests to both *<https://adobe.com/|https://adobe.com/>* and *<https://www.adobe.com/|https://www.adobe.com/>* *fail* :red:',
     },
   },
   {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: 'Failure to address this promptly may lead to SEO implications. Act swiftly to prevent possible loss of organic traffic.',
+      text: 'Please verify and adjust the redirection settings as per your requirements. Delay in resolving this issue could result in SEO repercussions, potentially leading to a decrease in organic traffic. Prompt action is advised to mitigate this risk.',
     },
   },
 ];
