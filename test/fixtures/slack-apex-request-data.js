@@ -15,7 +15,24 @@ export const slackApexRequestData = [
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: 'One of your domains is experiencing issues. Requests to <https://adobe.com/|https://adobe.com/> *fail*, <https://www.adobe.com/|https://www.adobe.com/> work. Confirm redirection settings according to your preference.',
+      text: 'One of your domains is experiencing issues. Requests to *<https://www.adobe.com/|https://www.adobe.com/>* work, but *fail* for *<https://adobe.com/|https://adobe.com/>*. Confirm redirection settings according to your preference.',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Failure to address this promptly may lead to SEO implications. Act swiftly to prevent possible loss of organic traffic.',
+    },
+  },
+];
+
+export const slackAllFailsRequestData = [
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Your domains are experiencing issues. Requests to both *<https://adobe.com/|https://adobe.com/>* and *<https://www.adobe.com/|https://www.adobe.com/>* *fail*. Confirm redirection settings according to your preference.',
     },
   },
   {

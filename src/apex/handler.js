@@ -16,9 +16,15 @@ import { markdown, postSlackMessage, section } from '../support/slack.js';
 
 function buildSlackMessage(results) {
   const blocks = [];
+  const sorted = results.sort((a, b) => b.success - a.success);
+
+  // results array always has two element all the time - verified at the beginning of the handler
+  const informativePart = !sorted[0].success
+    ? `Your domains are experiencing issues. Requests to both *<${sorted[0].url}|${sorted[0].url}>* and *<${sorted[1].url}|${sorted[1].url}>* *fail*`
+    : `One of your domains is experiencing issues. Requests to *<${sorted[0].url}|${sorted[0].url}>* work, but *fail* for *<${sorted[1].url}|${sorted[1].url}>*`;
 
   blocks.push(section({
-    text: markdown(`One of your domains is experiencing issues. Requests to ${results.map((result) => `<${result.url}|${result.url}> ${result.success ? 'work' : '*fail*'}`).join(', ')}. Confirm redirection settings according to your preference.`),
+    text: markdown(`${informativePart}. Confirm redirection settings according to your preference.`),
   }));
 
   blocks.push(section({
@@ -32,7 +38,7 @@ function isValidMessage(message) {
   return hasText(message.url)
     && hasText(message.auditContext?.slackContext?.channel)
     && isArray(message.auditResult)
-    && message.auditResult.length > 0;
+    && message.auditResult.length === 2;
 }
 
 export default async function apexHandler(message, context) {

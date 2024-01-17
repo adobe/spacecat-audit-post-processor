@@ -34,3 +34,14 @@ export const apexFails = [
     status: 200,
   },
 ];
+
+export const allFails = [
+  {
+    url: 'https://adobe.com/',
+    success: false,
+  },
+  {
+    url: 'https://www.adobe.com/',
+    success: false,
+  },
+];
