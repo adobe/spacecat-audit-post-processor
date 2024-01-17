@@ -10,19 +10,27 @@
  * governing permissions and limitations under the License.
  */
 
-export const slackApexRequestData = [
+export const allAuditsAreSuccessful = [
   {
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: 'One of your domains is experiencing issues. Requests to <https://adobe.com/|https://adobe.com/> *fail*, <https://www.adobe.com/|https://www.adobe.com/> work. Confirm redirection settings according to your preference.',
-    },
+    url: 'https://adobe.com/',
+    success: true,
+    status: 301,
   },
   {
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: 'Failure to address this promptly may lead to SEO implications. Act swiftly to prevent possible loss of organic traffic.',
-    },
+    url: 'https://www.adobe.com/',
+    success: true,
+    status: 200,
+  },
+];
+
+export const apexFails = [
+  {
+    url: 'https://adobe.com/',
+    success: false,
+  },
+  {
+    url: 'https://www.adobe.com/',
+    success: true,
+    status: 200,
   },
 ];

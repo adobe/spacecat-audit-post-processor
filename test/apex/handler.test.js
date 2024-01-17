@@ -16,8 +16,10 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 import apex from '../../src/apex/handler.js';
+import { allAuditsAreSuccessful, apexFails } from '../fixtures/apex-audit-results.js';
 import { slackApexRequestData } from '../fixtures/slack-apex-request-data.js';
 import { getQueryParams } from '../../src/support/slack.js';
+import cwv from '../../src/cwv/handler.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -38,7 +40,7 @@ describe('cwv handler', () => {
           ts: 'thread-id',
         },
       },
-      auditResult: { success: true },
+      auditResult: allAuditsAreSuccessful,
     };
     context = {
       log: console,
@@ -71,9 +73,15 @@ describe('cwv handler', () => {
     expect(resp.status).to.equal(400);
   });
 
-  it('rejects when audit result success is not boolean', async () => {
-    message.auditResult.success = 'asd';
-    const resp = await apex(message, context);
+  it('rejects when auditResult is not an array', async () => {
+    message.auditResult = {};
+    const resp = await cwv(message, context);
+    expect(resp.status).to.equal(400);
+  });
+
+  it('rejects when auditResult is empty', async () => {
+    message.auditResult = [];
+    const resp = await cwv(message, context);
     expect(resp.status).to.equal(400);
   });
 
@@ -104,9 +112,9 @@ describe('cwv handler', () => {
   });
 
   it('builds and sends the slack message when apex failed to resolve', async () => {
-    message.auditResult = { success: false };
     const logSpy = sandbox.spy(context.log, 'info');
     const { channel, ts } = message.auditContext.slackContext;
+    message.auditResult = apexFails;
 
     nock('https://slack.com', {
       reqheaders: {
@@ -127,7 +135,7 @@ describe('cwv handler', () => {
   });
 
   it('sending the slack message fails', async () => {
-    message.auditResult = { success: false };
+    message.auditResult = apexFails;
     const errorLogSpy = sandbox.spy(context.log, 'error');
     const { channel, ts } = message.auditContext.slackContext;
 

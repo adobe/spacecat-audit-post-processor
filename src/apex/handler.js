@@ -10,15 +10,19 @@
  * governing permissions and limitations under the License.
  */
 
-import { hasText } from '@adobe/spacecat-shared-utils';
+import { hasText, isArray } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { markdown, postSlackMessage, section } from '../support/slack.js';
 
-function buildSlackMessage(url) {
+function buildSlackMessage(results) {
   const blocks = [];
 
   blocks.push(section({
-    text: markdown(`*<${url}|${url}>* does not redirect to any subdomain (ie 'www')`),
+    text: markdown(`One of your domains is experiencing issues. Requests to ${results.map((result) => `<${result.url}|${result.url}> ${result.success ? 'work' : '*fail*'}`).join(', ')}. Confirm redirection settings according to your preference.`),
+  }));
+
+  blocks.push(section({
+    text: markdown('Failure to address this promptly may lead to SEO implications. Act swiftly to prevent possible loss of organic traffic.'),
   }));
 
   return blocks;
@@ -27,7 +31,8 @@ function buildSlackMessage(url) {
 function isValidMessage(message) {
   return hasText(message.url)
     && hasText(message.auditContext?.slackContext?.channel)
-    && typeof message.auditResult?.success === 'boolean';
+    && isArray(message.auditResult)
+    && message.auditResult.length > 0;
 }
 
 export default async function apexHandler(message, context) {
@@ -42,7 +47,7 @@ export default async function apexHandler(message, context) {
     return badRequest(msg);
   }
 
-  if (auditResult.success) {
+  if (auditResult.every((result) => result.success)) {
     log.info(`Apex audit was successful for ${url}. Won't notify.`);
     return noContent();
   }
@@ -52,7 +57,7 @@ export default async function apexHandler(message, context) {
   try {
     // send alert to the slack channel - group under a thread if ts value exists
     await postSlackMessage(token, {
-      blocks: buildSlackMessage(url),
+      blocks: buildSlackMessage(auditResult),
       channel,
       ts,
     });
