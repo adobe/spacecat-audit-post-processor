@@ -133,7 +133,7 @@ describe('slack api', () => {
     await expect(uploadSlackFile(null, {})).to.be.rejectedWith('Missing slack bot token');
   });
 
-  it('throws error when slack api request fails with non-successful status codde', async () => {
+  it('throws error when slack api request fails with non-successful status code', async () => {
     const mockFile = new Blob(['test file content'], { type: 'text/plain' });
     nock('https://slack.com', {
       reqheaders: {
@@ -150,6 +150,28 @@ describe('slack api', () => {
     };
 
     await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack. Reason: Slack upload file API request failed. Status: 500');
+  });
+
+  it('throws error when slack api request is not acknowledged', async () => {
+    const mockFile = new Blob(['test file content'], { type: 'text/plain' });
+    nock('https://slack.com', {
+      reqheaders: {
+        authorization: `Bearer ${token}`,
+      },
+    })
+      .post('/api/files.upload')
+      .reply(200, {
+        ok: false,
+        error: 'some-error',
+      });
+
+    const options = {
+      file: mockFile,
+      fileName: 'test-file.csv',
+      channel: 'channel-id',
+    };
+
+    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Slack message was not acknowledged. Error: some-error');
   });
 
   it('throws error when slack api returns an invalid response', async () => {
