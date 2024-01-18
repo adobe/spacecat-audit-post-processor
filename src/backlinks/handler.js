@@ -17,9 +17,6 @@ import {
 } from '../support/slack.js';
 
 function convertToCSV(array) {
-  if (array.length === 0) {
-    return '';
-  }
   const headers = Object.keys(array[0]).join(',');
   const rows = array.map((item) => Object.values(item).map((value) => {
     if (typeof value === 'object' && value !== null) {
