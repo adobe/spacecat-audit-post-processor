@@ -1,3 +1,24 @@
+# [1.2.0](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.5...v1.2.0) (2024-01-18)
+
+
+### Features
+
+* apex audit reporting ([#41](https://github.com/adobe-rnd/spacecat-audit-post-processor/issues/41)) ([366656e](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/366656e95d1c60961687839a0e8334c44f753b3f))
+
+## [1.1.5](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.4...v1.1.5) (2024-01-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-shared-secrets to v2.2.2 ([#39](https://github.com/adobe-rnd/spacecat-audit-post-processor/issues/39)) ([b4e69d4](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/b4e69d48e9e90208786a022c83434882acb1ad25))
+
+## [1.1.4](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.3...v1.1.4) (2024-01-12)
+
+
+### Bug Fixes
+
+* rum api client v1.3.1 ([#35](https://github.com/adobe-rnd/spacecat-audit-post-processor/issues/35)) ([88bdb11](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/88bdb1109fc3e23e094667913e64a52dee350bea))
+
 ## [1.1.3](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.2...v1.1.3) (2024-01-12)
 
 
