@@ -1,6 +1,6 @@
 {
   "name": "@adobe/spacecat-audit-post-processor",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "SpaceCat Audit Post-Processor",
   "main": "src/index.js",
   "type": "module",
@@ -35,14 +35,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/adobe-rnd/spacecat-audit-post-processor"
+    "url": "https://github.com/adobe/spacecat-audit-post-processor"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/adobe-rnd/spacecat-audit-post-processor/issues"
+    "url": "https://github.com/adobe/spacecat-audit-post-processor/issues"
   },
-  "homepage": "https://github.com/adobe-rnd/spacecat-audit-post-processor#readme",
+  "homepage": "https://github.com/adobe/spacecat-audit-post-processor#readme",
   "mocha": {
     "require": "test/setup-env.js",
     "recursive": "true",
@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@adobe/eslint-config-helix": "2.0.5",
-    "@adobe/helix-deploy": "10.0.1",
+    "@adobe/helix-deploy": "10.2.0",
     "@adobe/helix-universal": "4.4.1",
     "@adobe/semantic-release-coralogix": "1.1.27",
     "@adobe/semantic-release-skms-cmr": "1.0.14",
