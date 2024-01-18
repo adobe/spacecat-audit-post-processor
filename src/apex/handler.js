@@ -16,16 +16,13 @@ import { markdown, postSlackMessage, section } from '../support/slack.js';
 
 function buildSlackMessage(results) {
   const blocks = [];
-  const sorted = results.sort((a, b) => b.success - a.success);
+  const [firstResult, secondResult] = results.sort((a, b) => b.success - a.success);
 
-  // results array always has two element all the time - verified at the beginning of the handler
-  const informativePart = !sorted[0].success
-    ? `Your domains are encountering difficulties. Requests to both *<${sorted[0].url}|${sorted[0].url}>* and *<${sorted[1].url}|${sorted[1].url}>* *fail* :red:`
-    : `One of your domains is encountering difficulties. While requests to *<${sorted[0].url}|${sorted[0].url}>* are successful :checked:, those to *<${sorted[1].url}|${sorted[1].url}>* fail :red:.`;
+  const informativePart = firstResult.success
+    ? `One of your domains is encountering difficulties. While requests to *<${firstResult.url}|${firstResult.url}>* are successful :checked:, those to *<${secondResult.url}|${secondResult.url}>* fail :red:.`
+    : `Your domains are encountering difficulties. Requests to both *<${firstResult.url}|${firstResult.url}>* and *<${secondResult.url}|${secondResult.url}>* *fail* :red:`;
 
-  blocks.push(section({
-    text: markdown(informativePart),
-  }));
+  blocks.push(section({ text: markdown(informativePart) }));
 
   blocks.push(section({
     text: markdown('Please verify and adjust the redirection settings as per your requirements. Delay in resolving this issue could result in SEO repercussions, potentially leading to a decrease in organic traffic. Prompt action is advised to mitigate this risk.'),
@@ -38,7 +35,8 @@ function isValidMessage(message) {
   return hasText(message.url)
     && hasText(message.auditContext?.slackContext?.channel)
     && isArray(message.auditResult)
-    && message.auditResult.length === 2;
+    && message.auditResult.length === 2
+    && message.auditResult.every((result) => 'success' in result && hasText(result.url));
 }
 
 export default async function apexHandler(message, context) {
@@ -49,7 +47,6 @@ export default async function apexHandler(message, context) {
   if (!isValidMessage(message)) {
     const msg = 'Required parameters missing in the message body';
     log.info(msg);
-    log.info(`type of: ${typeof message.auditResult?.success}`);
     return badRequest(msg);
   }
 
