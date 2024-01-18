@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.5...v1.2.0) (2024-01-18)
+
+
+### Features
+
+* apex audit reporting ([#41](https://github.com/adobe-rnd/spacecat-audit-post-processor/issues/41)) ([366656e](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/366656e95d1c60961687839a0e8334c44f753b3f))
+
 ## [1.1.5](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.4...v1.1.5) (2024-01-15)
 
 
