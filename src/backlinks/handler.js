@@ -17,46 +17,35 @@ import {
 } from '../support/slack.js';
 
 function convertToCSV(array) {
-  let csvStr = '';
-
-  // Extract headers
-  if (array.length > 0) {
-    csvStr += `${Object.keys(array[0]).join(',')}\r\n`;
+  if (array.length === 0) {
+    return '';
   }
-
-  // Extract content
-  array.forEach((item) => {
-    const line = Object.keys(item).map((key) => {
-      let value = item[key];
-      if (typeof value === 'object' && value !== null) {
-        value = JSON.stringify(value);
-      }
-      return `"${value}"`;
-    }).join(',');
-
-    csvStr += `${line}\r\n`;
-  });
-
-  return csvStr;
+  const headers = Object.keys(array[0]).join(',');
+  const rows = array.map((item) => Object.values(item).map((value) => {
+    if (typeof value === 'object' && value !== null) {
+      return `"${JSON.stringify(value)}"`;
+    }
+    return `"${value}"`;
+  }).join(',')).join('\r\n');
+  return `${headers}\r\n${rows}\r\n`;
 }
 
 function buildSlackMessage(url, fileUrl, fileName, auditResult) {
-  const blocks = [];
-
-  blocks.push((section({
-    text: markdown(`For *${url}*, ${auditResult.brokenBacklinks.length} broken backlink(s) were detected.`),
-  })));
-
-  blocks.push((section({
-    text: markdown(`The following CSV file contains a detailed report for all broken backlinks: <${fileUrl}|${fileName}>.`),
-  })));
-
-  return blocks;
+  return [
+    section({
+      text: markdown(`For *${url}*, ${auditResult.brokenBacklinks.length} broken backlink(s) were detected.`),
+    }),
+    section({
+      text: markdown(`The following CSV file contains a detailed report for all broken backlinks: <${fileUrl}|${fileName}>.`),
+    }),
+  ];
 }
+
 function isValidMessage(message) {
   return hasText(message.url)
+    && isObject(message.auditContext?.slackContext)
     && isArray(message.auditResult?.brokenBacklinks)
-    && isObject(message.auditContext?.slackContext);
+    && message.auditResult?.brokenBacklinks?.every((link) => isObject(link));
 }
 
 export default async function brokenBacklinksHandler(message, context) {
