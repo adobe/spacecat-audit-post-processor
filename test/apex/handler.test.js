@@ -16,9 +16,7 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 import apex from '../../src/apex/handler.js';
-import {
-  allAuditsAreSuccessful, apexFails, allFails, allBadStatus,
-} from '../fixtures/apex-audit-results.js';
+import { allAuditsAreSuccessful, apexFails, allFails } from '../fixtures/apex-audit-results.js';
 import { slackApexRequestData, slackAllFailsRequestData } from '../fixtures/slack-apex-request-data.js';
 import { getQueryParams } from '../../src/support/slack.js';
 import cwv from '../../src/cwv/handler.js';
@@ -140,29 +138,6 @@ describe('cwv handler', () => {
     const logSpy = sandbox.spy(context.log, 'info');
     const { channel, ts } = message.auditContext.slackContext;
     message.auditResult = allFails;
-
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .get('/api/chat.postMessage')
-      .query(getQueryParams(slackAllFailsRequestData, channel, ts))
-      .reply(200, {
-        ok: 'success',
-        channel: 'ch-1',
-        ts: 'ts-1',
-      });
-
-    const resp = await apex(message, context);
-    expect(resp.status).to.equal(204);
-    expect(logSpy).to.have.been.calledWith(`Slack notification sent for ${message.url}`);
-  });
-
-  it('builds and sends the slack message when both www and non-www requests have bad status code', async () => {
-    const logSpy = sandbox.spy(context.log, 'info');
-    const { channel, ts } = message.auditContext.slackContext;
-    message.auditResult = allBadStatus;
 
     nock('https://slack.com', {
       reqheaders: {

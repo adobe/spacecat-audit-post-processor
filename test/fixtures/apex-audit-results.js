@@ -45,16 +45,3 @@ export const allFails = [
     success: false,
   },
 ];
-
-export const allBadStatus = [
-  {
-    url: 'https://adobe.com/',
-    success: true,
-    status: 401,
-  },
-  {
-    url: 'https://www.adobe.com/',
-    success: true,
-    status: 401,
-  },
-];

@@ -14,15 +14,11 @@ import { hasText, isArray } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { markdown, postSlackMessage, section } from '../support/slack.js';
 
-function isHTTPSuccess(status) {
-  return status >= 200 && status < 400;
-}
-
 function buildSlackMessage(results) {
   const blocks = [];
   const [firstResult, secondResult] = results.sort((a, b) => b.success - a.success);
 
-  const informativePart = firstResult.success && isHTTPSuccess(firstResult.status)
+  const informativePart = firstResult.success
     ? `One of your domains is encountering difficulties. While requests to *<${firstResult.url}|${firstResult.url}>* are successful :checked:, those to *<${secondResult.url}|${secondResult.url}>* fail :red:.`
     : `Your domains are encountering difficulties. Requests to both *<${firstResult.url}|${firstResult.url}>* and *<${secondResult.url}|${secondResult.url}>* *fail* :red:`;
 
@@ -54,7 +50,7 @@ export default async function apexHandler(message, context) {
     return badRequest(msg);
   }
 
-  if (auditResult.every((result) => result.success && isHTTPSuccess(result.status))) {
+  if (auditResult.every((result) => result.success)) {
     log.info(`Apex audit was successful for ${url}. Won't notify.`);
     return noContent();
   }
