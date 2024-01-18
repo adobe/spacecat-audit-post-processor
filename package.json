@@ -35,14 +35,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/adobe-rnd/spacecat-audit-post-processor"
+    "url": "https://github.com/adobe/spacecat-audit-post-processor"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/adobe-rnd/spacecat-audit-post-processor/issues"
+    "url": "https://github.com/adobe/spacecat-audit-post-processor/issues"
   },
-  "homepage": "https://github.com/adobe-rnd/spacecat-audit-post-processor#readme",
+  "homepage": "https://github.com/adobe/spacecat-audit-post-processor#readme",
   "mocha": {
     "require": "test/setup-env.js",
     "recursive": "true",
