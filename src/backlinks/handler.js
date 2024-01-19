@@ -66,7 +66,7 @@ export default async function brokenBacklinksHandler(message, context) {
   const file = new Blob([csvData], { type: 'text/csv' });
 
   try {
-    const fileName = `broken-backlinks-${url.replace(/\./g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
+    const fileName = `broken-backlinks-${url.split('://')[1]?.replace(/\./g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
     const { fileUrl } = await uploadSlackFile(token, {
       file, fileName, channel,
     });
