@@ -16,10 +16,12 @@ import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
+import notFoundDigestHandler from './notfoundigest/handler.js';
 
 export const HANDLERS = {
   cwv,
   404: notFoundHandler,
+  '404-digest': notFoundDigestHandler,
 };
 
 function guardEnvironmentVariables(fn) {
@@ -68,7 +70,9 @@ async function run(message, context) {
     url,
   } = message;
 
-  log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
+  if (url) {
+    log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
+  }
 
   const handler = HANDLERS[type];
   if (!handler) {

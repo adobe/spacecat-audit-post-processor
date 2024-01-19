@@ -16,11 +16,11 @@ import { badRequest, internalServerError, noContent } from '@adobe/spacecat-shar
 import commaNumber from 'comma-number';
 import { postSlackMessage, markdown, section } from '../support/slack.js';
 
+const ALERT_TYPE = '404';
+const AUDIT_REPORT = '404-report';
+
 function isValidMessage(message) {
-  return hasText(message.url)
-      && hasText(message.auditContext?.finalUrl)
-      && hasText(message.auditContext?.slackContext?.channel)
-      && isArray(message.auditResult);
+  return hasText(message.url);
 }
 async function getBacklink(context, url) {
   try {
@@ -32,11 +32,11 @@ async function getBacklink(context, url) {
   }
 }
 
-function buildSlackMessage(url, finalUrl, auditResult, backlink) {
+function buildSlackMessage(url, finalUrl, auditResult, backlink, mentions) {
   const blocks = [];
 
   blocks.push(section({
-    text: markdown(`For *${url}*, ${auditResult.length} page(s) had 404s *last week* for the real users.\n More information is below (up to three pages):`),
+    text: markdown(`${isArray(mentions) ? mentions.join(' ').toString() : ''} For *${url}*, ${auditResult.length} page(s) had 404s *last week* for the real users.\n More information is below (up to three pages):`),
   }));
 
   for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {
@@ -64,31 +64,50 @@ function buildSlackMessage(url, finalUrl, auditResult, backlink) {
   return blocks;
 }
 
+function getSlackContext(site, dataAccess, auditContext) {
+  if (auditContext.slackContext) {
+    return auditContext.slackContext;
+  }
+  let config = site.getConfig();
+  if (config?.slack?.channel) {
+    const notFoundAlertConfig = config.alerts.find((alert) => alert.type === ALERT_TYPE);
+    return { channel: config?.slack?.channel, mentions: notFoundAlertConfig?.mentions[0]?.slack };
+  }
+  const organizationId = site.getOrganizationId();
+  const organization = dataAccess.getOrganizationByID(organizationId);
+  config = organization.getConfig();
+  if (config?.slack?.channel) {
+    const notFoundAlertConfig = config.alerts.find((alert) => alert.type === ALERT_TYPE);
+    return { channel: config?.slack?.channel, mentions: notFoundAlertConfig?.mentions[0]?.slack };
+  }
+  return {};
+}
+
 export default async function notFoundHandler(message, context) {
-  const { log } = context;
-  const { url, auditResult, auditContext } = message;
-  const { env: { SLACK_BOT_TOKEN: token } } = context;
+  const { url, auditContext } = message;
+  const { log, env: { SLACK_BOT_TOKEN: token }, dataAccess } = context;
 
   if (!isValidMessage(message)) {
     return badRequest('Required parameters missing in the message body');
   }
+  const site = await dataAccess.getSiteByBaseURL(url);
+  const latest404AuditReport = await site.getLatestAuditForSite(site.getId(), AUDIT_REPORT);
 
-  if (auditResult.length === 0) {
-    log.info(`There are no 404 results for ${url}`);
-    return noContent();
-  }
+  const slackContext = getSlackContext(site, dataAccess, auditContext);
 
   // create a backlink to rum dashboard to be included in alert message
-  const backlink = await getBacklink(context, auditContext.finalUrl);
-
-  const { channel, ts } = auditContext.slackContext;
-
+  const backlink = await getBacklink(context, latest404AuditReport.finalUrl);
   try {
     // send alert to the slack channel - group under a thread if ts value exists
     await postSlackMessage(token, {
-      blocks: buildSlackMessage(url, auditContext.finalUrl, auditResult, backlink),
-      channel,
-      ts,
+      blocks: buildSlackMessage(
+        url,
+        latest404AuditReport.finalUrl,
+        latest404AuditReport,
+        backlink,
+        slackContext.mentions,
+      ),
+      slackContext,
     });
   } catch (e) {
     log.error(`Failed to send Slack message for ${url}. Reason: ${e.message}`);
