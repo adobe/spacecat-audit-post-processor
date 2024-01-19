@@ -42,54 +42,14 @@ describe('backlinks handler', () => {
           {
             title: 'backlink title',
             url_from: 'url-from',
-            languages: [
-              'en',
-            ],
-            domain_rating_source: 57,
-            url_rating_source: 1.3,
-            traffic_domain: 37326,
-            refdomains_source: 1,
-            linked_domains_source_page: 12,
-            links_external: 16,
-            traffic: 0,
-            positions: 5,
-            name_target: 'name-target',
-            http_code_target: 404,
-            snippet_left: 'snippet-left',
-            anchor: 'anchor',
-            snippet_right: 'snippet-right',
-            link_type: 'text',
-            is_content: true,
-            is_dofollow: true,
-            is_ugc: false,
-            is_sponsored: false,
-            link_group_count: 1,
+            url_to: 'url-to',
+            languages: ['en'],
           },
           {
             title: 'backlink title 2',
             url_from: 'url-from-2',
-            languages: [
-              'en',
-            ],
-            domain_rating_source: 49,
-            url_rating_source: 3.3,
-            traffic_domain: 12819,
-            refdomains_source: 0,
-            linked_domains_source_page: 6,
-            links_external: 7,
-            traffic: 0,
-            positions: 0,
-            name_target: 'name-target-2',
-            http_code_target: 404,
-            snippet_left: 'snippet-left-2',
-            anchor: 'anchor-2',
-            snippet_right: 'snippet-right-2',
-            link_type: 'text',
-            is_content: true,
-            is_dofollow: true,
-            is_ugc: false,
-            is_sponsored: false,
-            link_group_count: 1,
+            url_to: 'url-to-2',
+            languages: ['en'],
           },
         ],
       },
@@ -178,6 +138,54 @@ describe('backlinks handler', () => {
       .query(true)
       .reply(200, '{ "ok": true, "channel": "channel-id", "ts": "thread-id" }');
     const resp = await brokenBacklinksHandler(message, context);
+    expect(resp.status).to.equal(204);
+  });
+
+  it('sends a slack message when there are broken backlinks and an url with protocol', async () => {
+    nock('https://slack.com', {
+      reqheaders: {
+        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
+      },
+    })
+      .post('/api/files.upload')
+      .reply(200, {
+        ok: true,
+        file: {
+          url_private: 'slack-file-url',
+        },
+      });
+
+    nock('https://slack.com', {
+      reqheaders: {
+        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
+      },
+    })
+      .get('/api/chat.postMessage')
+      .query(true)
+      .reply(200, '{ "ok": true, "channel": "channel-id", "ts": "thread-id" }');
+    const resp = await brokenBacklinksHandler(message = {
+      url: 'https://space.cat/test',
+      auditContext: {
+        slackContext: {
+          channel: 'channel-id',
+          ts: 'thread-id',
+        },
+      },
+      auditResult: {
+        brokenBacklinks: [
+          {
+            title: 'backlink title',
+            url_from: 'url-from',
+            url_to: 'url-to',
+          },
+          {
+            title: 'backlink title 2',
+            url_from: 'url-from-2',
+            url_to: 'url-to-2',
+          },
+        ],
+      },
+    }, context);
     expect(resp.status).to.equal(204);
   });
 });
