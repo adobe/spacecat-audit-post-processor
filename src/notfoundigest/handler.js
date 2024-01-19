@@ -14,6 +14,7 @@ import { noContent } from '@adobe/spacecat-shared-http-utils';
 import { postSlackMessage } from '../support/slack.js';
 
 const ALERT_TYPE = '404';
+export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
 
 export default async function notFoundDigestHandler(message, context) {
   const { dataAccess, sqs } = context;
@@ -34,7 +35,18 @@ export default async function notFoundDigestHandler(message, context) {
       const { channel } = config.slack;
       if (notFoundAlertConfig.byOrg) {
         // eslint-disable-next-line no-await-in-loop
-        const thread = await postSlackMessage(token, { channel });
+        const thread = await postSlackMessage(token, {
+          channel,
+          blocks: JSON.stringify([
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: INITIAL_404_SLACK_MESSAGE,
+              },
+            },
+          ]),
+        });
         const mentions = notFoundAlertConfig.mentions[0].slack;
         // eslint-disable-next-line no-await-in-loop
         await sqs.sendMessage(queueUrl, {
