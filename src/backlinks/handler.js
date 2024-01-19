@@ -30,7 +30,7 @@ function convertToCSV(array) {
 function buildSlackMessage(url, fileUrl, fileName, auditResult) {
   return [
     section({
-      text: markdown(`For *${url}*, ${auditResult.brokenBacklinks.length} broken backlink(s) were detected.`),
+      text: markdown(`For *${url.split('://')[1]}*, ${auditResult.brokenBacklinks.length} broken backlink(s) were detected.`),
     }),
     section({
       text: markdown(`The following CSV file contains a detailed report for all broken backlinks: <${fileUrl}|${fileName}>.`),
@@ -75,6 +75,7 @@ export default async function brokenBacklinksHandler(message, context) {
       blocks: buildSlackMessage(url, fileUrl, fileName, auditResult),
       channel,
       ts,
+      unfurl_media: false,
     });
   } catch (e) {
     log.error(`Failed to send slack message to report broken backlinks for ${url}. Reason: ${e.message}`);
