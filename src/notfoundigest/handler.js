@@ -38,14 +38,14 @@ export default async function notFoundDigestHandler(message, context) {
         const mentions = notFoundAlertConfig.mentions[0].slack;
         // eslint-disable-next-line no-await-in-loop
         await sqs.sendMessage(queueUrl, {
-          type: '404',
+          type: ALERT_TYPE,
           url: site.getBaseURL(),
           auditContext: { slackContext: { thread, channel, mentions } },
         });
       } else {
         // eslint-disable-next-line no-await-in-loop
         await sqs.sendMessage(queueUrl, {
-          type: '404',
+          type: ALERT_TYPE,
           url: site.getBaseURL(),
         });
       }
