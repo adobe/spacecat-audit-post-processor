@@ -27,6 +27,7 @@ const sandbox = sinon.createSandbox();
 describe('backlinks handler', () => {
   let message;
   let context;
+  let mockLog;
 
   beforeEach('setup', () => {
     message = {
@@ -37,25 +38,52 @@ describe('backlinks handler', () => {
           ts: 'thread-id',
         },
       },
-      auditResult: {
-        brokenBacklinks: [
-          {
-            title: 'backlink title',
-            url_from: 'url-from',
-            url_to: 'url-to',
-            languages: ['en'],
-          },
-          {
-            title: 'backlink title 2',
-            url_from: 'url-from-2',
-            url_to: 'url-to-2',
-            languages: ['en'],
-          },
-        ],
-      },
+      auditResult: [
+        {
+          url: 'space.cat',
+          brokenBacklinks: [
+            {
+              title: 'backlink title',
+              url_from: 'url-from',
+              url_to: 'url-to',
+              languages: ['en'],
+            },
+            {
+              title: 'backlink title 2',
+              url_from: 'url-from-2',
+              url_to: 'url-to-2',
+              languages: ['en'],
+            },
+          ],
+        },
+        {
+          url: 'www.space.cat',
+          brokenBacklinks: [
+            {
+              title: 'backlink title',
+              url_from: 'url-from',
+              url_to: 'url-to',
+              languages: ['en'],
+            },
+            {
+              title: 'backlink title 2',
+              url_from: 'url-from-2',
+              url_to: 'url-to-2',
+              languages: ['en'],
+            },
+          ],
+        },
+      ],
     };
+
+    mockLog = {
+      info: sinon.spy(),
+      warn: sinon.spy(),
+      error: sinon.spy(),
+    };
+
     context = {
-      log: console,
+      log: mockLog,
       env: {
         SLACK_BOT_TOKEN: 'token',
       },
@@ -79,8 +107,8 @@ describe('backlinks handler', () => {
     expect(resp.status).to.equal(400);
   });
 
-  it('rejects when backlinks are missing in auditResult', async () => {
-    delete message.auditResult.brokenBacklinks;
+  it('rejects when auditResult is not an array', async () => {
+    message.auditResult = {};
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(400);
   });
@@ -98,9 +126,13 @@ describe('backlinks handler', () => {
   });
 
   it('sends no slack message when there are no broken backlinks', async () => {
-    message.auditResult.brokenBacklinks = [];
+    message.auditResult = [{
+      url: message.url,
+      brokenBacklinks: [],
+    }];
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
+    expect(mockLog.info).to.have.been.calledWith(`No broken backlinks detected for ${message.url}`);
   });
 
   it('throws error when slack api fails to upload file', async () => {
@@ -112,7 +144,8 @@ describe('backlinks handler', () => {
       .post('/api/files.upload')
       .reply(500);
     const resp = await brokenBacklinksHandler(message, context);
-    expect(resp.status).to.equal(500);
+    expect(resp.status).to.equal(204);
+    expect(mockLog.error).to.have.been.calledWith(`Failed to send slack message to report broken backlinks for ${message.url}. Reason: Failed to upload file to slack. Reason: Slack upload file API request failed. Status: 500`);
   });
 
   it('sends a slack message when there are broken backlinks', async () => {
@@ -171,7 +204,8 @@ describe('backlinks handler', () => {
           ts: 'thread-id',
         },
       },
-      auditResult: {
+      auditResult: [{
+        url: 'https://space.cat/test',
         brokenBacklinks: [
           {
             title: 'backlink title',
@@ -184,7 +218,7 @@ describe('backlinks handler', () => {
             url_to: 'url-to-2',
           },
         ],
-      },
+      }],
     }, context);
     expect(resp.status).to.equal(204);
   });

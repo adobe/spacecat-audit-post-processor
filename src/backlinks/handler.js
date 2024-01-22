@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import { badRequest, internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
+import { badRequest, noContent } from '@adobe/spacecat-shared-http-utils';
 import { hasText, isArray, isObject } from '@adobe/spacecat-shared-utils';
 import {
   markdown, postSlackMessage, section, uploadSlackFile,
@@ -41,8 +41,8 @@ function buildSlackMessage(url, fileUrl, fileName, auditResult) {
 function isValidMessage(message) {
   return hasText(message.url)
     && isObject(message.auditContext?.slackContext)
-    && isArray(message.auditResult?.brokenBacklinks)
-    && message.auditResult?.brokenBacklinks?.every((link) => isObject(link));
+    && isArray(message.auditResult)
+    && message.auditResult.every((result) => isObject(result));
 }
 
 export default async function brokenBacklinksHandler(message, context) {
@@ -53,34 +53,36 @@ export default async function brokenBacklinksHandler(message, context) {
   if (!isValidMessage(message)) {
     return badRequest('Required parameters missing in the message.');
   }
-  const { brokenBacklinks } = auditResult;
 
-  if (brokenBacklinks.length === 0) {
-    log.info(`No broken backlinks detected for ${url}`);
-    return noContent();
-  }
+  await Promise.all(auditResult.map(async (result) => {
+    const { brokenBacklinks } = result;
 
-  const { channel, ts } = auditContext.slackContext;
+    if (brokenBacklinks.length === 0) {
+      log.info(`No broken backlinks detected for ${result.url}`);
+      return;
+    }
 
-  const csvData = convertToCSV(brokenBacklinks);
-  const file = new Blob([csvData], { type: 'text/csv' });
+    const { channel, ts } = auditContext.slackContext;
 
-  try {
-    const fileName = `broken-backlinks-${url.split('://')[1]?.replace(/\./g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
-    const { fileUrl } = await uploadSlackFile(token, {
-      file, fileName, channel,
-    });
+    const csvData = convertToCSV(brokenBacklinks);
+    const file = new Blob([csvData], { type: 'text/csv' });
 
-    await postSlackMessage(token, {
-      blocks: buildSlackMessage(url, fileUrl, fileName, auditResult),
-      channel,
-      ts,
-      unfurl_media: false,
-    });
-  } catch (e) {
-    log.error(`Failed to send slack message to report broken backlinks for ${url}. Reason: ${e.message}`);
-    return internalServerError(`Failed to send slack message to report broken backlinks for ${url}`);
-  }
+    try {
+      const fileName = `broken-backlinks-${result.url.split('://')[1]?.replace(/\./g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
+      const { fileUrl } = await uploadSlackFile(token, {
+        file, fileName, channel,
+      });
+
+      await postSlackMessage(token, {
+        blocks: buildSlackMessage(result.url, fileUrl, fileName, result),
+        channel,
+        ts,
+        unfurl_media: false,
+      });
+    } catch (e) {
+      log.error(`Failed to send slack message to report broken backlinks for ${url}. Reason: ${e.message}`);
+    }
+  }));
 
   log.info(`Successfully reported broken backlinks for ${url}`);
   return noContent();
