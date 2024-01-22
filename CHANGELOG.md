@@ -1,3 +1,17 @@
+## [1.2.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.2.0...v1.2.1) (2024-01-18)
+
+
+### Bug Fixes
+
+* adobe-rnd -> adobe ([d915c53](https://github.com/adobe/spacecat-audit-post-processor/commit/d915c53db0b698da0376420cc7b2892c8f98635b))
+
+# [1.2.0](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.5...v1.2.0) (2024-01-18)
+
+
+### Features
+
+* apex audit reporting ([#41](https://github.com/adobe-rnd/spacecat-audit-post-processor/issues/41)) ([366656e](https://github.com/adobe-rnd/spacecat-audit-post-processor/commit/366656e95d1c60961687839a0e8334c44f753b3f))
+
 ## [1.1.5](https://github.com/adobe-rnd/spacecat-audit-post-processor/compare/v1.1.4...v1.1.5) (2024-01-15)
 
 
