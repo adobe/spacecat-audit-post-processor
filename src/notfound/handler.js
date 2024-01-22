@@ -17,7 +17,6 @@ import commaNumber from 'comma-number';
 import { postSlackMessage, markdown, section } from '../support/slack.js';
 
 const ALERT_TYPE = '404';
-const AUDIT_REPORT = '404-report';
 
 function isValidMessage(message) {
   return hasText(message.url);
@@ -91,7 +90,7 @@ export default async function notFoundHandler(message, context) {
     return badRequest('Required parameters missing in the message body');
   }
   const site = await dataAccess.getSiteByBaseURL(url);
-  const latest404AuditReport = await site.getLatestAuditForSite(site.getId(), AUDIT_REPORT);
+  const latest404AuditReport = await site.getLatestAuditForSite(site.getId(), ALERT_TYPE);
 
   const slackContext = getSlackContext(site, dataAccess, auditContext);
 
