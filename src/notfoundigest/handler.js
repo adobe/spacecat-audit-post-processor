@@ -10,17 +10,37 @@
  * governing permissions and limitations under the License.
  */
 
+import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
 import { noContent } from '@adobe/spacecat-shared-http-utils';
-import { postSlackMessage } from '../support/slack.js';
+import { post404InitialSlackMessage } from '../support/slack.js';
 
 const ALERT_TYPE = '404';
-export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
+export const isDigestForAllUrls = (url) => url && url.toUpperCase() === 'ALL';
 
 export default async function notFoundDigestHandler(message, context) {
   const { dataAccess, sqs } = context;
   const {
-    env: { AUDIT_JOBS_QUEUE_URL: queueUrl, SLACK_BOT_TOKEN: token },
+    env: {
+      AUDIT_JOBS_QUEUE_URL: queueUrl,
+      SLACK_BOT_TOKEN: token, AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId,
+    },
   } = context;
+  const { url } = message;
+  if (isDigestForAllUrls(url)) {
+    const rumApiClient = RUMAPIClient.createFrom(context);
+    const urls = await rumApiClient.getDomainList();
+    for (const domainUrl of urls) {
+      // eslint-disable-next-line no-await-in-loop
+      const slackContext = await post404InitialSlackMessage(token, slackChannelId);
+      // eslint-disable-next-line no-await-in-loop
+      await sqs.sendMessage(queueUrl, {
+        type: ALERT_TYPE,
+        url: domainUrl,
+        auditContext: { slackContext },
+      });
+    }
+    return noContent();
+  }
 
   const organizations = await dataAccess.getOrganizations();
   for (const organization of organizations) {
@@ -35,24 +55,13 @@ export default async function notFoundDigestHandler(message, context) {
       const { channel } = config.slack;
       if (notFoundAlertConfig.byOrg) {
         // eslint-disable-next-line no-await-in-loop
-        const thread = await postSlackMessage(token, {
-          channel,
-          blocks: JSON.stringify([
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: INITIAL_404_SLACK_MESSAGE,
-              },
-            },
-          ]),
-        });
+        const slackContext = await post404InitialSlackMessage(token, channel);
         const mentions = notFoundAlertConfig.mentions[0].slack;
         // eslint-disable-next-line no-await-in-loop
         await sqs.sendMessage(queueUrl, {
           type: ALERT_TYPE,
           url: site.getBaseURL(),
-          auditContext: { slackContext: { thread, channel, mentions } },
+          auditContext: { slackContext: { ...slackContext, mentions } },
         });
       } else {
         // eslint-disable-next-line no-await-in-loop

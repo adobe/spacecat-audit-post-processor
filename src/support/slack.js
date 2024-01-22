@@ -14,6 +14,7 @@ import { createUrl } from '@adobe/fetch';
 import { fetch } from './utils.js';
 
 export const SLACK_API = 'https://slack.com/api/chat.postMessage';
+export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
 
 export function getQueryParams(blocks, channel, ts) {
   return {
@@ -54,6 +55,21 @@ export async function postSlackMessage(token, opts) {
     channel: respJson.channel,
     ts: respJson.ts,
   };
+}
+
+export async function post404InitialSlackMessage(token, slackChannelId) {
+  return postSlackMessage(token, {
+    channel: slackChannelId,
+    blocks: JSON.stringify([
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: INITIAL_404_SLACK_MESSAGE,
+        },
+      },
+    ]),
+  });
 }
 
 export function section(content) {
