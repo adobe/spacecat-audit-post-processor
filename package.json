@@ -59,7 +59,6 @@
     "@adobe/spacecat-shared-http-utils": "1.1.2",
     "@adobe/spacecat-shared-utils": "1.7.2",
     "@adobe/spacecat-shared-data-access": "1.10.0",
-    "@aws-sdk/client-sqs": "3.490.0",
     "comma-number": "2.1.0",
     "human-format": "1.2.0"
   },
