@@ -40,20 +40,7 @@ describe('backlinks handler', () => {
       },
       auditResult: {
         'space.cat': {
-          brokenBacklinks: [
-            {
-              title: 'backlink title',
-              url_from: 'url-from',
-              url_to: 'url-to',
-              languages: ['en'],
-            },
-            {
-              title: 'backlink title 2',
-              url_from: 'url-from-2',
-              url_to: 'url-to-2',
-              languages: ['en'],
-            },
-          ],
+          brokenBacklinks: [],
         },
         'www.space.cat': {
           brokenBacklinks: [
@@ -143,11 +130,6 @@ describe('backlinks handler', () => {
   });
 
   it('sends no slack message when there are no broken backlinks', async () => {
-    message.auditResult = {
-      [`${message.url}`]: {
-        brokenBacklinks: [],
-      },
-    };
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
     expect(mockLog.info).to.have.been.calledWith(`No broken backlinks detected for ${message.url}`);
@@ -160,10 +142,12 @@ describe('backlinks handler', () => {
       },
     })
       .post('/api/files.upload')
+      .times(1)
       .reply(500);
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
-    expect(mockLog.error).to.have.been.calledWith(`Failed to send slack message to report broken backlinks for ${message.url}. Reason: Failed to upload file to slack. Reason: Slack upload file API request failed. Status: 500`);
+    expect(mockLog.error).to.have.been.calledWith('Failed to send slack message to report broken backlinks for www.space.cat. Reason:'
+      + ' Failed to upload file to slack. Reason: Slack upload file API request failed. Status: 500');
   });
 
   it('sends a slack message when there are broken backlinks', async () => {
@@ -173,6 +157,7 @@ describe('backlinks handler', () => {
       },
     })
       .post('/api/files.upload')
+      .times(2)
       .reply(200, {
         ok: true,
         file: {
@@ -187,9 +172,11 @@ describe('backlinks handler', () => {
     })
       .get('/api/chat.postMessage')
       .query(true)
+      .times(2)
       .reply(200, '{ "ok": true, "channel": "channel-id", "ts": "thread-id" }');
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
+    expect(mockLog.error).to.not.have.been.called;
   });
 
   it('sends a slack message when there are broken backlinks and an url with protocol', async () => {
@@ -241,5 +228,6 @@ describe('backlinks handler', () => {
         },
     }, context);
     expect(resp.status).to.equal(204);
+    expect(mockLog.error).to.not.have.been.called;
   });
 });

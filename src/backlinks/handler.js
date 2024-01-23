@@ -27,10 +27,10 @@ function convertToCSV(array) {
   return `${headers}\r\n${rows}\r\n`;
 }
 
-function buildSlackMessage(url, fileUrl, fileName, auditResult) {
+function buildSlackMessage(url, fileUrl, fileName, result) {
   return [
     section({
-      text: markdown(`For *${url.split('://')[1]}*, ${auditResult.brokenBacklinks.length} broken backlink(s) were detected.`),
+      text: markdown(`For *${url.split('://')[1]}*, ${result?.brokenBacklinks?.length} broken backlink(s) were detected.`),
     }),
     section({
       text: markdown(`The following CSV file contains a detailed report for all broken backlinks: <${fileUrl}|${fileName}>.`),
@@ -56,14 +56,14 @@ export default async function brokenBacklinksHandler(message, context) {
 
   await Promise.all(Object.keys(auditResult).map(async (url) => {
     const result = auditResult[url];
-    const { brokenBacklinks } = result;
+    const { brokenBacklinks, error } = result;
 
-    if (result.error) {
-      log.warn(`Not reporting broken backlinks: ${result.error}`);
+    if (error) {
+      log.warn(`Not reporting broken backlinks: ${error}`);
       return;
     }
 
-    if (brokenBacklinks.length === 0) {
+    if (!brokenBacklinks || brokenBacklinks.length === 0) {
       log.info(`No broken backlinks detected for ${url}`);
       return;
     }
@@ -71,6 +71,7 @@ export default async function brokenBacklinksHandler(message, context) {
     const { channel, ts } = auditContext.slackContext;
 
     const csvData = convertToCSV(brokenBacklinks);
+    log.info(`Converted to csv ${csvData}`);
     const file = new Blob([csvData], { type: 'text/csv' });
 
     try {
