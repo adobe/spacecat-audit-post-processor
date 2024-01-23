@@ -38,9 +38,8 @@ describe('backlinks handler', () => {
           ts: 'thread-id',
         },
       },
-      auditResult: [
-        {
-          url: 'space.cat',
+      auditResult: {
+        'space.cat': {
           brokenBacklinks: [
             {
               title: 'backlink title',
@@ -56,8 +55,7 @@ describe('backlinks handler', () => {
             },
           ],
         },
-        {
-          url: 'www.space.cat',
+        'www.space.cat': {
           brokenBacklinks: [
             {
               title: 'backlink title',
@@ -73,7 +71,7 @@ describe('backlinks handler', () => {
             },
           ],
         },
-      ],
+      },
     };
 
     mockLog = {
@@ -107,8 +105,16 @@ describe('backlinks handler', () => {
     expect(resp.status).to.equal(400);
   });
 
-  it('rejects when auditResult is not an array', async () => {
-    message.auditResult = {};
+  it('rejects when auditResult is not an object', async () => {
+    message.auditResult = [];
+    const resp = await brokenBacklinksHandler(message, context);
+    expect(resp.status).to.equal(400);
+  });
+
+  it('rejects when auditResult for url is not an object', async () => {
+    message.auditResult = {
+      'some-url': [],
+    };
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(400);
   });
@@ -126,10 +132,11 @@ describe('backlinks handler', () => {
   });
 
   it('sends no slack message when there are no broken backlinks', async () => {
-    message.auditResult = [{
-      url: message.url,
-      brokenBacklinks: [],
-    }];
+    message.auditResult = {
+      [`${message.url}`]: {
+        brokenBacklinks: [],
+      },
+    };
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
     expect(mockLog.info).to.have.been.calledWith(`No broken backlinks detected for ${message.url}`);
@@ -204,21 +211,23 @@ describe('backlinks handler', () => {
           ts: 'thread-id',
         },
       },
-      auditResult: [{
-        url: 'https://space.cat/test',
-        brokenBacklinks: [
-          {
-            title: 'backlink title',
-            url_from: 'url-from',
-            url_to: 'url-to',
+      auditResult:
+        {
+          'https://space.cat/test': {
+            brokenBacklinks: [
+              {
+                title: 'backlink title',
+                url_from: 'url-from',
+                url_to: 'url-to',
+              },
+              {
+                title: 'backlink title 2',
+                url_from: 'url-from-2',
+                url_to: 'url-to-2',
+              },
+            ],
           },
-          {
-            title: 'backlink title 2',
-            url_from: 'url-from-2',
-            url_to: 'url-to-2',
-          },
-        ],
-      }],
+        },
     }, context);
     expect(resp.status).to.equal(204);
   });
