@@ -190,6 +190,6 @@ describe('slack api', () => {
       channel: 'channel-id',
     };
 
-    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack. Reason: Failed to parse Slack API response. Error: SyntaxError: Unexpected token i in JSON at position 0');
+    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack. Reason: Failed to parse Slack API response. Error: SyntaxError: Unexpected token \'i\', "invalid" is not valid JSON');
   });
 });

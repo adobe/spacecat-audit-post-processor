@@ -131,6 +131,17 @@ describe('backlinks handler', () => {
     expect(resp.status).to.equal(400);
   });
 
+  it('sends no slack message when audit result item has error', async () => {
+    message.auditResult = {
+      [`${message.url}`]: {
+        error: 'some-error',
+      },
+    };
+    const resp = await brokenBacklinksHandler(message, context);
+    expect(resp.status).to.equal(204);
+    expect(mockLog.warn).to.have.been.calledWith('Not reporting broken backlinks: some-error');
+  });
+
   it('sends no slack message when there are no broken backlinks', async () => {
     message.auditResult = {
       [`${message.url}`]: {

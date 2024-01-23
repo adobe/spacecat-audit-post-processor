@@ -58,6 +58,11 @@ export default async function brokenBacklinksHandler(message, context) {
     const result = auditResult[url];
     const { brokenBacklinks } = result;
 
+    if (result.error) {
+      log.warn(`Not reporting broken backlinks: ${result.error}`);
+      return;
+    }
+
     if (brokenBacklinks.length === 0) {
       log.info(`No broken backlinks detected for ${url}`);
       return;
