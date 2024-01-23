@@ -16,7 +16,7 @@ import { get404Backlink } from '../support/utils.js';
 
 const ALERT_TYPE = '404';
 
-export default async function notFoundDigestHandler(message, context) {
+export default async function notFoundOrgsDigestHandler(message, context) {
   const { dataAccess, log } = context;
   const {
     env: {

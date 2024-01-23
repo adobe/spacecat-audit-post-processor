@@ -17,15 +17,16 @@ import secrets from '@adobe/helix-shared-secrets';
 import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
-import notFoundDigestHandler from './notfoundigest/handler-orgs.js';
+import notFoundOrgsDigestHandler from './notfoundigest/handler-orgs.js';
 import backlinks from './backlinks/handler.js';
+import notFoundSitesDigestHandler from './notfoundigest/handler-sites.js';
 
 export const HANDLERS = {
   apex,
   cwv,
   404: notFoundHandler,
-  '404-digest-orgs': notFoundDigestHandler,
-  '404-digest-sites': notFoundDigestHandler,
+  '404-digest-orgs': notFoundOrgsDigestHandler,
+  '404-digest-sites': notFoundSitesDigestHandler,
   'broken-backlinks': backlinks,
 };
 

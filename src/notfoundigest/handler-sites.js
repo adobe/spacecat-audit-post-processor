@@ -17,7 +17,7 @@ import { get404Backlink } from '../support/utils.js';
 
 const ALERT_TYPE = '404';
 
-export default async function notFoundDigestHandler(message, context) {
+export default async function notFoundSitesDigestHandler(message, context) {
   const {
     env: {
       SLACK_BOT_TOKEN: token, AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId,
