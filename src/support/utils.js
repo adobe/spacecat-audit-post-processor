@@ -10,8 +10,18 @@
  * governing permissions and limitations under the License.
  */
 import { context as h2, h1 } from '@adobe/fetch';
+import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
 
 /* c8 ignore next 3 */
 export const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
   ? h1()
   : h2();
+export const get404Backlink = async (context, url) => {
+  try {
+    const rumApiClient = RUMAPIClient.createFrom(context);
+    return await rumApiClient.create404Backlink(url, 7);
+  } catch (e) {
+    context.log.warn(`Failed to get a backlink for ${url}`);
+    return null;
+  }
+};
