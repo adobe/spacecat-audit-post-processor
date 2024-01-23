@@ -1,3 +1,24 @@
+# [1.3.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.2.3...v1.3.0) (2024-01-23)
+
+
+### Features
+
+* introduce post processor for broken-backlinks audit (SITES-18417) ([#37](https://github.com/adobe/spacecat-audit-post-processor/issues/37)) ([7f0f699](https://github.com/adobe/spacecat-audit-post-processor/commit/7f0f699448708a53e6ab537d2072ed2b4a5b627a)), closes [adobe/spacecat-audit-worker#77](https://github.com/adobe/spacecat-audit-worker/issues/77)
+
+## [1.2.3](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.2.2...v1.2.3) (2024-01-23)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#48](https://github.com/adobe/spacecat-audit-post-processor/issues/48)) ([0b82749](https://github.com/adobe/spacecat-audit-post-processor/commit/0b82749aa04ba4739f7e229c9daf81bdb641d5d9))
+
+## [1.2.2](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.2.1...v1.2.2) (2024-01-23)
+
+
+### Bug Fixes
+
+* update to node 20, deps ([#46](https://github.com/adobe/spacecat-audit-post-processor/issues/46)) ([fb583b2](https://github.com/adobe/spacecat-audit-post-processor/commit/fb583b27aabb519211884ab473c1d7428a7b83b8))
+
 ## [1.2.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.2.0...v1.2.1) (2024-01-18)
 
 

@@ -18,6 +18,7 @@ import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
 import notFoundDigestHandler from './notfoundigest/handler-orgs.js';
+import backlinks from './backlinks/handler.js';
 
 export const HANDLERS = {
   apex,
@@ -25,6 +26,7 @@ export const HANDLERS = {
   404: notFoundHandler,
   '404-digest-orgs': notFoundDigestHandler,
   '404-digest-sites': notFoundDigestHandler,
+  'broken-backlinks': backlinks,
 };
 
 function guardEnvironmentVariables(fn) {

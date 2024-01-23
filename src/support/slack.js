@@ -17,6 +17,7 @@ import { fetch } from './utils.js';
 
 export const SLACK_API = 'https://slack.com/api/chat.postMessage';
 export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
+export const SLACK_FILE_API = 'https://slack.com/api/files.upload';
 
 export function getQueryParams(blocks, channel, ts) {
   return {
@@ -72,6 +73,49 @@ export async function post404InitialSlackMessage(token, slackChannelId, mentions
       },
     ]),
   });
+}
+export async function uploadSlackFile(token, opts) {
+  if (!token) {
+    throw new Error('Missing slack bot token');
+  }
+
+  const { file, fileName, channel } = opts;
+
+  try {
+    const formData = new FormData();
+    formData.append('token', token);
+    formData.append('channels', channel);
+    formData.append('file', file, fileName);
+
+    const response = await fetch(SLACK_FILE_API, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Slack upload file API request failed. Status: ${response.status}`);
+    }
+
+    let responseJson;
+    try {
+      responseJson = await response.json();
+    } catch (e) {
+      throw new Error(`Failed to parse Slack API response. Error: ${e}`);
+    }
+
+    if (!responseJson.ok) {
+      throw new Error(`Slack message was not acknowledged. Error: ${responseJson.error}`);
+    }
+
+    return {
+      fileUrl: responseJson.file.url_private,
+    };
+  } catch (e) {
+    throw new Error(`Failed to upload file to slack. Reason: ${e.message}`);
+  }
 }
 
 export function section(content) {
