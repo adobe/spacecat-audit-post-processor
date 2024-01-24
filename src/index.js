@@ -18,16 +18,16 @@ import dataAccess from '@adobe/spacecat-shared-data-access';
 import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
-import notFoundOrgsDigestHandler from './notfoundigest/handler-orgs.js';
 import backlinks from './backlinks/handler.js';
-import notFoundSitesDigestHandler from './notfoundigest/handler-sites.js';
+import notFoundInternalDigestHandler from './notfoundigest/handler-internal.js';
+import notFoundExternalDigestHandler from './notfoundigest/handler-external.js';
 
 export const HANDLERS = {
   apex,
   cwv,
   404: notFoundHandler,
-  '404-digest-orgs': notFoundOrgsDigestHandler,
-  '404-digest-sites': notFoundSitesDigestHandler,
+  '404-external': notFoundExternalDigestHandler(),
+  '404-internal': notFoundInternalDigestHandler(),
   'broken-backlinks': backlinks,
 };
 

@@ -16,7 +16,7 @@ import { get404Backlink } from '../support/utils.js';
 
 const ALERT_TYPE = '404';
 
-export default async function notFoundOrgsDigestHandler(message, context) {
+export default async function notFoundExternalDigestHandler(message, context) {
   const { dataAccess, log } = context;
   const {
     env: {
@@ -60,7 +60,7 @@ export default async function notFoundOrgsDigestHandler(message, context) {
           blocks: build404SlackMessage(
             site.getBaseURL(),
             latest404AuditReport.finalUrl,
-            latest404AuditReport,
+            latest404AuditReport.report,
             backlink,
             slackContext.mentions,
           ),
