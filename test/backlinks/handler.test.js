@@ -164,16 +164,6 @@ describe('backlinks handler', () => {
           url_private: 'slack-file-url',
         },
       });
-
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .get('/api/chat.postMessage')
-      .query(true)
-      .times(2)
-      .reply(200, '{ "ok": true, "channel": "channel-id", "ts": "thread-id" }');
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
     expect(mockLog.error).to.not.have.been.called;
@@ -193,14 +183,6 @@ describe('backlinks handler', () => {
         },
       });
 
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .get('/api/chat.postMessage')
-      .query(true)
-      .reply(200, '{ "ok": true, "channel": "channel-id", "ts": "thread-id" }');
     const resp = await brokenBacklinksHandler(message = {
       url: 'https://space.cat/test',
       auditContext: {
