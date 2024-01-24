@@ -67,7 +67,6 @@ export async function uploadSlackFile(token, opts) {
   try {
     const formData = new FormData();
     formData.append('token', token);
-    formData.append('channels', channel);
     formData.append('file', file, fileName);
 
     const response = await fetch(SLACK_FILE_API, {
