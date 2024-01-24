@@ -37,7 +37,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
       // create a backlink to rum dashboard to be included in alert message
       const { channel } = orgConfig.slack;
       // eslint-disable-next-line no-await-in-loop
-      const latest404AuditReport = await site.getLatestAuditForSite(site.getId(), ALERT_TYPE);
+      const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
       // eslint-disable-next-line no-await-in-loop
       const backlink = await get404Backlink(context, latest404AuditReport.finalUrl);
       if (notFoundOrgAlertConfig?.byOrg) {
