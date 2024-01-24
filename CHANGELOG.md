@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.3...v1.3.4) (2024-01-24)
+
+
+### Bug Fixes
+
+* Broken backlink alert sends double messages ([#52](https://github.com/adobe/spacecat-audit-post-processor/issues/52)) ([b7c898a](https://github.com/adobe/spacecat-audit-post-processor/commit/b7c898a89346503d56569f3587913b4808f1c627))
+
 ## [1.3.3](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.2...v1.3.3) (2024-01-24)
 
 
