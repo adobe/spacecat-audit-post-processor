@@ -11,6 +11,7 @@
  */
 
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
+import { isObject } from '@adobe/spacecat-shared-utils';
 import { build404SlackMessage, post404InitialSlackMessage, postSlackMessage } from '../support/slack.js';
 import { get404Backlink } from '../support/utils.js';
 
@@ -38,37 +39,39 @@ export default async function notFoundExternalDigestHandler(message, context) {
       const { channel } = orgConfig.slack;
       // eslint-disable-next-line no-await-in-loop
       const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
-      // eslint-disable-next-line no-await-in-loop
-      const backlink = await get404Backlink(context, latest404AuditReport.finalUrl);
-      if (notFoundOrgAlertConfig?.byOrg) {
-        const mentions = notFoundOrgAlertConfig.mentions[0].slack;
+      if (isObject(latest404AuditReport)) {
         // eslint-disable-next-line no-await-in-loop
-        slackContext = await post404InitialSlackMessage(token, channel, mentions);
-        slackContext = { ...slackContext, mentions };
-      } else {
-        const siteConfig = site.getConfig();
-        slackContext.channel = siteConfig.slack.channel;
-        const notFoundSiteAlertConfig = siteConfig.alerts.find(
-          (alert) => alert.type === ALERT_TYPE,
-        );
-        slackContext.mentions = notFoundSiteAlertConfig.mentions[0].slack;
-      }
-      try {
-        // send alert to the slack channel - group under a thread if ts value exists
-        // eslint-disable-next-line no-await-in-loop
-        await postSlackMessage(token, {
-          blocks: build404SlackMessage(
-            site.getBaseURL(),
-            latest404AuditReport.finalUrl,
-            latest404AuditReport.report,
-            backlink,
-            slackContext.mentions,
-          ),
-          slackContext,
-        });
-      } catch (e) {
-        log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
-        return internalServerError(`Failed to send Slack message for ${site.getBaseURL()}}`);
+        const backlink = await get404Backlink(context, latest404AuditReport.finalUrl);
+        if (notFoundOrgAlertConfig?.byOrg) {
+          const mentions = notFoundOrgAlertConfig.mentions[0].slack;
+          // eslint-disable-next-line no-await-in-loop
+          slackContext = await post404InitialSlackMessage(token, channel, mentions);
+          slackContext = { ...slackContext, mentions };
+        } else {
+          const siteConfig = site.getConfig();
+          slackContext.channel = siteConfig.slack.channel;
+          const notFoundSiteAlertConfig = siteConfig.alerts.find(
+            (alert) => alert.type === ALERT_TYPE,
+          );
+          slackContext.mentions = notFoundSiteAlertConfig.mentions[0].slack;
+        }
+        try {
+          // send alert to the slack channel - group under a thread if ts value exists
+          // eslint-disable-next-line no-await-in-loop
+          await postSlackMessage(token, {
+            blocks: build404SlackMessage(
+              site.getBaseURL(),
+              latest404AuditReport.finalUrl,
+              latest404AuditReport.report,
+              backlink,
+              slackContext.mentions,
+            ),
+            slackContext,
+          });
+        } catch (e) {
+          log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
+          return internalServerError(`Failed to send Slack message for ${site.getBaseURL()}}`);
+        }
       }
     }
   }
