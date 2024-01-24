@@ -26,8 +26,8 @@ export const HANDLERS = {
   apex,
   cwv,
   404: notFoundHandler,
-  '404-external': notFoundExternalDigestHandler(),
-  '404-internal': notFoundInternalDigestHandler(),
+  '404-external': notFoundExternalDigestHandler,
+  '404-internal': notFoundInternalDigestHandler,
   'broken-backlinks': backlinks,
 };
 
