@@ -62,7 +62,7 @@ export async function uploadSlackFile(token, opts) {
     throw new Error('Missing slack bot token');
   }
 
-  const { file, fileName, channel } = opts;
+  const { file, fileName } = opts;
 
   try {
     const formData = new FormData();
