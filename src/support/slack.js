@@ -62,12 +62,17 @@ export async function uploadSlackFile(token, opts) {
     throw new Error('Missing slack bot token');
   }
 
-  const { file, fileName } = opts;
+  const {
+    file, fileName, channel, ts, text,
+  } = opts;
 
   try {
     const formData = new FormData();
     formData.append('token', token);
+    formData.append('channels', channel);
+    formData.append('thread_ts', ts);
     formData.append('file', file, fileName);
+    formData.append('initial_comment', text);
 
     const response = await fetch(SLACK_FILE_API, {
       headers: {
