@@ -39,9 +39,11 @@ export default async function notFoundExternalDigestHandler(message, context) {
       const { channel } = orgConfig.slack;
       // eslint-disable-next-line no-await-in-loop
       const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
+      const { result } = latest404AuditReport.state.auditResult;
+      const { finalUrl } = latest404AuditReport.state;
       if (isObject(latest404AuditReport)) {
         // eslint-disable-next-line no-await-in-loop
-        const backlink = await get404Backlink(context, latest404AuditReport.finalUrl);
+        const backlink = await get404Backlink(context, finalUrl);
         if (notFoundOrgAlertConfig?.byOrg) {
           const mentions = notFoundOrgAlertConfig.mentions[0].slack;
           // eslint-disable-next-line no-await-in-loop
@@ -61,12 +63,11 @@ export default async function notFoundExternalDigestHandler(message, context) {
           await postSlackMessage(token, {
             blocks: build404SlackMessage(
               site.getBaseURL(),
-              latest404AuditReport.finalUrl,
-              latest404AuditReport.report,
+              result,
               backlink,
               slackContext.mentions,
             ),
-            slackContext,
+            ...slackContext,
           });
         } catch (e) {
           log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);

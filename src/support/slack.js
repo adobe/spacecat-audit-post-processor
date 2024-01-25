@@ -126,7 +126,7 @@ export function markdown(text) {
   return { type: 'mrkdwn', text };
 }
 
-export function build404SlackMessage(url, finalUrl, auditResult, backlink, mentions) {
+export function build404SlackMessage(url, auditResult, backlink, mentions) {
   const blocks = [];
 
   blocks.push(section({
