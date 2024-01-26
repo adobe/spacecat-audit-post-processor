@@ -68,7 +68,7 @@ export async function post404InitialSlackMessage(token, slackChannelId, mentions
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `${isArray(mentions) ? mentions.join(' ').toString() : ''} ${INITIAL_404_SLACK_MESSAGE}`,
+          text: `${isArray(mentions) ? `${mentions.join(' ').toString()} ` : ''}${INITIAL_404_SLACK_MESSAGE}`,
         },
       },
     ],

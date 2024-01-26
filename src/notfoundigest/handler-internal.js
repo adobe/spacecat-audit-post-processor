@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Adobe. All rights reserved.
+ * Copyright 2024 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -28,7 +28,8 @@ export default async function notFoundInternalDigestHandler(message, context) {
   for (const domainUrl of urls) {
     // eslint-disable-next-line no-await-in-loop
     const slackContext = await post404InitialSlackMessage(token, slackChannelId);
-    const site = dataAccess.getSiteByBaseURL(`https://${domainUrl}`);
+    // eslint-disable-next-line no-await-in-loop
+    const site = await dataAccess.getSiteByBaseURL(`https://${domainUrl}`);
     // eslint-disable-next-line no-await-in-loop
     const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
     const { finalUrl, result } = latest404AuditReport.state.auditResult;
@@ -42,7 +43,7 @@ export default async function notFoundInternalDigestHandler(message, context) {
         backlink,
         slackContext.mentions,
       ),
-      slackContext,
+      ...slackContext,
     });
   }
 

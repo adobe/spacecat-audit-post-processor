@@ -16,7 +16,7 @@ import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
-import notFoundExternalDigestHandler from '../../src/notfoundigest/handler-external.js';
+import notFoundInternalDigestHandler from '../../src/notfoundigest/handler-internal.js';
 import { build404SlackMessage, getQueryParams, INITIAL_404_SLACK_MESSAGE } from '../../src/support/slack.js';
 
 chai.use(sinonChai);
@@ -25,23 +25,8 @@ const { expect } = chai;
 
 const sandbox = sinon.createSandbox();
 
-describe('not found external handler', () => {
+describe('not found internal handler', () => {
   let context;
-  const organizationData = {
-    getId: () => 'org1',
-    name: 'Org1',
-    getConfig: () => ({
-      slack: {
-        workspace: 'workspace1',
-        channel: 'channel1',
-      },
-      alerts: [{
-        type: '404',
-        byOrg: true,
-        mentions: [{ slack: ['slackId1'] }],
-      }],
-    }),
-  };
   const siteData = {
     getId: () => 'site1',
     getBaseURL: () => 'https://moleculardevices.com',
@@ -60,20 +45,19 @@ describe('not found external handler', () => {
     state: {
       auditResult: {
         result:
-          [
-            {
-              url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
-              pageviews: '100',
-              source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
-            },
-          ],
+                    [
+                      {
+                        url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
+                        pageviews: '100',
+                        source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
+                      },
+                    ],
         finalUrl: 'moleculardevices.com',
       },
     },
   };
   const mockDataAccess = {
-    getOrganizations: sinon.stub().resolves([organizationData]),
-    getSitesByOrganizationID: sinon.stub().resolves([siteData]),
+    getSiteByBaseURL: sinon.stub().resolves(siteData),
     getLatestAuditForSite: sinon.stub().resolves(auditData),
   };
 
@@ -84,6 +68,7 @@ describe('not found external handler', () => {
       env: {
         SLACK_BOT_TOKEN: 'token',
         RUM_DOMAIN_KEY: 'uber-key',
+        AUDIT_REPORT_SLACK_CHANNEL_ID: 'channel1',
       },
     };
   });
@@ -97,6 +82,7 @@ describe('not found external handler', () => {
     const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
+      getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
     };
     const channel = 'channel1';
     const initialQueryParams = getQueryParams(
@@ -105,7 +91,7 @@ describe('not found external handler', () => {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `slackId1 ${INITIAL_404_SLACK_MESSAGE}`,
+            text: INITIAL_404_SLACK_MESSAGE,
           },
         },
       ],
@@ -120,7 +106,11 @@ describe('not found external handler', () => {
         channel: 'channel1',
         ts: 'ts-1',
       });
-    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, backlink, ['slackId1']);
+    const blocks = build404SlackMessage(
+      siteData.getBaseURL(),
+      auditData.state.auditResult.result,
+      backlink,
+    );
     const queryParams = getQueryParams(blocks, 'channel1', 'ts-1');
     nock('https://slack.com')
       .get('/api/chat.postMessage')
@@ -129,36 +119,7 @@ describe('not found external handler', () => {
         ok: 'success',
       });
 
-    const resp = await notFoundExternalDigestHandler({}, context);
-    expect(resp.status).to.equal(204);
-  });
-
-  it('builds and sends the slack message when there is an site config and a 404 audit stored for the site', async () => {
-    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
-    context.rumApiClient = {
-      create404Backlink: sandbox.stub().resolves(backlink),
-    };
-    const siteContext = { ...context };
-    const newOrgData = {
-      ...organizationData,
-      getConfig: () => ({
-        alerts: [{
-          type: '404',
-          byOrg: false,
-        }],
-      }),
-    };
-    siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, backlink, ['slackId2']);
-    const queryParams = getQueryParams(blocks, 'channel2');
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(queryParams)
-      .reply(200, {
-        ok: 'success',
-      });
-
-    const resp = await notFoundExternalDigestHandler({}, siteContext);
+    const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 
@@ -182,7 +143,7 @@ describe('not found external handler', () => {
       .query(initialQueryParams)
       .reply(400, {
       });
-    const resp = await notFoundExternalDigestHandler({}, context);
+    const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
   });
 });

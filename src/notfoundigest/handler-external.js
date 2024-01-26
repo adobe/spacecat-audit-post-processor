@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Adobe. All rights reserved.
+ * Copyright 2024 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -35,8 +35,6 @@ export default async function notFoundExternalDigestHandler(message, context) {
     const sites = await dataAccess.getSitesByOrganizationID(organizationId);
     let slackContext = {};
     for (const site of sites) {
-      // create a backlink to rum dashboard to be included in alert message
-      const { channel } = orgConfig.slack;
       // eslint-disable-next-line no-await-in-loop
       const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
       if (isObject(latest404AuditReport)) {
@@ -44,6 +42,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
         // eslint-disable-next-line no-await-in-loop
         const backlink = await get404Backlink(context, finalUrl);
         if (notFoundOrgAlertConfig?.byOrg) {
+          const { channel } = orgConfig.slack;
           const mentions = notFoundOrgAlertConfig.mentions[0].slack;
           // eslint-disable-next-line no-await-in-loop
           slackContext = await post404InitialSlackMessage(token, channel, mentions);
