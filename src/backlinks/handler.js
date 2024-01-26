@@ -12,9 +12,7 @@
 
 import { badRequest, noContent } from '@adobe/spacecat-shared-http-utils';
 import { hasText, isObject } from '@adobe/spacecat-shared-utils';
-import {
-  markdown, postSlackMessage, section, uploadSlackFile,
-} from '../support/slack.js';
+import { uploadSlackFile } from '../support/slack.js';
 
 function convertToCSV(array) {
   const headers = Object.keys(array[0]).join(',');
@@ -25,17 +23,6 @@ function convertToCSV(array) {
     return `"${value}"`;
   }).join(',')).join('\r\n');
   return `${headers}\r\n${rows}\r\n`;
-}
-
-function buildSlackMessage(url, fileUrl, fileName, result) {
-  return [
-    section({
-      text: markdown(`For *${url.split('://')[1]}*, ${result?.brokenBacklinks?.length} broken backlink(s) were detected.`),
-    }),
-    section({
-      text: markdown(`The following CSV file contains a detailed report for all broken backlinks: <${fileUrl}|${fileName}>.`),
-    }),
-  ];
 }
 
 function isValidMessage(message) {
@@ -76,16 +63,11 @@ export default async function brokenBacklinksHandler(message, context) {
 
     try {
       const fileName = `broken-backlinks-${url.split('://')[1]?.replace(/\./g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
-      const { fileUrl } = await uploadSlackFile(token, {
-        file, fileName, channel,
+      const text = `For *${url.split('://')[1]}*, ${result?.brokenBacklinks?.length} broken backlink(s) were detected.\nThe following CSV file contains a detailed report for all broken backlinks:`;
+      await uploadSlackFile(token, {
+        file, fileName, channel, ts, text,
       });
 
-      await postSlackMessage(token, {
-        blocks: buildSlackMessage(url, fileUrl, fileName, result),
-        channel,
-        ts,
-        unfurl_media: false,
-      });
       log.info(`Successfully reported broken backlinks for ${url}`);
     } catch (e) {
       log.error(`Failed to send slack message to report broken backlinks for ${url}. Reason: ${e.message}`);

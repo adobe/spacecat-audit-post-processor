@@ -1,3 +1,24 @@
+## [1.3.5](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.4...v1.3.5) (2024-01-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-rum-api-client to v1.4.1 ([#57](https://github.com/adobe/spacecat-audit-post-processor/issues/57)) ([b0d1c5e](https://github.com/adobe/spacecat-audit-post-processor/commit/b0d1c5e220ade5e80a749401e5369c7d13d80960))
+
+## [1.3.4](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.3...v1.3.4) (2024-01-24)
+
+
+### Bug Fixes
+
+* Broken backlink alert sends double messages ([#52](https://github.com/adobe/spacecat-audit-post-processor/issues/52)) ([b7c898a](https://github.com/adobe/spacecat-audit-post-processor/commit/b7c898a89346503d56569f3587913b4808f1c627))
+
+## [1.3.3](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.2...v1.3.3) (2024-01-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-rum-api-client to v1.4.0 ([#53](https://github.com/adobe/spacecat-audit-post-processor/issues/53)) ([e4e48d8](https://github.com/adobe/spacecat-audit-post-processor/commit/e4e48d8c98751511a400f3c4238711efb7fd1655))
+
 ## [1.3.2](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.1...v1.3.2) (2024-01-24)
 
 
