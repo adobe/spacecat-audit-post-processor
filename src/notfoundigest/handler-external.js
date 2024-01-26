@@ -39,8 +39,8 @@ export default async function notFoundExternalDigestHandler(message, context) {
       const { channel } = orgConfig.slack;
       // eslint-disable-next-line no-await-in-loop
       const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
-      const { finalUrl, result } = latest404AuditReport.state.auditResult;
       if (isObject(latest404AuditReport)) {
+        const { finalUrl, result } = latest404AuditReport.state.auditResult;
         // eslint-disable-next-line no-await-in-loop
         const backlink = await get404Backlink(context, finalUrl);
         if (notFoundOrgAlertConfig?.byOrg) {

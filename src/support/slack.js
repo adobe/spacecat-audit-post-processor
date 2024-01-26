@@ -63,7 +63,7 @@ export async function postSlackMessage(token, opts) {
 export async function post404InitialSlackMessage(token, slackChannelId, mentions) {
   return postSlackMessage(token, {
     channel: slackChannelId,
-    blocks: JSON.stringify([
+    blocks: [
       {
         type: 'section',
         text: {
@@ -71,7 +71,7 @@ export async function post404InitialSlackMessage(token, slackChannelId, mentions
           text: `${isArray(mentions) ? mentions.join(' ').toString() : ''} ${INITIAL_404_SLACK_MESSAGE}`,
         },
       },
-    ]),
+    ],
   });
 }
 export async function uploadSlackFile(token, opts) {
