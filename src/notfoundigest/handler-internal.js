@@ -25,9 +25,9 @@ export default async function notFoundInternalDigestHandler(message, context) {
   } = context;
   const rumApiClient = RUMAPIClient.createFrom(context);
   const urls = await rumApiClient.getDomainList();
+  const slackContext = await post404InitialSlackMessage(token, slackChannelId);
   for (const domainUrl of urls) {
     // eslint-disable-next-line no-await-in-loop
-    const slackContext = await post404InitialSlackMessage(token, slackChannelId);
     // eslint-disable-next-line no-await-in-loop
     const site = await dataAccess.getSiteByBaseURL(`https://${domainUrl}`);
     // eslint-disable-next-line no-await-in-loop
