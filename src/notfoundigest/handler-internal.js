@@ -11,7 +11,7 @@
  */
 
 import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
-import { noContent } from '@adobe/spacecat-shared-http-utils';
+import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { build404SlackMessage, post404InitialSlackMessage, postSlackMessage } from '../support/slack.js';
 import { get404Backlink } from '../support/utils.js';
 
@@ -21,11 +21,17 @@ export default async function notFoundInternalDigestHandler(message, context) {
   const {
     env: {
       SLACK_BOT_TOKEN: token, AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId,
-    }, dataAccess,
+    }, dataAccess, log,
   } = context;
   const rumApiClient = RUMAPIClient.createFrom(context);
   const urls = await rumApiClient.getDomainList();
-  const slackContext = await post404InitialSlackMessage(token, slackChannelId);
+  let slackContext = {};
+  try {
+    slackContext = await post404InitialSlackMessage(token, slackChannelId);
+  } catch (e) {
+    log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
+    return internalServerError('Failed to send initial Slack message');
+  }
   for (const domainUrl of urls) {
     // eslint-disable-next-line no-await-in-loop
     // eslint-disable-next-line no-await-in-loop
@@ -36,18 +42,21 @@ export default async function notFoundInternalDigestHandler(message, context) {
     // eslint-disable-next-line no-await-in-loop
     const backlink = await get404Backlink(context, finalUrl);
     if (result && result.length > 0) {
-      // eslint-disable-next-line no-await-in-loop
-      await postSlackMessage(token, {
-        blocks: build404SlackMessage(
-          site.getBaseURL(),
-          result,
-          backlink,
-          slackContext.mentions,
-        ),
-        ...slackContext,
-      });
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await postSlackMessage(token, {
+          blocks: build404SlackMessage(
+            site.getBaseURL(),
+            result,
+            backlink,
+            slackContext.mentions,
+          ),
+          ...slackContext,
+        });
+      } catch (e) {
+        log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
+      }
     }
   }
-
   return noContent();
 }

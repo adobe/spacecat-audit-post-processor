@@ -162,7 +162,7 @@ describe('not found external handler', () => {
     expect(resp.status).to.equal(204);
   });
 
-  xit('returns 500 if slack api fails', async () => {
+  it('returns 500 if the initial slack api fails', async () => {
     const channel = 'channel1';
     const initialQueryParams = getQueryParams(
       [
@@ -180,9 +180,37 @@ describe('not found external handler', () => {
     nock('https://slack.com')
       .get('/api/chat.postMessage')
       .query(initialQueryParams)
-      .reply(400, {
-      });
+      .reply(400, { error: 'badrequest' });
     const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
+  });
+
+  it('continues if just one slack api call failed', async () => {
+    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
+    context.rumApiClient = {
+      create404Backlink: sandbox.stub().resolves(backlink),
+    };
+    const siteContext = { ...context };
+    const newOrgData = {
+      ...organizationData,
+      getConfig: () => ({
+        alerts: [{
+          type: '404',
+          byOrg: false,
+        }],
+      }),
+    };
+    siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
+    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, backlink, ['slackId2']);
+    const queryParams = getQueryParams(blocks, 'channel2');
+    nock('https://slack.com')
+      .get('/api/chat.postMessage')
+      .query(queryParams)
+      .reply(400, {
+        error: 'error',
+      });
+
+    const resp = await notFoundExternalDigestHandler({}, siteContext);
+    expect(resp.status).to.equal(204);
   });
 });

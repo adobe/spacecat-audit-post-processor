@@ -123,7 +123,7 @@ describe('not found internal handler', () => {
     expect(resp.status).to.equal(204);
   });
 
-  xit('returns 500 if slack api fails', async () => {
+  it('returns 500 if the initial slack api fails', async () => {
     const channel = 'channel1';
     const initialQueryParams = getQueryParams(
       [
@@ -131,7 +131,7 @@ describe('not found internal handler', () => {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `slackId1 ${INITIAL_404_SLACK_MESSAGE}`,
+            text: INITIAL_404_SLACK_MESSAGE,
           },
         },
       ],
@@ -141,9 +141,53 @@ describe('not found internal handler', () => {
     nock('https://slack.com')
       .get('/api/chat.postMessage')
       .query(initialQueryParams)
-      .reply(400, {
-      });
+      .reply(400, { error: 'badrequest' });
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
+  });
+
+  it('continues if just one slack api call failed', async () => {
+    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
+    context.rumApiClient = {
+      create404Backlink: sandbox.stub().resolves(backlink),
+      getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
+    };
+    const channel = 'channel1';
+    const initialQueryParams = getQueryParams(
+      [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: INITIAL_404_SLACK_MESSAGE,
+          },
+        },
+      ],
+      channel,
+    );
+
+    nock('https://slack.com')
+      .get('/api/chat.postMessage')
+      .query(initialQueryParams)
+      .reply(200, {
+        ok: 'success',
+        channel: 'channel1',
+        ts: 'ts-1',
+      });
+    const blocks = build404SlackMessage(
+      siteData.getBaseURL(),
+      auditData.state.auditResult.result,
+      backlink,
+    );
+    const queryParams = getQueryParams(blocks, 'channel1', 'ts-1');
+    nock('https://slack.com')
+      .get('/api/chat.postMessage')
+      .query(queryParams)
+      .reply(500, {
+        error: 'error',
+      });
+
+    const resp = await notFoundInternalDigestHandler({}, context);
+    expect(resp.status).to.equal(204);
   });
 });

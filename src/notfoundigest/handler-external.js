@@ -44,8 +44,13 @@ export default async function notFoundExternalDigestHandler(message, context) {
         if (notFoundOrgAlertConfig?.byOrg) {
           const { channel } = orgConfig.slack;
           const mentions = notFoundOrgAlertConfig.mentions[0].slack;
-          // eslint-disable-next-line no-await-in-loop
-          slackContext = await post404InitialSlackMessage(token, channel, mentions);
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            slackContext = await post404InitialSlackMessage(token, channel, mentions);
+          } catch (e) {
+            log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
+            return internalServerError('Failed to send initial Slack message');
+          }
           slackContext = { ...slackContext, mentions };
         } else {
           const siteConfig = site.getConfig();
@@ -71,7 +76,6 @@ export default async function notFoundExternalDigestHandler(message, context) {
           }
         } catch (e) {
           log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
-          return internalServerError(`Failed to send Slack message for ${site.getBaseURL()}}`);
         }
       }
     }
