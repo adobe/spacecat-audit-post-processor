@@ -185,6 +185,34 @@ describe('not found external handler', () => {
     expect(resp.status).to.equal(204);
   });
 
+  it('builds and sends the slack message when there is an site config and a 404 audit stored for the site and no backlink', async () => {
+    context.rumApiClient = {
+      create404Backlink: sandbox.stub().rejects('error'),
+    };
+    const siteContext = { ...context };
+    const newOrgData = {
+      ...organizationData,
+      getConfig: () => ({
+        alerts: [{
+          type: '404',
+          byOrg: false,
+        }],
+      }),
+    };
+    siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
+    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, null, ['slackId2']);
+    const queryParams = getQueryParams(blocks, 'channel2');
+    nock('https://slack.com')
+      .get('/api/chat.postMessage')
+      .query(queryParams)
+      .reply(200, {
+        ok: 'success',
+      });
+
+    const resp = await notFoundExternalDigestHandler({}, siteContext);
+    expect(resp.status).to.equal(204);
+  });
+
   it('continues if just one slack api call failed', async () => {
     const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     context.rumApiClient = {
