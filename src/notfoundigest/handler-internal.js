@@ -36,26 +36,28 @@ export default async function notFoundInternalDigestHandler(message, context) {
   for (const domainUrl of urls) {
     // eslint-disable-next-line no-await-in-loop
     const site = await dataAccess.getSiteByBaseURL(`https://${domainUrl}`);
-    // eslint-disable-next-line no-await-in-loop
-    const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
-    if (isObject(latest404AuditReport)) {
-      const { finalUrl, result } = latest404AuditReport.state.auditResult;
+    if (isObject(site)) {
       // eslint-disable-next-line no-await-in-loop
-      const backlink = await get404Backlink(context, finalUrl);
-      if (result && result.length > 0) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          await postSlackMessage(token, {
-            blocks: build404SlackMessage(
-              site.getBaseURL(),
-              result,
-              backlink,
-              slackContext.mentions,
-            ),
-            ...slackContext,
-          });
-        } catch (e) {
-          log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
+      const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
+      if (isObject(latest404AuditReport)) {
+        const { finalUrl, result } = latest404AuditReport.state.auditResult;
+        // eslint-disable-next-line no-await-in-loop
+        const backlink = await get404Backlink(context, finalUrl);
+        if (result && result.length > 0) {
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            await postSlackMessage(token, {
+              blocks: build404SlackMessage(
+                site.getBaseURL(),
+                result,
+                backlink,
+                slackContext.mentions,
+              ),
+              ...slackContext,
+            });
+          } catch (e) {
+            log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
+          }
         }
       }
     }
