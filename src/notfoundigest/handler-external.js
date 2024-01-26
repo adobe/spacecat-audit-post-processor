@@ -57,16 +57,18 @@ export default async function notFoundExternalDigestHandler(message, context) {
         }
         try {
           // send alert to the slack channel - group under a thread if ts value exists
-          // eslint-disable-next-line no-await-in-loop
-          await postSlackMessage(token, {
-            blocks: build404SlackMessage(
-              site.getBaseURL(),
-              result,
-              backlink,
-              slackContext.mentions,
-            ),
-            ...slackContext,
-          });
+          if (result && result.length > 0) {
+            // eslint-disable-next-line no-await-in-loop
+            await postSlackMessage(token, {
+              blocks: build404SlackMessage(
+                site.getBaseURL(),
+                result,
+                backlink,
+                slackContext.mentions,
+              ),
+              ...slackContext,
+            });
+          }
         } catch (e) {
           log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
           return internalServerError(`Failed to send Slack message for ${site.getBaseURL()}}`);

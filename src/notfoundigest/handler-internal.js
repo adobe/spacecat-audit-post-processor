@@ -35,16 +35,18 @@ export default async function notFoundInternalDigestHandler(message, context) {
     const { finalUrl, result } = latest404AuditReport.state.auditResult;
     // eslint-disable-next-line no-await-in-loop
     const backlink = await get404Backlink(context, finalUrl);
-    // eslint-disable-next-line no-await-in-loop
-    await postSlackMessage(token, {
-      blocks: build404SlackMessage(
-        site.getBaseURL(),
-        result,
-        backlink,
-        slackContext.mentions,
-      ),
-      ...slackContext,
-    });
+    if (result && result.length > 0) {
+      // eslint-disable-next-line no-await-in-loop
+      await postSlackMessage(token, {
+        blocks: build404SlackMessage(
+          site.getBaseURL(),
+          result,
+          backlink,
+          slackContext.mentions,
+        ),
+        ...slackContext,
+      });
+    }
   }
 
   return noContent();
