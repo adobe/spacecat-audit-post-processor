@@ -170,6 +170,9 @@ describe('not found internal handler', () => {
 
   it('returns 500 if the initial slack api fails', async () => {
     const channel = 'channel1';
+    context.rumApiClient = {
+      getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
+    };
     const initialQueryParams = getQueryParams(
       [
         {

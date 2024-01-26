@@ -34,25 +34,24 @@ export default async function notFoundExternalDigestHandler(message, context) {
     // eslint-disable-next-line no-await-in-loop
     const sites = await dataAccess.getSitesByOrganizationID(organizationId);
     let slackContext = {};
+    if (notFoundOrgAlertConfig?.byOrg) {
+      const { channel } = orgConfig.slack;
+      const mentions = notFoundOrgAlertConfig.mentions[0].slack;
+      slackContext = { ...slackContext, mentions };
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        slackContext = await post404InitialSlackMessage(token, channel, mentions);
+      } catch (e) {
+        log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
+        return internalServerError('Failed to send initial Slack message');
+      }
+    }
     for (const site of sites) {
       // eslint-disable-next-line no-await-in-loop
       const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
       if (isObject(latest404AuditReport)) {
         const { finalUrl, result } = latest404AuditReport.state.auditResult;
-        // eslint-disable-next-line no-await-in-loop
-        const backlink = await get404Backlink(context, finalUrl);
-        if (notFoundOrgAlertConfig?.byOrg) {
-          const { channel } = orgConfig.slack;
-          const mentions = notFoundOrgAlertConfig.mentions[0].slack;
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            slackContext = await post404InitialSlackMessage(token, channel, mentions);
-          } catch (e) {
-            log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
-            return internalServerError('Failed to send initial Slack message');
-          }
-          slackContext = { ...slackContext, mentions };
-        } else {
+        if (!notFoundOrgAlertConfig?.byOrg) {
           const siteConfig = site.getConfig();
           slackContext.channel = siteConfig.slack.channel;
           const notFoundSiteAlertConfig = siteConfig.alerts.find(
@@ -63,6 +62,8 @@ export default async function notFoundExternalDigestHandler(message, context) {
         try {
           // send alert to the slack channel - group under a thread if ts value exists
           if (result && result.length > 0) {
+            // eslint-disable-next-line no-await-in-loop
+            const backlink = await get404Backlink(context, finalUrl);
             // eslint-disable-next-line no-await-in-loop
             await postSlackMessage(token, {
               blocks: build404SlackMessage(
