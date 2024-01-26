@@ -162,29 +162,6 @@ describe('not found external handler', () => {
     expect(resp.status).to.equal(204);
   });
 
-  it('returns 500 if the initial slack api fails', async () => {
-    const channel = 'channel1';
-    const initialQueryParams = getQueryParams(
-      [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `slackId1 ${INITIAL_404_SLACK_MESSAGE}`,
-          },
-        },
-      ],
-      channel,
-    );
-
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(initialQueryParams)
-      .reply(400, { error: 'badrequest' });
-    const resp = await notFoundExternalDigestHandler({}, context);
-    expect(resp.status).to.equal(500);
-  });
-
   it('continues if just one slack api call failed', async () => {
     const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     context.rumApiClient = {
@@ -212,5 +189,28 @@ describe('not found external handler', () => {
 
     const resp = await notFoundExternalDigestHandler({}, siteContext);
     expect(resp.status).to.equal(204);
+  });
+
+  it('returns 500 if the initial slack api fails', async () => {
+    const channel = 'channel1';
+    const initialQueryParams = getQueryParams(
+      [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `slackId1 ${INITIAL_404_SLACK_MESSAGE}`,
+          },
+        },
+      ],
+      channel,
+    );
+
+    nock('https://slack.com')
+      .get('/api/chat.postMessage')
+      .query(initialQueryParams)
+      .replyWithError('invalid-');
+    const resp = await notFoundExternalDigestHandler({}, context);
+    expect(resp.status).to.equal(500);
   });
 });

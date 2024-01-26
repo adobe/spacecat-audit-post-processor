@@ -34,7 +34,6 @@ export default async function notFoundInternalDigestHandler(message, context) {
   }
   for (const domainUrl of urls) {
     // eslint-disable-next-line no-await-in-loop
-    // eslint-disable-next-line no-await-in-loop
     const site = await dataAccess.getSiteByBaseURL(`https://${domainUrl}`);
     // eslint-disable-next-line no-await-in-loop
     const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
