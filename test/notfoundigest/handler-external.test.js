@@ -107,6 +107,14 @@ describe('not found external handler', () => {
     expect(resp.status).to.equal(204);
   });
 
+  it('builds no message when there is no audit', async () => {
+    const noAuditContext = { ...context };
+    noAuditContext.dataAccess = { ...context.dataAccess };
+    noAuditContext.dataAccess.getSitesByOrganizationIDWithLatestAudit = () => [];
+    const resp = await notFoundExternalDigestHandler({}, noAuditContext);
+    expect(resp.status).to.equal(204);
+  });
+
   it('returns 500 if the initial slack api fails', async () => {
     context.slackClients = {
       ADOBE_EXTERNAL: { postMessage: sandbox.stub().rejects(new Error('error')) },

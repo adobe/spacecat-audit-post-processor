@@ -28,7 +28,6 @@ const ALERT_TYPE = '404';
 export default async function notFoundExternalDigestHandler(message, context) {
   const { dataAccess, log } = context;
 
-  const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
   const organizations = await dataAccess.getOrganizations();
   for (const organization of organizations) {
     const orgConfig = organization.getConfig();
@@ -43,6 +42,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
     if (sites.length === 0) {
       return noContent();
     }
+    const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
     const isConfigByOrg = isConfigByOrgForAlertType(orgConfig, ALERT_TYPE);
     let slackContext = {};
     if (isConfigByOrg) {
@@ -64,23 +64,23 @@ export default async function notFoundExternalDigestHandler(message, context) {
         if (!isConfigByOrg) {
           const siteConfig = site.getConfig();
           slackContext = getSlackContextForAlertType(siteConfig, ALERT_TYPE);
-          try {
-            // send alert to the slack channel - group under a thread if ts value exists
-            if (results && results.length > 0) {
+        }
+        try {
+          // send alert to the slack channel - group under a thread if ts value exists
+          if (results && results.length > 0) {
+            // eslint-disable-next-line no-await-in-loop
+            const backlink = await get404Backlink(context, finalUrl);
+            const blocks = build404SlackMessage(
+              site.getBaseURL(),
+              results,
+              backlink,
+              slackContext?.mentions,
+            );
               // eslint-disable-next-line no-await-in-loop
-              const backlink = await get404Backlink(context, finalUrl);
-              const blocks = build404SlackMessage(
-                site.getBaseURL(),
-                results,
-                backlink,
-                slackContext.mentions,
-              );
-              // eslint-disable-next-line no-await-in-loop
-              await slackClient.postMessage({ ...slackContext, blocks });
-            }
-          } catch (e) {
-            log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
+            await slackClient.postMessage({ ...slackContext, blocks });
           }
+        } catch (e) {
+          log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
         }
       }
     }
