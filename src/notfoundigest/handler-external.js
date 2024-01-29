@@ -55,7 +55,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
             blocks,
           },
         );
-        slackContext.ts = threadId;
+        slackContext.thread_ts = threadId;
       } catch (e) {
         log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
         return internalServerError('Failed to send initial Slack message');
