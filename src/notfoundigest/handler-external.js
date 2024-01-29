@@ -33,7 +33,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
     const orgConfig = organization.getConfig();
     const organizationId = organization.getId();
     // eslint-disable-next-line no-await-in-loop
-    const sites = await dataAccess.getSitesByOrganizationIDWithLatestAudit(
+    const sites = await dataAccess.getSitesByOrganizationIDWithLatestAudits(
       organizationId,
       ALERT_TYPE,
       false,
@@ -55,7 +55,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
             blocks,
           },
         );
-        slackContext.thread = threadId;
+        slackContext.ts = threadId;
       } catch (e) {
         log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
         return internalServerError('Failed to send initial Slack message');

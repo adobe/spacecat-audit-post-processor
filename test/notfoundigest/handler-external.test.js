@@ -76,7 +76,7 @@ describe('not found external handler', () => {
   };
   const mockDataAccess = {
     getOrganizations: sinon.stub().resolves([organizationData]),
-    getSitesByOrganizationIDWithLatestAudit: sinon.stub().resolves([siteData]),
+    getSitesByOrganizationIDWithLatestAudits: sinon.stub().resolves([siteData]),
     getLatestAuditForSite: sinon.stub().resolves(auditData),
   };
 
@@ -110,7 +110,7 @@ describe('not found external handler', () => {
   it('builds no message when there is no audit', async () => {
     const noAuditContext = { ...context };
     noAuditContext.dataAccess = { ...context.dataAccess };
-    noAuditContext.dataAccess.getSitesByOrganizationIDWithLatestAudit = () => [];
+    noAuditContext.dataAccess.getSitesByOrganizationIDWithLatestAudits = () => [];
     const resp = await notFoundExternalDigestHandler({}, noAuditContext);
     expect(resp.status).to.equal(204);
   });
