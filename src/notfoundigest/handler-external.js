@@ -49,7 +49,13 @@ export default async function notFoundExternalDigestHandler(message, context) {
       try {
         const blocks = build404InitialSlackMessage(slackContext.mentions);
         // eslint-disable-next-line no-await-in-loop
-        slackContext = await slackClient.postMessage({ channel: slackContext.channel, blocks });
+        const { threadId } = await slackClient.postMessage(
+          {
+            channel: slackContext.channel,
+            blocks,
+          },
+        );
+        slackContext.thread = threadId;
       } catch (e) {
         log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
         return internalServerError('Failed to send initial Slack message');

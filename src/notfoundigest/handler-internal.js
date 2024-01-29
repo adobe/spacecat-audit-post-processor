@@ -25,7 +25,13 @@ export default async function notFoundInternalDigestHandler(message, context) {
   let slackContext = {};
   try {
     const blocks = build404InitialSlackMessage();
-    slackContext = await slackClient.postMessage({ channel: slackChannelId, blocks });
+    const { channelId, threadId } = await slackClient.postMessage(
+      {
+        channel: slackChannelId,
+        blocks,
+      },
+    );
+    slackContext = { channel: channelId, thread: threadId };
   } catch (e) {
     log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
     return internalServerError('Failed to send initial Slack message');

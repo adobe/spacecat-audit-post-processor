@@ -25,6 +25,8 @@ const sandbox = sinon.createSandbox();
 
 describe('not found internal handler', () => {
   let context;
+  const channel = 'channel1';
+  const thread = 'thread1';
   const auditData = {
     state: {
       auditResult: {
@@ -84,9 +86,12 @@ describe('not found internal handler', () => {
       create404Backlink: sandbox.stub().resolves(backlink),
       getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
     };
-    const channel = 'channel1';
     context.slackClients = {
-      ADOBE_INTERNAL: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
+      ADOBE_INTERNAL: {
+        postMessage: sandbox.stub().resolves(
+          { channelId: channel, threadId: thread },
+        ),
+      },
     };
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
@@ -98,11 +103,14 @@ describe('not found internal handler', () => {
       create404Backlink: sandbox.stub().resolves(backlink),
       getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
     };
-    const channel = 'channel1';
     context.slackClients = {
-      ADOBE_INTERNAL: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
+      ADOBE_INTERNAL: {
+        postMessage: sandbox.stub().onFirstCall().resolves(
+          { channelId: channel, threadId: thread },
+        ),
+      },
     };
-    context.slackClients.ADOBE_INTERNAL.postMessage = sandbox.stub().onSecondCall().rejects(new Error('error'));
+    context.slackClients.ADOBE_INTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });

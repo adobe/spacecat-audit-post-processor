@@ -101,7 +101,7 @@ describe('not found external handler', () => {
     };
     const channel = 'channel1';
     context.slackClients = {
-      ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channelId: channel, threadId: 'ts-1' }) },
     };
     const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
@@ -132,7 +132,7 @@ describe('not found external handler', () => {
     context.slackClients = {
       ADOBE_EXTERNAL: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
     };
-    context.slackClients.ADOBE_EXTERNAL.postMessage = sandbox.stub().onSecondCall().rejects(new Error('error'));
+    context.slackClients.ADOBE_EXTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
 
     const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
