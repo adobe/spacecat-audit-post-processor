@@ -42,7 +42,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
       return noContent();
     }
     const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
-    const isConfigByOrg = isConfigByOrgForAlertType(orgConfig, ALERT_TYPE);
+    const isConfigByOrg = isConfigByOrgForAlertType(orgConfig, ALERT_TYPE, log);
     let slackContext = {};
     if (isConfigByOrg) {
       slackContext = getSlackContextForAlertType(orgConfig, ALERT_TYPE);

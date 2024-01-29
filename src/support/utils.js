@@ -33,8 +33,9 @@ export const getSlackContextForAlertType = (conf, alertType) => {
   return { channel, mentions };
 };
 
-export const isConfigByOrgForAlertType = (conf, alertType) => {
+export const isConfigByOrgForAlertType = (conf, alertType, log) => {
   const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
+  log.info(`Config is ${JSON.stringify(alertConfig)}`);
   return alertConfig.byOrg;
 };
 
