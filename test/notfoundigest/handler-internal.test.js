@@ -15,9 +15,7 @@ import sinon from 'sinon';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import nock from 'nock';
 import notFoundInternalDigestHandler from '../../src/notfoundigest/handler-internal.js';
-import { build404SlackMessage, getQueryParams, INITIAL_404_SLACK_MESSAGE } from '../../src/support/slack.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -66,7 +64,6 @@ describe('not found internal handler', () => {
       log: console,
       dataAccess: mockDataAccess,
       env: {
-        SLACK_BOT_TOKEN: 'token',
         RUM_DOMAIN_KEY: 'uber-key',
         AUDIT_REPORT_SLACK_CHANNEL_ID: 'channel1',
       },
@@ -75,7 +72,6 @@ describe('not found internal handler', () => {
 
   afterEach('clean', () => {
     sandbox.restore();
-    nock.cleanAll();
   });
 
   it('builds and sends the slack message when there is an org config and a 404 audit stored for the site', async () => {
@@ -85,40 +81,9 @@ describe('not found internal handler', () => {
       getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
     };
     const channel = 'channel1';
-    const initialQueryParams = getQueryParams(
-      [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: INITIAL_404_SLACK_MESSAGE,
-          },
-        },
-      ],
-      channel,
-    );
-
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(initialQueryParams)
-      .reply(200, {
-        ok: 'success',
-        channel: 'channel1',
-        ts: 'ts-1',
-      });
-    const blocks = build404SlackMessage(
-      siteData.getBaseURL(),
-      auditData.state.auditResult.result,
-      backlink,
-    );
-    const queryParams = getQueryParams(blocks, 'channel1', 'ts-1');
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(queryParams)
-      .reply(200, {
-        ok: 'success',
-      });
-
+    context.slackClients = {
+      ADOBE_INTERNAL: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
+    };
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
@@ -130,66 +95,21 @@ describe('not found internal handler', () => {
       getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
     };
     const channel = 'channel1';
-    const initialQueryParams = getQueryParams(
-      [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: INITIAL_404_SLACK_MESSAGE,
-          },
-        },
-      ],
-      channel,
-    );
-
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(initialQueryParams)
-      .reply(200, {
-        ok: 'success',
-        channel: 'channel1',
-        ts: 'ts-1',
-      });
-    const blocks = build404SlackMessage(
-      siteData.getBaseURL(),
-      auditData.state.auditResult.result,
-      backlink,
-    );
-    const queryParams = getQueryParams(blocks, 'channel1', 'ts-1');
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(queryParams)
-      .reply(500, {
-        error: 'error',
-      });
-
+    context.slackClients = {
+      ADOBE_INTERNAL: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
+    };
+    context.slackClients.ADOBE_INTERNAL.postMessage = sandbox.stub().onSecondCall().rejects(new Error('error'));
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 
   it('returns 500 if the initial slack api fails', async () => {
-    const channel = 'channel1';
     context.rumApiClient = {
       getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
     };
-    const initialQueryParams = getQueryParams(
-      [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: INITIAL_404_SLACK_MESSAGE,
-          },
-        },
-      ],
-      channel,
-    );
-
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(initialQueryParams)
-      .replyWithError('invalid-');
+    context.slackClients = {
+      ADOBE_INTERNAL: { postMessage: sandbox.stub().onFirstCall().rejects(new Error('error')) },
+    };
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
   });

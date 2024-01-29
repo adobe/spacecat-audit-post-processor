@@ -15,9 +15,7 @@ import sinon from 'sinon';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import nock from 'nock';
 import notFoundExternalDigestHandler from '../../src/notfoundigest/handler-external.js';
-import { build404SlackMessage, getQueryParams, INITIAL_404_SLACK_MESSAGE } from '../../src/support/slack.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -82,7 +80,6 @@ describe('not found external handler', () => {
       log: console,
       dataAccess: mockDataAccess,
       env: {
-        SLACK_BOT_TOKEN: 'token',
         RUM_DOMAIN_KEY: 'uber-key',
       },
     };
@@ -90,7 +87,6 @@ describe('not found external handler', () => {
 
   afterEach('clean', () => {
     sandbox.restore();
-    nock.cleanAll();
   });
 
   it('builds and sends the slack message when there is an org config and a 404 audit stored for the site', async () => {
@@ -99,67 +95,29 @@ describe('not found external handler', () => {
       create404Backlink: sandbox.stub().resolves(backlink),
     };
     const channel = 'channel1';
-    const initialQueryParams = getQueryParams(
-      [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `slackId1 ${INITIAL_404_SLACK_MESSAGE}`,
-          },
-        },
-      ],
-      channel,
-    );
-
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(initialQueryParams)
-      .reply(200, {
-        ok: 'success',
-        channel: 'channel1',
-        ts: 'ts-1',
-      });
-    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, backlink, ['slackId1']);
-    const queryParams = getQueryParams(blocks, 'channel1', 'ts-1');
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(queryParams)
-      .reply(200, {
-        ok: 'success',
-      });
-
+    context.slackClients = {
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
+    };
     const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 
   it('returns 500 if the initial slack api fails', async () => {
-    const channel = 'channel1';
-    const initialQueryParams = getQueryParams(
-      [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `slackId1 ${INITIAL_404_SLACK_MESSAGE}`,
-          },
-        },
-      ],
-      channel,
-    );
-
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(initialQueryParams)
-      .replyWithError('invalid-');
+    context.slackClients = {
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().rejects(new Error('error')) },
+    };
     const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
   });
 
   it('builds and sends the slack message when there is an site config and a 404 audit stored for the site', async () => {
     const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
+    const channel = 'channel1';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
+    };
+    context.slackClients = {
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
     };
     const siteContext = { ...context };
     const newOrgData = {
@@ -172,22 +130,17 @@ describe('not found external handler', () => {
       }),
     };
     siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, backlink, ['slackId2']);
-    const queryParams = getQueryParams(blocks, 'channel2');
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(queryParams)
-      .reply(200, {
-        ok: 'success',
-      });
-
     const resp = await notFoundExternalDigestHandler({}, siteContext);
     expect(resp.status).to.equal(204);
   });
 
   it('builds and sends the slack message when there is an site config and a 404 audit stored for the site and no backlink', async () => {
+    const channel = 'channel1';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().rejects('error'),
+    };
+    context.slackClients = {
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
     };
     const siteContext = { ...context };
     const newOrgData = {
@@ -200,45 +153,22 @@ describe('not found external handler', () => {
       }),
     };
     siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, null, ['slackId2']);
-    const queryParams = getQueryParams(blocks, 'channel2');
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(queryParams)
-      .reply(200, {
-        ok: 'success',
-      });
-
     const resp = await notFoundExternalDigestHandler({}, siteContext);
     expect(resp.status).to.equal(204);
   });
 
   it('continues if just one slack api call failed', async () => {
     const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
+    const channel = 'channel1';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
     };
-    const siteContext = { ...context };
-    const newOrgData = {
-      ...organizationData,
-      getConfig: () => ({
-        alerts: [{
-          type: '404',
-          byOrg: false,
-        }],
-      }),
+    context.slackClients = {
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
     };
-    siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const blocks = build404SlackMessage(siteData.getBaseURL(), auditData.state.auditResult.result, backlink, ['slackId2']);
-    const queryParams = getQueryParams(blocks, 'channel2');
-    nock('https://slack.com')
-      .get('/api/chat.postMessage')
-      .query(queryParams)
-      .reply(400, {
-        error: 'error',
-      });
+    context.slackClients.ADOBE_EXTERNAL.postMessage = sandbox.stub().onSecondCall().rejects(new Error('error'));
 
-    const resp = await notFoundExternalDigestHandler({}, siteContext);
+    const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 });

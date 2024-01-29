@@ -25,3 +25,15 @@ export const get404Backlink = async (context, url) => {
     return null;
   }
 };
+
+export const getSlackContextForAlertType = (conf, alertType) => {
+  const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
+  const mentions = alertConfig.mentions[0].slack;
+  const { channel } = conf.slack;
+  return { channel, mentions };
+};
+
+export const isConfigByOrgForAlertType = (conf, alertType) => {
+  const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
+  return alertConfig.byOrg;
+};

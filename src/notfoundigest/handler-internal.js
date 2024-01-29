@@ -13,22 +13,23 @@
 import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { isObject } from '@adobe/spacecat-shared-utils';
-import { build404SlackMessage, post404InitialSlackMessage, postSlackMessage } from '../support/slack.js';
+import { SLACK_TARGETS, SlackClient } from '@adobe/spacecat-shared-slack-client';
+import { build404SlackMessage, build404InitialSlackMessage } from '../support/slack.js';
 import { get404Backlink } from '../support/utils.js';
 
 const ALERT_TYPE = '404';
 
 export default async function notFoundInternalDigestHandler(message, context) {
   const {
-    env: {
-      SLACK_BOT_TOKEN: token, AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId,
-    }, dataAccess, log,
+    env: { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId }, dataAccess, log,
   } = context;
   const rumApiClient = RUMAPIClient.createFrom(context);
+  const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_INTERNAL);
   const urls = await rumApiClient.getDomainList();
   let slackContext = {};
   try {
-    slackContext = await post404InitialSlackMessage(token, slackChannelId);
+    const blocks = build404InitialSlackMessage();
+    slackContext = await slackClient.postMessage({ channel: slackChannelId, blocks });
   } catch (e) {
     log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
     return internalServerError('Failed to send initial Slack message');
@@ -45,16 +46,13 @@ export default async function notFoundInternalDigestHandler(message, context) {
         const backlink = await get404Backlink(context, finalUrl);
         if (result && result.length > 0) {
           try {
+            const blocks = build404SlackMessage(
+              site.getBaseURL(),
+              result,
+              backlink,
+            );
             // eslint-disable-next-line no-await-in-loop
-            await postSlackMessage(token, {
-              blocks: build404SlackMessage(
-                site.getBaseURL(),
-                result,
-                backlink,
-                slackContext.mentions,
-              ),
-              ...slackContext,
-            });
+            await slackClient.postMessage({ ...slackContext, blocks });
           } catch (e) {
             log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
           }
