@@ -40,7 +40,7 @@ export default async function notFoundInternalDigestHandler(message, context) {
   for (const site of sites) {
     // eslint-disable-next-line no-await-in-loop
     const latest404AuditReports = site.getAudits();
-    const { results, finalUrl } = process404LatestAudits(latest404AuditReports);
+    const { results, finalUrl } = process404LatestAudits(latest404AuditReports, log);
     // eslint-disable-next-line no-await-in-loop
     const backlink = await get404Backlink(context, finalUrl);
     if (results && results.length > 0) {
