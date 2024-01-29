@@ -123,6 +123,21 @@ describe('not found external handler', () => {
     expect(resp.status).to.equal(500);
   });
 
+  it('continues if just one slack api call failed', async () => {
+    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
+    const channel = 'channel1';
+    context.rumApiClient = {
+      create404Backlink: sandbox.stub().resolves(backlink),
+    };
+    context.slackClients = {
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
+    };
+    context.slackClients.ADOBE_EXTERNAL.postMessage = sandbox.stub().onSecondCall().rejects(new Error('error'));
+
+    const resp = await notFoundExternalDigestHandler({}, context);
+    expect(resp.status).to.equal(204);
+  });
+
   it('builds and sends the slack message when there is an site config and a 404 audit stored for the site', async () => {
     const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     const channel = 'channel1';
@@ -167,21 +182,6 @@ describe('not found external handler', () => {
     };
     siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
     const resp = await notFoundExternalDigestHandler({}, siteContext);
-    expect(resp.status).to.equal(204);
-  });
-
-  it('continues if just one slack api call failed', async () => {
-    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
-    const channel = 'channel1';
-    context.rumApiClient = {
-      create404Backlink: sandbox.stub().resolves(backlink),
-    };
-    context.slackClients = {
-      ADOBE_EXTERNAL: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
-    };
-    context.slackClients.ADOBE_EXTERNAL.postMessage = sandbox.stub().onSecondCall().rejects(new Error('error'));
-
-    const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 });

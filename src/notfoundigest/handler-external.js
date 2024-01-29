@@ -31,7 +31,6 @@ export default async function notFoundExternalDigestHandler(message, context) {
   const organizations = await dataAccess.getOrganizations();
   for (const organization of organizations) {
     const orgConfig = organization.getConfig();
-
     const organizationId = organization.getId();
     // eslint-disable-next-line no-await-in-loop
     const sites = await dataAccess.getSitesByOrganizationIDWithLatestAudit(
