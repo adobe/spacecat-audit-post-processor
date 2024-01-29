@@ -45,14 +45,13 @@ function isWithinLast7Days(date) {
   return checkedDate >= sevenDaysAgo;
 }
 
-export const process404LatestAudits = (latestAudits, log) => {
+export const process404LatestAudits = (latestAudits) => {
   const results = [];
   const sources = new Set();
   const { finalUrl } = latestAudits[0].getAuditResult();
   for (const latestAudit of latestAudits) {
     if (isWithinLast7Days(latestAudit.getAuditedAt())) {
       const auditResult = latestAudit.getAuditResult();
-      log.info(JSON.stringify(auditResult));
       const { result } = auditResult;
       for (const resultItem of result) {
         if (!sources.has(resultItem.url)) {

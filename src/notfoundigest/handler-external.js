@@ -64,7 +64,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
     for (const site of sites) {
       // eslint-disable-next-line no-await-in-loop
       const latest404AuditReports = site.getAudits();
-      const { results, finalUrl } = process404LatestAudits(latest404AuditReports, log);
+      const { results, finalUrl } = process404LatestAudits(latest404AuditReports);
       if (results.length > 0) {
         if (!isConfigByOrg) {
           const siteConfig = site.getConfig();
