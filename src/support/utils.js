@@ -54,9 +54,11 @@ export const process404LatestAudits = (latestAudits, log) => {
       const auditResult = latestAudit.getAuditResult();
       log.info(JSON.stringify(auditResult));
       const { result } = auditResult;
-      if (!sources.has(result.url)) {
-        results.push(result);
-        sources.add(result.url);
+      for (const resultItem of result) {
+        if (!sources.has(resultItem.url)) {
+          results.push(resultItem);
+          sources.add(resultItem.url);
+        }
       }
     }
   }
