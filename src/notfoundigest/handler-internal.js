@@ -10,12 +10,10 @@
  * governing permissions and limitations under the License.
  */
 
-import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
-import { isObject } from '@adobe/spacecat-shared-utils';
 import { SLACK_TARGETS, SlackClient } from '@adobe/spacecat-shared-slack-client';
 import { build404SlackMessage, build404InitialSlackMessage } from '../support/slack.js';
-import { get404Backlink } from '../support/utils.js';
+import { get404Backlink, process404LatestAudits } from '../support/utils.js';
 
 const ALERT_TYPE = '404';
 
@@ -23,9 +21,7 @@ export default async function notFoundInternalDigestHandler(message, context) {
   const {
     env: { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId }, dataAccess, log,
   } = context;
-  const rumApiClient = RUMAPIClient.createFrom(context);
   const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_INTERNAL);
-  const urls = await rumApiClient.getDomainList();
   let slackContext = {};
   try {
     const blocks = build404InitialSlackMessage();
@@ -34,29 +30,24 @@ export default async function notFoundInternalDigestHandler(message, context) {
     log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
     return internalServerError('Failed to send initial Slack message');
   }
-  for (const domainUrl of urls) {
+  const sites = await dataAccess.getSitesWithLatestAudit(ALERT_TYPE, false);
+  for (const site of sites) {
     // eslint-disable-next-line no-await-in-loop
-    const site = await dataAccess.getSiteByBaseURL(`https://${domainUrl}`);
-    if (isObject(site)) {
-      // eslint-disable-next-line no-await-in-loop
-      const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
-      if (isObject(latest404AuditReport)) {
-        const { finalUrl, result } = latest404AuditReport.state.auditResult;
+    const latest404AuditReports = site.getAudits();
+    const { results, finalUrl } = process404LatestAudits(latest404AuditReports);
+    // eslint-disable-next-line no-await-in-loop
+    const backlink = await get404Backlink(context, finalUrl);
+    if (results && results.length > 0) {
+      try {
+        const blocks = build404SlackMessage(
+          site.getBaseURL(),
+          results,
+          backlink,
+        );
         // eslint-disable-next-line no-await-in-loop
-        const backlink = await get404Backlink(context, finalUrl);
-        if (result && result.length > 0) {
-          try {
-            const blocks = build404SlackMessage(
-              site.getBaseURL(),
-              result,
-              backlink,
-            );
-            // eslint-disable-next-line no-await-in-loop
-            await slackClient.postMessage({ ...slackContext, blocks });
-          } catch (e) {
-            log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
-          }
-        }
+        await slackClient.postMessage({ ...slackContext, blocks });
+      } catch (e) {
+        log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
       }
     }
   }

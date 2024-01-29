@@ -25,6 +25,25 @@ const sandbox = sinon.createSandbox();
 
 describe('not found external handler', () => {
   let context;
+  const auditData = {
+    state: {
+      auditResult: {
+        result:
+            [
+              {
+                url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
+                pageviews: '100',
+                source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
+              },
+            ],
+        finalUrl: 'moleculardevices.com',
+      },
+    },
+  };
+  auditData.getAuditResult = () => auditData.state.auditResult;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  auditData.getAuditedAt = () => yesterday.toISOString();
   const organizationData = {
     getId: () => 'org1',
     name: 'Org1',
@@ -53,25 +72,11 @@ describe('not found external handler', () => {
         mentions: [{ slack: ['slackId2'] }],
       }],
     }),
-  };
-  const auditData = {
-    state: {
-      auditResult: {
-        result:
-          [
-            {
-              url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
-              pageviews: '100',
-              source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
-            },
-          ],
-        finalUrl: 'moleculardevices.com',
-      },
-    },
+    getAudits: () => [auditData],
   };
   const mockDataAccess = {
     getOrganizations: sinon.stub().resolves([organizationData]),
-    getSitesByOrganizationID: sinon.stub().resolves([siteData]),
+    getSitesByOrganizationIDWithLatestAudit: sinon.stub().resolves([siteData]),
     getLatestAuditForSite: sinon.stub().resolves(auditData),
   };
 

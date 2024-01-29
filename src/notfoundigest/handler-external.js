@@ -11,13 +11,17 @@
  */
 
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
-import { isObject } from '@adobe/spacecat-shared-utils';
 import { SlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 import {
   build404InitialSlackMessage,
   build404SlackMessage,
 } from '../support/slack.js';
-import { get404Backlink, getSlackContextForAlertType, isConfigByOrgForAlertType } from '../support/utils.js';
+import {
+  get404Backlink,
+  getSlackContextForAlertType,
+  isConfigByOrgForAlertType,
+  process404LatestAudits,
+} from '../support/utils.js';
 
 const ALERT_TYPE = '404';
 
@@ -31,7 +35,14 @@ export default async function notFoundExternalDigestHandler(message, context) {
 
     const organizationId = organization.getId();
     // eslint-disable-next-line no-await-in-loop
-    const sites = await dataAccess.getSitesByOrganizationID(organizationId);
+    const sites = await dataAccess.getSitesByOrganizationIDWithLatestAudit(
+      organizationId,
+      ALERT_TYPE,
+      false,
+    );
+    if (sites.length === 0) {
+      return noContent();
+    }
     const isConfigByOrg = isConfigByOrgForAlertType(orgConfig, ALERT_TYPE);
     let slackContext = {};
     if (isConfigByOrg) {
@@ -47,20 +58,20 @@ export default async function notFoundExternalDigestHandler(message, context) {
     }
     for (const site of sites) {
       // eslint-disable-next-line no-await-in-loop
-      const latest404AuditReport = await dataAccess.getLatestAuditForSite(site.getId(), ALERT_TYPE);
-      if (isObject(latest404AuditReport)) {
-        const { finalUrl, result } = latest404AuditReport.state.auditResult;
+      const latest404AuditReports = site.getAudits();
+      const { results, finalUrl } = process404LatestAudits(latest404AuditReports);
+      if (results.length > 0) {
         if (!isConfigByOrg) {
           const siteConfig = site.getConfig();
           slackContext = getSlackContextForAlertType(siteConfig, ALERT_TYPE);
           try {
             // send alert to the slack channel - group under a thread if ts value exists
-            if (result && result.length > 0) {
+            if (results && results.length > 0) {
               // eslint-disable-next-line no-await-in-loop
               const backlink = await get404Backlink(context, finalUrl);
               const blocks = build404SlackMessage(
                 site.getBaseURL(),
-                result,
+                results,
                 backlink,
                 slackContext.mentions,
               );

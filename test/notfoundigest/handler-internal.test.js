@@ -25,6 +25,21 @@ const sandbox = sinon.createSandbox();
 
 describe('not found internal handler', () => {
   let context;
+  const auditData = {
+    state: {
+      auditResult: {
+        result:
+            [
+              {
+                url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
+                pageviews: '100',
+                source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
+              },
+            ],
+        finalUrl: 'moleculardevices.com',
+      },
+    },
+  };
   const siteData = {
     getId: () => 'site1',
     getBaseURL: () => 'https://moleculardevices.com',
@@ -38,25 +53,14 @@ describe('not found internal handler', () => {
         mentions: [{ slack: ['slackId2'] }],
       }],
     }),
+    getAudits: () => [auditData],
   };
-  const auditData = {
-    state: {
-      auditResult: {
-        result:
-                    [
-                      {
-                        url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
-                        pageviews: '100',
-                        source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
-                      },
-                    ],
-        finalUrl: 'moleculardevices.com',
-      },
-    },
-  };
+  auditData.getAuditResult = () => auditData.state.auditResult;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  auditData.getAuditedAt = () => yesterday.toISOString();
   const mockDataAccess = {
-    getSiteByBaseURL: sinon.stub().resolves(siteData),
-    getLatestAuditForSite: sinon.stub().resolves(auditData),
+    getSitesWithLatestAudit: sinon.stub().resolves([siteData]),
   };
 
   beforeEach('setup', () => {

@@ -37,3 +37,27 @@ export const isConfigByOrgForAlertType = (conf, alertType) => {
   const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
   return alertConfig.byOrg;
 };
+
+function isWithinLast7Days(date) {
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+  const checkedDate = new Date(date);
+  return checkedDate >= sevenDaysAgo;
+}
+
+export const process404LatestAudits = (latestAudits) => {
+  const results = [];
+  const sources = new Set();
+  const { finalUrl } = latestAudits[0].getAuditResult();
+  for (const latestAudit of latestAudits) {
+    if (isWithinLast7Days(latestAudit.getAuditedAt())) {
+      const auditResult = latestAudit.getAuditResult();
+      const { result } = auditResult;
+      if (!sources.has(result.url)) {
+        results.push(result);
+        sources.add(result.url);
+      }
+    }
+  }
+  return { results, finalUrl };
+};
