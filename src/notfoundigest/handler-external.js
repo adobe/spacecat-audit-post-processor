@@ -61,7 +61,6 @@ export default async function notFoundExternalDigestHandler(message, context) {
           }
         }
         for (const site of sites) {
-          // eslint-disable-next-line no-await-in-loop
           const latest404AuditReports = site.getAudits();
           log.info(JSON.stringify(latest404AuditReports));
           const { results, finalUrl } = process404LatestAudit(latest404AuditReports);
@@ -71,7 +70,6 @@ export default async function notFoundExternalDigestHandler(message, context) {
               slackContext = getSlackContextForAlert(siteConfig, ALERT_TYPE);
             }
             try {
-              // send alert to the slack channel - group under a thread if ts value exists
               if (results && results.length > 0) {
                 // eslint-disable-next-line no-await-in-loop
                 const backlink = await get404Backlink(context, finalUrl);
@@ -81,6 +79,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
                   backlink,
                   slackContext?.mentions,
                 );
+                // send alert to the slack channel - group under a thread if ts value exists
                 // eslint-disable-next-line no-await-in-loop
                 await slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
               }
