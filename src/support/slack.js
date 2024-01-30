@@ -70,7 +70,7 @@ export async function uploadSlackFile(token, opts) {
     const formData = new FormData();
     formData.append('token', token);
     formData.append('channels', channel);
-    formData.append('thread_ts', ts);
+    if (ts) formData.append('thread_ts', ts);
     formData.append('file', file, fileName);
     formData.append('initial_comment', text);
 
