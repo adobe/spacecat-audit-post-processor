@@ -11,7 +11,13 @@
  */
 import { isArray } from '@adobe/spacecat-shared-utils';
 
-export const getSlackContextForAlert = (conf, alertType) => {
+export const isDigestReport = (conf, alertType) => {
+  const alertConfig = isArray(conf?.alerts)
+    ? conf?.alerts.find((alert) => alert.type === alertType)
+    : {};
+  return alertConfig?.byOrg;
+};
+const getSlackContext = (conf, alertType) => {
   const channel = conf?.slack?.channel;
   const alertConfig = isArray(conf?.alerts)
     ? conf?.alerts.find((alert) => alert.type === alertType)
@@ -19,10 +25,9 @@ export const getSlackContextForAlert = (conf, alertType) => {
   const mentions = isArray(alertConfig?.mentions) && alertConfig.mentions.length > 0 ? alertConfig?.mentions[0].slack : '';
   return { channel, mentions };
 };
-
-export const isConfigByOrgForAlert = (conf, alertType) => {
-  const alertConfig = isArray(conf?.alerts)
-    ? conf?.alerts.find((alert) => alert.type === alertType)
-    : {};
-  return alertConfig?.byOrg;
+export const getSlackContextForAlert = (orgConf, siteConf, alertType) => {
+  if (isDigestReport(orgConf, alertType)) {
+    return getSlackContext(orgConf, alertType);
+  }
+  return getSlackContext(siteConf, alertType);
 };

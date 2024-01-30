@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
+import { build404InitialSlackMessage, build404SlackMessage } from './slack.js';
 
 function isWithinLast7Days(date) {
   const now = new Date();
@@ -17,6 +18,18 @@ function isWithinLast7Days(date) {
   const checkedDate = new Date(date);
   return checkedDate >= sevenDaysAgo;
 }
+
+export const sendInitial404Message = async (slackClient, slackContext) => {
+  const blocks = build404InitialSlackMessage(slackContext?.mentions);
+  const { threadId } = await slackClient.postMessage(
+    {
+      channel: slackContext?.channel,
+      blocks,
+    },
+  );
+  return { thread_ts: threadId, channel: slackContext.channel };
+};
+
 export const process404LatestAudit = (latestAudits) => {
   const results = [];
   let finalUrl;
@@ -42,4 +55,24 @@ export const get404Backlink = async (context, url) => {
     context.log.warn(`Failed to get a backlink for ${url}`);
     return null;
   }
+};
+
+export const send404Report = async (
+  context,
+  slackClient,
+  slackContext,
+  baseUrl,
+  finalUrl,
+  results,
+) => {
+  const backlink = await get404Backlink(context, finalUrl);
+  const blocks = build404SlackMessage(
+    baseUrl,
+    results,
+    backlink,
+    slackContext?.mentions,
+  );
+  // send alert to the slack channel - group under a thread if ts value exists
+  // eslint-disable-next-line no-await-in-loop
+  await slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
 };

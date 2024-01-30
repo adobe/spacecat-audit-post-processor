@@ -12,12 +12,12 @@
 /* eslint-env mocha */
 
 import chai from 'chai';
-import { getSlackContextForAlert, isConfigByOrgForAlert } from '../../src/support/config.js';
+import { getSlackContextForAlert, isDigestReport } from '../../src/support/config.js';
 
 const { expect } = chai;
 describe('config util', () => {
-  it('getSlackContextForAlert for valid config', () => {
-    const config = {
+  it('getSlackContextForAlert for valid configs byOrg', () => {
+    const orgConfig = {
       slack: {
         workspace: 'workspace1',
         channel: 'channel1',
@@ -28,12 +28,50 @@ describe('config util', () => {
         mentions: [{ slack: ['slackId1'] }],
       }],
     };
-    const slackContext = getSlackContextForAlert(config, '404');
+    const siteConfig = {
+      slack: {
+        workspace: 'workspace2',
+        channel: 'channel2',
+      },
+      alerts: [{
+        type: '404',
+        mentions: [{ slack: ['slackId2'] }],
+      }],
+    };
+    const slackContext = getSlackContextForAlert(orgConfig, siteConfig, '404');
     expect(slackContext.channel).to.equal('channel1');
     expect(slackContext.mentions).to.deep.equal(['slackId1']);
   });
+
+  it('getSlackContextForAlert for valid configs bySite', () => {
+    const orgConfig = {
+      slack: {
+        workspace: 'workspace1',
+        channel: 'channel1',
+      },
+      alerts: [{
+        type: '404',
+        byOrg: false,
+        mentions: [{ slack: ['slackId1'] }],
+      }],
+    };
+    const siteConfig = {
+      slack: {
+        workspace: 'workspace2',
+        channel: 'channel2',
+      },
+      alerts: [{
+        type: '404',
+        mentions: [{ slack: ['slackId2'] }],
+      }],
+    };
+    const slackContext = getSlackContextForAlert(orgConfig, siteConfig, '404');
+    expect(slackContext.channel).to.equal('channel2');
+    expect(slackContext.mentions).to.deep.equal(['slackId2']);
+  });
+
   it('getSlackContextForAlert returns only slack channel if no alerts are in config', () => {
-    const config = {
+    const orgConfig = {
       slack: {
         workspace: 'workspace1',
         channel: 'channel1',
@@ -43,14 +81,13 @@ describe('config util', () => {
         mentions: [{ slack: ['slackId1'] }],
       }],
     };
-    const slackContext = getSlackContextForAlert(config, '404');
-    expect(slackContext.channel).to.equal('channel1');
+    const slackContext = getSlackContextForAlert(orgConfig, {}, '404');
+    expect(slackContext.channel).to.be.undefined;
     expect(slackContext.mentions).to.equal('');
   });
+
   it('getSlackContextForAlert for empty config', () => {
-    const config = {
-    };
-    const slackContext = getSlackContextForAlert(config, '404');
+    const slackContext = getSlackContextForAlert({}, {}, '404');
     expect(slackContext.channel).to.be.undefined;
     expect(slackContext.mentions).to.equal('');
   });
@@ -58,7 +95,7 @@ describe('config util', () => {
   it(' for empty config', () => {
     const config = {
     };
-    const isByOrg = isConfigByOrgForAlert(config, '404');
+    const isByOrg = isDigestReport(config, '404');
     expect(isByOrg).to.be.undefined;
   });
 });
