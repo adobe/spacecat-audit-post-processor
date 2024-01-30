@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Adobe. All rights reserved.
+ * Copyright 2024 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -9,9 +9,15 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import { context as h2, h1 } from '@adobe/fetch';
+export const getSlackContextForAlert = (conf, alertType) => {
+  const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
+  const mentions = alertConfig.mentions[0].slack;
+  const { channel } = conf.slack;
+  return { channel, mentions };
+};
 
-/* c8 ignore next 3 */
-export const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
-  ? h1()
-  : h2();
+export const isConfigByOrgForAlert = (conf, alertType, log) => {
+  const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
+  log.info(`Config is ${JSON.stringify(alertConfig)}`);
+  return alertConfig.byOrg;
+};

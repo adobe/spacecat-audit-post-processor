@@ -13,7 +13,7 @@
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { SLACK_TARGETS, SlackClient } from '@adobe/spacecat-shared-slack-client';
 import { build404SlackMessage, build404InitialSlackMessage } from '../support/slack.js';
-import { get404Backlink, process404LatestAudits } from '../support/utils.js';
+import { get404Backlink, process404LatestAudits } from '../support/notfound.js';
 
 const ALERT_TYPE = '404';
 

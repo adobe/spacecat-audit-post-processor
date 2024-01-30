@@ -19,10 +19,9 @@ import {
 } from '../support/slack.js';
 import {
   get404Backlink,
-  getSlackContextForAlertType,
-  isConfigByOrgForAlertType,
   process404LatestAudits,
-} from '../support/utils.js';
+} from '../support/notfound.js';
+import { getSlackContextForAlert, isConfigByOrgForAlert } from '../support/config.js';
 
 const ALERT_TYPE = '404';
 
@@ -42,10 +41,10 @@ export default async function notFoundExternalDigestHandler(message, context) {
       );
       if (sites.length > 0) {
         const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
-        const isConfigByOrg = isConfigByOrgForAlertType(orgConfig, ALERT_TYPE, log);
+        const isConfigByOrg = isConfigByOrgForAlert(orgConfig, ALERT_TYPE, log);
         let slackContext = {};
         if (isConfigByOrg) {
-          slackContext = getSlackContextForAlertType(orgConfig, ALERT_TYPE);
+          slackContext = getSlackContextForAlert(orgConfig, ALERT_TYPE);
           try {
             const blocks = build404InitialSlackMessage(slackContext.mentions);
             // eslint-disable-next-line no-await-in-loop
@@ -69,7 +68,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
           if (results.length > 0) {
             if (!isConfigByOrg) {
               const siteConfig = site.getConfig();
-              slackContext = getSlackContextForAlertType(siteConfig, ALERT_TYPE);
+              slackContext = getSlackContextForAlert(siteConfig, ALERT_TYPE);
             }
             try {
               // send alert to the slack channel - group under a thread if ts value exists
