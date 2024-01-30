@@ -77,7 +77,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
                 site.getBaseURL(),
                 results,
                 backlink,
-                slackContext?.mentions,
+                !isConfigByOrg ? slackContext?.mentions : '',
               );
                 // send alert to the slack channel - group under a thread if ts value exists
                 // eslint-disable-next-line no-await-in-loop
