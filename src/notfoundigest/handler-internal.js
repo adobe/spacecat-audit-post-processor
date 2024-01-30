@@ -51,7 +51,7 @@ export default async function notFoundInternalDigestHandler(message, context) {
           backlink,
         );
         // eslint-disable-next-line no-await-in-loop
-        await slackClient.postMessage({ ...slackContext, blocks });
+        await slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
       } catch (e) {
         log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
       }
