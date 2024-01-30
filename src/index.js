@@ -16,12 +16,14 @@ import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
+import sitemap from './sitemap/handler.js';
 import notFoundHandler from './notfound/handler.js';
 import backlinks from './backlinks/handler.js';
 
 export const HANDLERS = {
   apex,
   cwv,
+  sitemap,
   404: notFoundHandler,
   'broken-backlinks': backlinks,
 };
