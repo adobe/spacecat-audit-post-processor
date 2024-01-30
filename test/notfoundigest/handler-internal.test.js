@@ -27,18 +27,19 @@ describe('not found internal handler', () => {
   let context;
   const channel = 'channel1';
   const thread = 'thread1';
+  const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.abcd.com&domainkey=scoped-domain-key';
   const auditData = {
     state: {
       auditResult: {
         result:
             [
               {
-                url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
+                url: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img',
                 pageviews: '100',
-                source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
+                source: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/',
               },
             ],
-        finalUrl: 'moleculardevices.com',
+        finalUrl: 'abcd.com',
       },
     },
   };
@@ -81,10 +82,9 @@ describe('not found internal handler', () => {
   });
 
   it('builds and sends the slack message when there is an org config and a 404 audit stored for the site', async () => {
-    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
-      getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
+      getDomainList: sandbox.stub().resolves(['abcd.com']),
     };
     context.slackClients = {
       ADOBE_INTERNAL: {
@@ -98,10 +98,9 @@ describe('not found internal handler', () => {
   });
 
   it('continues if just one slack api call failed', async () => {
-    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
-      getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
+      getDomainList: sandbox.stub().resolves(['abcd.com']),
     };
     context.slackClients = {
       ADOBE_INTERNAL: {
@@ -117,7 +116,7 @@ describe('not found internal handler', () => {
 
   it('returns 500 if the initial slack api fails', async () => {
     context.rumApiClient = {
-      getDomainList: sandbox.stub().resolves(['moleculardevices.com']),
+      getDomainList: sandbox.stub().resolves(['abcd.com']),
     };
     context.slackClients = {
       ADOBE_INTERNAL: { postMessage: sandbox.stub().onFirstCall().rejects(new Error('error')) },

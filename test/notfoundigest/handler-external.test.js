@@ -25,18 +25,19 @@ const sandbox = sinon.createSandbox();
 
 describe('not found external handler', () => {
   let context;
+  const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.abcd.com&domainkey=scoped-domain-key';
   const auditData = {
     state: {
       auditResult: {
         result:
             [
               {
-                url: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img',
+                url: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img',
                 pageviews: '100',
-                source: 'https://www.moleculardevices.com/sites/default/files/en/assets/training-material/dd/img/',
+                source: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/',
               },
             ],
-        finalUrl: 'moleculardevices.com',
+        finalUrl: 'abcd.com',
       },
     },
   };
@@ -61,7 +62,7 @@ describe('not found external handler', () => {
   };
   const siteData = {
     getId: () => 'site1',
-    getBaseURL: () => 'https://moleculardevices.com',
+    getBaseURL: () => 'https://abcd.com',
     getConfig: () => ({
       slack: {
         workspace: 'workspace2',
@@ -95,7 +96,6 @@ describe('not found external handler', () => {
   });
 
   it('builds and sends the slack message when there is an org config and a 404 audit stored for the site', async () => {
-    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
     };
@@ -124,7 +124,6 @@ describe('not found external handler', () => {
   });
 
   it('continues if just one slack api call failed', async () => {
-    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     const channel = 'channel1';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
@@ -139,7 +138,6 @@ describe('not found external handler', () => {
   });
 
   it('builds and sends the slack message when there is an site config and a 404 audit stored for the site', async () => {
-    const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.moleculardevices.com&domainkey=scoped-domain-key';
     const channel = 'channel1';
     context.rumApiClient = {
       create404Backlink: sandbox.stub().resolves(backlink),
