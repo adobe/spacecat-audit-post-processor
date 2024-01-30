@@ -25,6 +25,7 @@ export default async function organicKeywordsHandler(message, context) {
   const { auditResult, auditContext, url } = message;
   const { env: { SLACK_BOT_TOKEN: token } } = context;
 
+  log.info(`Received organic keywords audit request for ${url}`);
   if (!isValidMessage(message)) {
     return badRequest('Required parameters missing in the message.');
   }
@@ -34,6 +35,8 @@ export default async function organicKeywordsHandler(message, context) {
     log.info(`${url} does not have any organic keywords.`);
     return noContent();
   }
+
+  log.info(`Found ${keywords.length} organic keywords for ${url}`);
 
   const {
     increasedPositions,
