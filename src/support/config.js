@@ -9,15 +9,20 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import { isArray } from '@adobe/spacecat-shared-utils';
+
 export const getSlackContextForAlert = (conf, alertType) => {
-  const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
-  const mentions = alertConfig.mentions[0].slack;
-  const { channel } = conf.slack;
+  const channel = conf?.slack?.channel;
+  const alertConfig = isArray(conf?.alerts)
+    ? conf?.alerts.find((alert) => alert.type === alertType)
+    : {};
+  const mentions = isArray(alertConfig?.mentions) && alertConfig.mentions.length > 0 ? alertConfig?.mentions[0].slack : '';
   return { channel, mentions };
 };
 
-export const isConfigByOrgForAlert = (conf, alertType, log) => {
-  const alertConfig = conf.alerts.find((alert) => alert.type === alertType);
-  log.info(`Config is ${JSON.stringify(alertConfig)}`);
-  return alertConfig.byOrg;
+export const isConfigByOrgForAlert = (conf, alertType) => {
+  const alertConfig = isArray(conf?.alerts)
+    ? conf?.alerts.find((alert) => alert.type === alertType)
+    : {};
+  return alertConfig?.byOrg;
 };
