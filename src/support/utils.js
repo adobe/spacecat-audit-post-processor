@@ -15,3 +15,25 @@ import { context as h2, h1 } from '@adobe/fetch';
 export const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
   ? h1()
   : h2();
+
+/**
+ * Converts an array of objects to a CSV string.
+ *
+ * Each object in the array represents a row in the CSV.
+ * The keys of the first object in the array are used as column headers.
+ * The function handles nested objects, converting them to JSON strings.
+ * All values, including nested objects, are enclosed in double quotes.
+ *
+ * @param {Object[]} array - An array of objects to be converted into CSV format.
+ * @returns {string} A string in CSV format, where the first row contains the headers.
+ */
+export function convertToCSV(array) {
+  const headers = Object.keys(array[0]).join(',');
+  const rows = array.map((item) => Object.values(item).map((value) => {
+    if (typeof value === 'object' && value !== null) {
+      return `"${JSON.stringify(value)}"`;
+    }
+    return `"${value}"`;
+  }).join(',')).join('\r\n');
+  return `${headers}\r\n${rows}\r\n`;
+}

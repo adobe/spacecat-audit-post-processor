@@ -18,12 +18,14 @@ import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
 import backlinks from './backlinks/handler.js';
+import keywords from './organic-keywords/handler.js';
 
 export const HANDLERS = {
   apex,
   cwv,
   404: notFoundHandler,
   'broken-backlinks': backlinks,
+  'organic-keywords': keywords,
 };
 
 function guardEnvironmentVariables(fn) {
