@@ -19,7 +19,7 @@ import {
 } from '../support/slack.js';
 import {
   get404Backlink,
-  process404LatestAudits,
+  process404LatestAudit,
 } from '../support/notfound.js';
 import { getSlackContextForAlert, isConfigByOrgForAlert } from '../support/config.js';
 
@@ -64,7 +64,7 @@ export default async function notFoundExternalDigestHandler(message, context) {
           // eslint-disable-next-line no-await-in-loop
           const latest404AuditReports = site.getAudits();
           log.info(JSON.stringify(latest404AuditReports));
-          const { results, finalUrl } = process404LatestAudits(latest404AuditReports);
+          const { results, finalUrl } = process404LatestAudit(latest404AuditReports);
           if (results.length > 0) {
             if (!isConfigByOrg) {
               const siteConfig = site.getConfig();

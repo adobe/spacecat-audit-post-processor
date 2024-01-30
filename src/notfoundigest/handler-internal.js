@@ -13,7 +13,7 @@
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { SLACK_TARGETS, SlackClient } from '@adobe/spacecat-shared-slack-client';
 import { build404SlackMessage, build404InitialSlackMessage } from '../support/slack.js';
-import { get404Backlink, process404LatestAudits } from '../support/notfound.js';
+import { get404Backlink, process404LatestAudit } from '../support/notfound.js';
 
 const ALERT_TYPE = '404';
 
@@ -40,7 +40,7 @@ export default async function notFoundInternalDigestHandler(message, context) {
   for (const site of sites) {
     // eslint-disable-next-line no-await-in-loop
     const latest404AuditReports = site.getAudits();
-    const { results, finalUrl } = process404LatestAudits(latest404AuditReports);
+    const { results, finalUrl } = process404LatestAudit(latest404AuditReports);
     // eslint-disable-next-line no-await-in-loop
     const backlink = await get404Backlink(context, finalUrl);
     if (results && results.length > 0) {

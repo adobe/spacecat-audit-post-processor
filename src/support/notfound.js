@@ -17,18 +17,17 @@ function isWithinLast7Days(date) {
   const checkedDate = new Date(date);
   return checkedDate >= sevenDaysAgo;
 }
-export const process404LatestAudits = (latestAudits) => {
+export const process404LatestAudit = (latestAudits) => {
   const results = [];
-  const sources = new Set();
-  const { finalUrl } = latestAudits[0].getAuditResult();
-  for (const latestAudit of latestAudits) {
-    if (isWithinLast7Days(latestAudit.getAuditedAt())) {
-      const auditResult = latestAudit.getAuditResult();
-      const { result } = auditResult;
-      for (const resultItem of result) {
-        if (!sources.has(resultItem.url)) {
+  let finalUrl;
+  if (latestAudits.length > 0) {
+    finalUrl = latestAudits[0].getAuditResult().finalUrl;
+    for (const latestAudit of latestAudits) {
+      if (isWithinLast7Days(latestAudit.getAuditedAt())) {
+        const auditResult = latestAudit.getAuditResult();
+        const { result } = auditResult;
+        for (const resultItem of result) {
           results.push(resultItem);
-          sources.add(resultItem.url);
         }
       }
     }
