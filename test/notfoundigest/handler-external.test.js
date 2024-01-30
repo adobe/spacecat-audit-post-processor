@@ -108,6 +108,9 @@ describe('not found external handler', () => {
   });
 
   it('builds no message when there is no audit', async () => {
+    context.slackClients = {
+      ADOBE_EXTERNAL: { postMessage: sandbox.stub().rejects(new Error('error')) },
+    };
     const noAuditContext = { ...context };
     noAuditContext.dataAccess = { ...context.dataAccess };
     noAuditContext.dataAccess.getSitesByOrganizationIDWithLatestAudits = () => [];

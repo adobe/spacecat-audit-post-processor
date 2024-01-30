@@ -28,6 +28,8 @@ export default async function notFoundExternalDigestHandler(message, context) {
   const organizations = await dataAccess.getOrganizations();
   const properOrganizations = removeDefaultOrg(organizations);
   let sentInitialMessage = false;
+  const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
+
   for (const organization of properOrganizations) {
     const orgConfig = organization.getConfig();
     const organizationId = organization.getId();
@@ -43,7 +45,6 @@ export default async function notFoundExternalDigestHandler(message, context) {
       const { results, finalUrl } = process404LatestAudit(latest404AuditReports);
       if (results && results.length > 0) {
         const siteConfig = site.getConfig();
-        const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
         const isDigest = isDigestReport(orgConfig, ALERT_TYPE);
         if (!isDigest || !sentInitialMessage) {
           slackContext = getSlackContextForAlert(orgConfig, siteConfig, ALERT_TYPE);

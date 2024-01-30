@@ -74,5 +74,5 @@ export const send404Report = async (
   );
   // send alert to the slack channel - group under a thread if ts value exists
   // eslint-disable-next-line no-await-in-loop
-  await slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
+  return slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
 };
