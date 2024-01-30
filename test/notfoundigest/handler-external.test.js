@@ -76,7 +76,7 @@ describe('not found external handler', () => {
     getAudits: () => [auditData],
   };
   const mockDataAccess = {
-    getOrganizations: sinon.stub().resolves([organizationData]),
+    getOrganizations: sinon.stub().resolves([organizationData, { getId: () => 'default' }]),
     getSitesByOrganizationIDWithLatestAudits: sinon.stub().resolves([siteData]),
     getLatestAuditForSite: sinon.stub().resolves(auditData),
   };

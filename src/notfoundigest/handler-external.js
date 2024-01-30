@@ -23,6 +23,7 @@ import {
 import {
   getSlackContextForAlert, isConfigByOrgForAlert,
 } from '../support/config.js';
+import { removeDefaultOrg } from '../support/organization.js';
 
 const ALERT_TYPE = '404';
 
@@ -30,7 +31,8 @@ export default async function notFoundExternalDigestHandler(message, context) {
   const { dataAccess, log } = context;
 
   const organizations = await dataAccess.getOrganizations();
-  for (const organization of organizations) {
+  const properOrganizations = removeDefaultOrg(organizations);
+  for (const organization of properOrganizations) {
     const orgConfig = organization.getConfig();
     const organizationId = organization.getId();
     // eslint-disable-next-line no-await-in-loop
@@ -62,7 +64,6 @@ export default async function notFoundExternalDigestHandler(message, context) {
       }
       for (const site of sites) {
         const latest404AuditReports = site.getAudits();
-        log.info(JSON.stringify(latest404AuditReports));
         const { results, finalUrl } = process404LatestAudit(latest404AuditReports);
         if (results.length > 0) {
           if (!isConfigByOrg) {
