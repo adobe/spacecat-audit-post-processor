@@ -46,11 +46,11 @@ export default async function notFoundExternalDigestHandler(message, context) {
       if (isConfigByOrg) {
         slackContext = getSlackContextForAlert(orgConfig, ALERT_TYPE);
         try {
-          const blocks = build404InitialSlackMessage(slackContext.mentions);
+          const blocks = build404InitialSlackMessage(slackContext?.mentions);
           // eslint-disable-next-line no-await-in-loop
           const { threadId } = await slackClient.postMessage(
             {
-              channel: slackContext.channel,
+              channel: slackContext?.channel,
               blocks,
             },
           );
