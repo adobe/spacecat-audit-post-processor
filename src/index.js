@@ -14,15 +14,20 @@ import { hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
+import dataAccess from '@adobe/spacecat-shared-data-access';
 import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
 import backlinks from './backlinks/handler.js';
+import notFoundInternalDigestHandler from './notfound/handler-internal.js';
+import notFoundExternalDigestHandler from './notfound/handler-external.js';
 
 export const HANDLERS = {
   apex,
   cwv,
   404: notFoundHandler,
+  '404-external': notFoundExternalDigestHandler,
+  '404-internal': notFoundInternalDigestHandler,
   'broken-backlinks': backlinks,
 };
 
@@ -72,7 +77,9 @@ async function run(message, context) {
     url,
   } = message;
 
-  log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
+  if (url) {
+    log.info(`Audit result received for url: ${url}\nmessage content: ${JSON.stringify(message)}`);
+  }
 
   const handler = HANDLERS[type];
   if (!handler) {
@@ -93,6 +100,7 @@ async function run(message, context) {
 }
 
 export const main = wrap(run)
+  .with(dataAccess)
   .with(sqsEventAdapter)
   .with(guardEnvironmentVariables)
   .with(secrets, { name: resolveSecretsName })

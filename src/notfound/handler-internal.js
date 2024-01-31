@@ -9,16 +9,11 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-
-import { noContent } from '@adobe/spacecat-shared-http-utils';
+import internalDigestHandler from '../digest/handler-internal.js';
+import { send404Report, sendInitial404Message } from '../support/notfound.js';
 
 const ALERT_TYPE = '404';
 
-export default async function notFoundHandler(message, context) {
-  const { url } = message;
-  const { log } = context;
-
-  log.info(`Alert report of type ${ALERT_TYPE} received for: ${url}`);
-
-  return noContent();
+export default async function notFoundInternalDigestHandler(message, context) {
+  return internalDigestHandler(message, context, ALERT_TYPE, sendInitial404Message, send404Report);
 }

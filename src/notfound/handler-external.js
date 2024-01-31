@@ -9,20 +9,11 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-export const notFoundSourcesResults = [
-  {
-    url: 'https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html',
-    pageviews: '1300',
-    source: 'https://www.google.com/',
-  },
-  {
-    url: 'https://www.adobe.com/sea/',
-    pageviews: '800',
-    source: 'https://www.bing.com/',
-  },
-  {
-    url: 'https://www.adobe.com/express/',
-    pageviews: '500',
-    source: 'https://www.snapchat.com/',
-  },
-];
+import externalDigestHandler from '../digest/handler-external.js';
+import { send404Report, sendInitial404Message } from '../support/notfound.js';
+
+const ALERT_TYPE = '404';
+
+export default async function notFoundExternalDigestHandler(message, context) {
+  return externalDigestHandler(message, context, ALERT_TYPE, sendInitial404Message, send404Report);
+}
