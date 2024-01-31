@@ -16,7 +16,7 @@ import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import notFoundExternalDigestHandler from '../../src/notfound/handler-external.js';
-import { build404InitialSlackMessage, build404SlackMessage } from '../../src/support/slack.js';
+import { build404InitialSlackMessage, build404SlackMessage } from '../../src/support/notfound.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);

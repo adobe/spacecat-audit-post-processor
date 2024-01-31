@@ -11,12 +11,9 @@
  */
 
 import { createUrl } from '@adobe/fetch';
-import { isArray } from '@adobe/spacecat-shared-utils';
-import commaNumber from 'comma-number';
 import { fetch } from './utils.js';
 
 export const SLACK_API = 'https://slack.com/api/chat.postMessage';
-export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
 export const SLACK_FILE_API = 'https://slack.com/api/files.upload';
 
 export function getQueryParams(blocks, channel, ts) {
@@ -60,17 +57,6 @@ export async function postSlackMessage(token, opts) {
   };
 }
 
-export function build404InitialSlackMessage(mentions) {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${isArray(mentions) ? `${mentions.join(' ').toString()} ` : ''}${INITIAL_404_SLACK_MESSAGE}`,
-      },
-    },
-  ];
-}
 export async function uploadSlackFile(token, opts) {
   if (!token) {
     throw new Error('Missing slack bot token');
@@ -125,36 +111,4 @@ export function section(content) {
 
 export function markdown(text) {
   return { type: 'mrkdwn', text };
-}
-
-export function build404SlackMessage(url, auditResult, backlink, mentions) {
-  const blocks = [];
-
-  blocks.push(section({
-    text: markdown(`${isArray(mentions) ? mentions.join(' ').toString() : ''} For *${url}*, ${auditResult.length} page(s) had 404s *last week* for the real users.\n More information is below (up to three pages):`),
-  }));
-
-  for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {
-    const topLine = section({
-      text: markdown(`:arrow-red2: *<${auditResult[i].url}|${auditResult[i].url}>*`),
-    });
-
-    const stats = section({
-      fields: [
-        markdown(`:mag: *Pageviews:* ${commaNumber(auditResult[i].pageviews)}`),
-        markdown(`:mag: *Source:* ${commaNumber(auditResult[i].source)}`),
-      ],
-    });
-
-    blocks.push(topLine);
-    blocks.push(stats);
-  }
-
-  if (backlink) {
-    blocks.push(section({
-      text: markdown(`*To access the full report <${backlink}|click here> :link:* _(expires in 7 days)_`),
-    }));
-  }
-
-  return blocks;
 }

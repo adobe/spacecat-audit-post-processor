@@ -17,8 +17,10 @@ export const isDigestReport = (conf, alertType) => {
     : {};
   return alertConfig?.byOrg;
 };
+
 export const hasAlertConfig = (conf, alertType) => isArray(conf?.alerts)
     && conf?.alerts.find((alert) => alert.type === alertType);
+
 const getSlackContext = (conf, alertType) => {
   const channel = conf?.slack?.channel;
   const alertConfig = isArray(conf?.alerts)
@@ -27,6 +29,7 @@ const getSlackContext = (conf, alertType) => {
   const mentions = isArray(alertConfig?.mentions) && alertConfig.mentions.length > 0 ? alertConfig?.mentions[0].slack : '';
   return { channel, mentions };
 };
+
 export const getSlackContextForAlert = (orgConf, siteConf, alertType) => {
   if (isDigestReport(orgConf, alertType)) {
     return getSlackContext(orgConf, alertType);
