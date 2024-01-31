@@ -14,60 +14,60 @@ import { internalServerError, noContent } from '@adobe/spacecat-shared-http-util
 import { SlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 
 import {
-  getSlackContextForAlert, isDigestReport,
+  getSlackContextForAlert, hasAlertConfig, isDigestReport,
 } from '../support/config.js';
-import { removeDefaultOrg } from '../support/organization.js';
 import { processLatestAudit } from '../support/audits.js';
 
 export default async function externalDigestHandler(context, type, sendInitialMessage, sendReport) {
   const { dataAccess, log } = context;
 
   const organizations = await dataAccess.getOrganizations();
-  const properOrganizations = removeDefaultOrg(organizations);
   let sentInitialMessage = false;
   const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
 
-  for (const organization of properOrganizations) {
+  for (const organization of organizations) {
     const orgConfig = organization.getConfig();
-    const organizationId = organization.getId();
-    // eslint-disable-next-line no-await-in-loop
-    const sites = await dataAccess.getSitesByOrganizationIDWithLatestAudits(
-      organizationId,
-      type,
-      false,
-    );
-    let slackContext = {};
-    for (const site of sites) {
-      const latest404AuditReports = site.getAudits();
-      const { results, finalUrl } = processLatestAudit(latest404AuditReports);
-      if (results && results.length > 0) {
-        const siteConfig = site.getConfig();
-        const isDigest = isDigestReport(orgConfig, type);
-        if (!isDigest || !sentInitialMessage) {
-          slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
-        }
-        if (!sentInitialMessage && isDigest) {
+    if (hasAlertConfig(orgConfig, type)) {
+      const organizationId = organization.getId();
+      // eslint-disable-next-line no-await-in-loop
+      const sites = await dataAccess.getSitesByOrganizationIDWithLatestAudits(
+        organizationId,
+        type,
+        false,
+      );
+      let slackContext = {};
+      for (const site of sites) {
+        const latest404AuditReports = site.getAudits();
+        const { results, finalUrl } = processLatestAudit(latest404AuditReports);
+        if (results && results.length > 0) {
+          const siteConfig = site.getConfig();
+          const isDigest = isDigestReport(orgConfig, type);
+          if (!isDigest || !sentInitialMessage) {
+            slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
+          }
+          if (!sentInitialMessage && isDigest) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
+              slackContext = await sendInitialMessage(slackClient, slackContext);
+              sentInitialMessage = true;
+            } catch (e) {
+              log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
+              return internalServerError('Failed to send initial Slack message');
+            }
+          }
           try {
             // eslint-disable-next-line no-await-in-loop
-            slackContext = await sendInitialMessage(slackClient, slackContext);
-            sentInitialMessage = true;
+            await sendReport(
+              context,
+              slackClient,
+              slackContext,
+              site.getBaseURL(),
+              finalUrl,
+              results,
+            );
           } catch (e) {
-            log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
-            return internalServerError('Failed to send initial Slack message');
+            log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
           }
-        }
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          await sendReport(
-            context,
-            slackClient,
-            slackContext,
-            site.getBaseURL(),
-            finalUrl,
-            results,
-          );
-        } catch (e) {
-          log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
         }
       }
     }
