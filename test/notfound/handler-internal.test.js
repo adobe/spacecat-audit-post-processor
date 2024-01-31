@@ -15,7 +15,7 @@ import sinon from 'sinon';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import notFoundInternalDigestHandler from '../../src/digest/handler-internal.js';
+import notFoundInternalDigestHandler from '../../src/notfound/handler-internal.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
