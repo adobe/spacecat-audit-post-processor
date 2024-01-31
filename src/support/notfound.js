@@ -32,14 +32,14 @@ export const get404Backlink = async (context, url) => {
   }
 };
 
-export const send404Report = async (
+export const send404Report = async ({
   context,
   slackClient,
   slackContext,
   baseUrl,
   finalUrl,
   results,
-) => {
+}) => {
   const backlink = await get404Backlink(context, finalUrl);
   const blocks = build404SlackMessage(
     baseUrl,

@@ -57,14 +57,14 @@ export default async function externalDigestHandler(context, type, sendInitialMe
           }
           try {
             // eslint-disable-next-line no-await-in-loop
-            await sendReport(
+            await sendReport({
               context,
               slackClient,
               slackContext,
-              site.getBaseURL(),
+              baseUrl: site.getBaseURL(),
               finalUrl,
               results,
-            );
+            });
           } catch (e) {
             log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
           }
