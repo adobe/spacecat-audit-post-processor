@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.6...v1.4.0) (2024-01-31)
+
+
+### Features
+
+* send 404 report to customers ([72ba0f7](https://github.com/adobe/spacecat-audit-post-processor/commit/72ba0f70116ced302b53afbebe291ca8debd0199))
+
 ## [1.3.6](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.5...v1.3.6) (2024-01-30)
 
 
