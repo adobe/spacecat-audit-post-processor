@@ -19,8 +19,8 @@ import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
 import notFoundHandler from './notfound/handler.js';
 import backlinks from './backlinks/handler.js';
-import notFoundInternalDigestHandler from './notfoundigest/handler-internal.js';
-import notFoundExternalDigestHandler from './notfoundigest/handler-external.js';
+import notFoundInternalDigestHandler from './notfound/handler-internal.js';
+import notFoundExternalDigestHandler from './notfound/handler-external.js';
 
 export const HANDLERS = {
   apex,

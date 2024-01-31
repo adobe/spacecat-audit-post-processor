@@ -15,7 +15,7 @@ import sinon from 'sinon';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import notFoundExternalDigestHandler from '../../src/notfoundigest/handler-external.js';
+import notFoundExternalDigestHandler from '../../src/digest/handler-external.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -45,39 +45,39 @@ describe('not found external handler', () => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   auditData.getAuditedAt = () => yesterday.toISOString();
-  const organizationData = {
+  const organizationData1 = {
     getId: () => 'org1',
     name: 'Org1',
     getConfig: () => ({
       slack: {
-        workspace: 'workspace1',
-        channel: 'channel1',
+        workspace: 'workspace',
+        channel: 'channelOrg1',
       },
       alerts: [{
         type: '404',
         byOrg: true,
-        mentions: [{ slack: ['slackId1'] }],
+        mentions: [{ slack: ['slackOrgId1'] }],
       }],
     }),
   };
-  const siteData = {
+  const siteData1 = {
     getId: () => 'site1',
     getBaseURL: () => 'https://abcd.com',
     getConfig: () => ({
       slack: {
-        workspace: 'workspace2',
-        channel: 'channel2',
+        workspace: 'workspace',
+        channel: 'channelSite1',
       },
       alerts: [{
         type: '404',
-        mentions: [{ slack: ['slackId2'] }],
+        mentions: [{ slack: ['slackSiteId1'] }],
       }],
     }),
     getAudits: () => [auditData],
   };
   const mockDataAccess = {
-    getOrganizations: sinon.stub().resolves([organizationData, { getId: () => 'default' }]),
-    getSitesByOrganizationIDWithLatestAudits: sinon.stub().resolves([siteData]),
+    getOrganizations: sinon.stub().resolves([organizationData1, { getId: () => 'default' }]),
+    getSitesByOrganizationIDWithLatestAudits: sinon.stub().resolves([siteData1]),
     getLatestAuditForSite: sinon.stub().resolves(auditData),
   };
 
@@ -103,7 +103,7 @@ describe('not found external handler', () => {
     context.slackClients = {
       ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channelId: channel, threadId: 'ts-1' }) },
     };
-    const resp = await notFoundExternalDigestHandler({}, context);
+    const resp = await notFoundExternalDigestHandler(context);
     expect(resp.status).to.equal(204);
   });
 
@@ -114,7 +114,7 @@ describe('not found external handler', () => {
     const noAuditContext = { ...context };
     noAuditContext.dataAccess = { ...context.dataAccess };
     noAuditContext.dataAccess.getSitesByOrganizationIDWithLatestAudits = () => [];
-    const resp = await notFoundExternalDigestHandler({}, noAuditContext);
+    const resp = await notFoundExternalDigestHandler(noAuditContext);
     expect(resp.status).to.equal(204);
   });
 
@@ -122,7 +122,7 @@ describe('not found external handler', () => {
     context.slackClients = {
       ADOBE_EXTERNAL: { postMessage: sandbox.stub().rejects(new Error('error')) },
     };
-    const resp = await notFoundExternalDigestHandler({}, context);
+    const resp = await notFoundExternalDigestHandler(context);
     expect(resp.status).to.equal(500);
   });
 
@@ -136,7 +136,7 @@ describe('not found external handler', () => {
     };
     context.slackClients.ADOBE_EXTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
 
-    const resp = await notFoundExternalDigestHandler({}, context);
+    const resp = await notFoundExternalDigestHandler(context);
     expect(resp.status).to.equal(204);
   });
 
@@ -150,7 +150,7 @@ describe('not found external handler', () => {
     };
     const siteContext = { ...context };
     const newOrgData = {
-      ...organizationData,
+      ...organizationData1,
       getConfig: () => ({
         alerts: [{
           type: '404',
@@ -159,7 +159,7 @@ describe('not found external handler', () => {
       }),
     };
     siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const resp = await notFoundExternalDigestHandler({}, siteContext);
+    const resp = await notFoundExternalDigestHandler(siteContext);
     expect(resp.status).to.equal(204);
   });
 
@@ -173,7 +173,7 @@ describe('not found external handler', () => {
     };
     const siteContext = { ...context };
     const newOrgData = {
-      ...organizationData,
+      ...organizationData1,
       getConfig: () => ({
         alerts: [{
           type: '404',
@@ -182,7 +182,7 @@ describe('not found external handler', () => {
       }),
     };
     siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const resp = await notFoundExternalDigestHandler({}, siteContext);
+    const resp = await notFoundExternalDigestHandler(siteContext);
     expect(resp.status).to.equal(204);
   });
 });

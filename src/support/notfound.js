@@ -12,13 +12,6 @@
 import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
 import { build404InitialSlackMessage, build404SlackMessage } from './slack.js';
 
-function isWithinLast7Days(date) {
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-  const checkedDate = new Date(date);
-  return checkedDate >= sevenDaysAgo;
-}
-
 export const sendInitial404Message = async (slackClient, slackContext) => {
   const blocks = build404InitialSlackMessage(slackContext?.mentions);
   const { threadId } = await slackClient.postMessage(
@@ -28,24 +21,6 @@ export const sendInitial404Message = async (slackClient, slackContext) => {
     },
   );
   return { thread_ts: threadId, channel: slackContext.channel };
-};
-
-export const process404LatestAudit = (latestAudits) => {
-  const results = [];
-  let finalUrl;
-  if (latestAudits.length > 0) {
-    finalUrl = latestAudits[0].getAuditResult().finalUrl;
-    for (const latestAudit of latestAudits) {
-      if (isWithinLast7Days(latestAudit.getAuditedAt())) {
-        const auditResult = latestAudit.getAuditResult();
-        const { result } = auditResult;
-        for (const resultItem of result) {
-          results.push(resultItem);
-        }
-      }
-    }
-  }
-  return { results, finalUrl };
 };
 export const get404Backlink = async (context, url) => {
   try {

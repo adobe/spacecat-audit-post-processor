@@ -12,11 +12,9 @@
 
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { SLACK_TARGETS, SlackClient } from '@adobe/spacecat-shared-slack-client';
-import { process404LatestAudit, sendInitial404Message, send404Report } from '../support/notfound.js';
+import { processLatestAudit } from '../support/audits.js';
 
-const ALERT_TYPE = '404';
-
-export default async function notFoundInternalDigestHandler(message, context) {
+export default async function internalDigestHandler(context, type, sendInitialMessage, sendReport) {
   const {
     env: { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId }, dataAccess, log,
   } = context;
@@ -24,15 +22,15 @@ export default async function notFoundInternalDigestHandler(message, context) {
   const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_INTERNAL);
   let slackContext = {};
 
-  const sites = await dataAccess.getSitesWithLatestAudit(ALERT_TYPE, false);
+  const sites = await dataAccess.getSitesWithLatestAudit(type, false);
   for (const site of sites) {
     const latest404AuditReports = site.getAudits();
-    const { results, finalUrl } = process404LatestAudit(latest404AuditReports);
+    const { results, finalUrl } = processLatestAudit(latest404AuditReports);
     if (results && results.length > 0) {
       if (!sentInitialMessage) {
         try {
           // eslint-disable-next-line no-await-in-loop
-          slackContext = await sendInitial404Message(slackClient, { channel: slackChannelId });
+          slackContext = await sendInitialMessage(slackClient, { channel: slackChannelId });
           sentInitialMessage = true;
         } catch (e) {
           log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
@@ -41,7 +39,7 @@ export default async function notFoundInternalDigestHandler(message, context) {
       }
       try {
         // eslint-disable-next-line no-await-in-loop
-        await send404Report(
+        await sendReport(
           context,
           slackClient,
           slackContext,

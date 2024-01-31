@@ -15,7 +15,7 @@ import sinon from 'sinon';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import notFoundInternalDigestHandler from '../../src/notfoundigest/handler-internal.js';
+import notFoundInternalDigestHandler from '../../src/digest/handler-internal.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -93,7 +93,7 @@ describe('not found internal handler', () => {
         ),
       },
     };
-    const resp = await notFoundInternalDigestHandler({}, context);
+    const resp = await notFoundInternalDigestHandler(context);
     expect(resp.status).to.equal(204);
   });
 
@@ -110,7 +110,7 @@ describe('not found internal handler', () => {
       },
     };
     context.slackClients.ADOBE_INTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
-    const resp = await notFoundInternalDigestHandler({}, context);
+    const resp = await notFoundInternalDigestHandler(context);
     expect(resp.status).to.equal(204);
   });
 
@@ -121,7 +121,7 @@ describe('not found internal handler', () => {
     context.slackClients = {
       ADOBE_INTERNAL: { postMessage: sandbox.stub().onFirstCall().rejects(new Error('error')) },
     };
-    const resp = await notFoundInternalDigestHandler({}, context);
+    const resp = await notFoundInternalDigestHandler(context);
     expect(resp.status).to.equal(500);
   });
 });
