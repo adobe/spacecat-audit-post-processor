@@ -43,8 +43,8 @@ export default async function externalDigestHandler(
       );
       let slackContext = {};
       for (const site of sites) {
-        const latest404AuditReports = site.getAudits();
-        const { results, finalUrl } = processLatestAudit(latest404AuditReports);
+        const latestAuditReports = site.getAudits();
+        const { results, finalUrl } = processLatestAudit(latestAuditReports);
         if (results && results.length > 0) {
           const siteConfig = site.getConfig();
           const isDigest = isDigestReport(orgConfig, type);
