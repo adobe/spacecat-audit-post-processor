@@ -103,7 +103,7 @@ describe('not found external handler', () => {
     context.slackClients = {
       ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channelId: channel, threadId: 'ts-1' }) },
     };
-    const resp = await notFoundExternalDigestHandler(context);
+    const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 
@@ -114,7 +114,7 @@ describe('not found external handler', () => {
     const noAuditContext = { ...context };
     noAuditContext.dataAccess = { ...context.dataAccess };
     noAuditContext.dataAccess.getSitesByOrganizationIDWithLatestAudits = () => [];
-    const resp = await notFoundExternalDigestHandler(noAuditContext);
+    const resp = await notFoundExternalDigestHandler({}, noAuditContext);
     expect(resp.status).to.equal(204);
   });
 
@@ -122,7 +122,7 @@ describe('not found external handler', () => {
     context.slackClients = {
       ADOBE_EXTERNAL: { postMessage: sandbox.stub().rejects(new Error('error')) },
     };
-    const resp = await notFoundExternalDigestHandler(context);
+    const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
   });
 
@@ -136,7 +136,7 @@ describe('not found external handler', () => {
     };
     context.slackClients.ADOBE_EXTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
 
-    const resp = await notFoundExternalDigestHandler(context);
+    const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 
@@ -159,7 +159,7 @@ describe('not found external handler', () => {
       }),
     };
     siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const resp = await notFoundExternalDigestHandler(siteContext);
+    const resp = await notFoundExternalDigestHandler({}, siteContext);
     expect(resp.status).to.equal(204);
   });
 
@@ -182,7 +182,7 @@ describe('not found external handler', () => {
       }),
     };
     siteContext.dataAccess.getOrganizations = sinon.stub().resolves([newOrgData]);
-    const resp = await notFoundExternalDigestHandler(siteContext);
+    const resp = await notFoundExternalDigestHandler({}, siteContext);
     expect(resp.status).to.equal(204);
   });
 });

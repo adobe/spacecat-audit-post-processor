@@ -93,7 +93,7 @@ describe('not found internal handler', () => {
         ),
       },
     };
-    const resp = await notFoundInternalDigestHandler(context);
+    const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 
@@ -110,7 +110,7 @@ describe('not found internal handler', () => {
       },
     };
     context.slackClients.ADOBE_INTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
-    const resp = await notFoundInternalDigestHandler(context);
+    const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
 
@@ -121,7 +121,7 @@ describe('not found internal handler', () => {
     context.slackClients = {
       ADOBE_INTERNAL: { postMessage: sandbox.stub().onFirstCall().rejects(new Error('error')) },
     };
-    const resp = await notFoundInternalDigestHandler(context);
+    const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
   });
 });

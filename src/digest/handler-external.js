@@ -18,7 +18,13 @@ import {
 } from '../support/config.js';
 import { processLatestAudit } from '../support/audits.js';
 
-export default async function externalDigestHandler(context, type, sendInitialMessage, sendReport) {
+export default async function externalDigestHandler(
+  message,
+  context,
+  type,
+  sendInitialMessage,
+  sendReport,
+) {
   const { dataAccess, log } = context;
 
   const organizations = await dataAccess.getOrganizations();

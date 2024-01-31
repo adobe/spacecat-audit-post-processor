@@ -14,7 +14,13 @@ import { internalServerError, noContent } from '@adobe/spacecat-shared-http-util
 import { SLACK_TARGETS, SlackClient } from '@adobe/spacecat-shared-slack-client';
 import { processLatestAudit } from '../support/audits.js';
 
-export default async function internalDigestHandler(context, type, sendInitialMessage, sendReport) {
+export default async function internalDigestHandler(
+  message,
+  context,
+  type,
+  sendInitialMessage,
+  sendReport,
+) {
   const {
     env: { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId }, dataAccess, log,
   } = context;

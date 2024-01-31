@@ -14,6 +14,6 @@ import { send404Report, sendInitial404Message } from '../support/notfound.js';
 
 const ALERT_TYPE = '404';
 
-export default async function notFoundExternalDigestHandler(context) {
-  return externalDigestHandler(context, ALERT_TYPE, sendInitial404Message, send404Report);
+export default async function notFoundExternalDigestHandler(message, context) {
+  return externalDigestHandler(message, context, ALERT_TYPE, sendInitial404Message, send404Report);
 }
