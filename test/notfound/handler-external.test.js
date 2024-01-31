@@ -113,8 +113,8 @@ describe('not found external handler', () => {
     getSitesByOrganizationIDWithLatestAudits: sinon.stub(),
     getLatestAuditForSite: sinon.stub().resolves(auditData),
   };
-  mockDataAccess.getSitesByOrganizationIDWithLatestAudits.onCall(0).returns([siteData1]);
-  mockDataAccess.getSitesByOrganizationIDWithLatestAudits.onCall(1).returns([siteData2]);
+  mockDataAccess.getSitesByOrganizationIDWithLatestAudits.withArgs(organizationData1.getId(), '404', false).returns([siteData1]);
+  mockDataAccess.getSitesByOrganizationIDWithLatestAudits.withArgs(organizationData2.getId(), '404', false).returns([siteData2]);
   beforeEach('setup', () => {
     context = {
       log: console,
