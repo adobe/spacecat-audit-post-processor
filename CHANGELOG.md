@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.4.0...v1.4.1) (2024-02-01)
+
+
+### Bug Fixes
+
+* filename is broken for broken backlinks audit and urls that do not have protocol ([#62](https://github.com/adobe/spacecat-audit-post-processor/issues/62)) ([4126b86](https://github.com/adobe/spacecat-audit-post-processor/commit/4126b8655ed5c36b83e258fd8dd58db40df130f8))
+
 # [1.4.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.3.6...v1.4.0) (2024-01-31)
 
 
