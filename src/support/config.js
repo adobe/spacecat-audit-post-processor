@@ -19,7 +19,7 @@ export const isDigestReport = (conf, alertType) => {
 };
 
 export const hasAlertConfig = (conf, alertType) => isArray(conf?.alerts)
-    && conf?.alerts.find((alert) => alert.type === alertType);
+  && conf?.alerts.find((alert) => alert.type === alertType);
 
 const getSlackContext = (conf, alertType) => {
   const channel = conf?.slack?.channel;

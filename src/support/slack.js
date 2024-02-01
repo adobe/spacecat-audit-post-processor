@@ -11,6 +11,7 @@
  */
 
 import { createUrl } from '@adobe/fetch';
+import { isArray } from '@adobe/spacecat-shared-utils';
 import { fetch } from './utils.js';
 
 export const SLACK_API = 'https://slack.com/api/chat.postMessage';
@@ -111,4 +112,16 @@ export function section(content) {
 
 export function markdown(text) {
   return { type: 'mrkdwn', text };
+}
+
+export function buildInitialSlackMessage(initialMessage, mentions) {
+  return [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${isArray(mentions) ? `${mentions.join(' ').toString()} ` : ''}${initialMessage}`,
+      },
+    },
+  ];
 }

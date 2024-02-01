@@ -21,6 +21,8 @@ import notFoundHandler from './notfound/handler.js';
 import backlinks from './backlinks/handler.js';
 import notFoundInternalDigestHandler from './notfound/handler-internal.js';
 import notFoundExternalDigestHandler from './notfound/handler-external.js';
+import brokenBacklinksHandlerExternal from './backlinks/handler-external.js';
+import brokenBacklinksHandlerInternal from './backlinks/handler-internal.js';
 
 export const HANDLERS = {
   apex,
@@ -29,6 +31,8 @@ export const HANDLERS = {
   '404-external': notFoundExternalDigestHandler,
   '404-internal': notFoundInternalDigestHandler,
   'broken-backlinks': backlinks,
+  'broken-backlinks-internal': brokenBacklinksHandlerInternal,
+  'broken-backlinks-external': brokenBacklinksHandlerExternal,
 };
 
 function guardEnvironmentVariables(fn) {

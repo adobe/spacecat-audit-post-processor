@@ -12,18 +12,7 @@
 
 import { badRequest, noContent } from '@adobe/spacecat-shared-http-utils';
 import { hasText, isObject } from '@adobe/spacecat-shared-utils';
-import { uploadSlackFile } from '../support/slack.js';
-
-function convertToCSV(array) {
-  const headers = Object.keys(array[0]).join(',');
-  const rows = array.map((item) => Object.values(item).map((value) => {
-    if (typeof value === 'object' && value !== null) {
-      return `"${JSON.stringify(value)}"`;
-    }
-    return `"${value}"`;
-  }).join(',')).join('\r\n');
-  return `${headers}\r\n${rows}\r\n`;
-}
+import { processBrokenBacklinksAuditResult } from '../support/backlinks.js';
 
 function isValidMessage(message) {
   return hasText(message.url)
@@ -41,40 +30,7 @@ export default async function brokenBacklinksHandler(message, context) {
     return badRequest('Required parameters missing in the message.');
   }
 
-  await Promise.all(Object.keys(auditResult).map(async (url) => {
-    const result = auditResult[url];
-    const { brokenBacklinks, error } = result;
-
-    if (error) {
-      log.warn(`Not reporting broken backlinks: ${error}`);
-      return;
-    }
-
-    if (!brokenBacklinks || brokenBacklinks.length === 0) {
-      log.info(`No broken backlinks detected for ${url}`);
-      return;
-    }
-
-    const { channel, ts } = auditContext.slackContext;
-
-    const csvData = convertToCSV(brokenBacklinks);
-    log.info(`Converted to csv ${csvData}`);
-    const file = new Blob([csvData], { type: 'text/csv' });
-
-    try {
-      const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
-      const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
-      const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
-      const text = `For *${urlWithProtocolStripped}*, ${result?.brokenBacklinks?.length} broken backlink(s) were detected.\nThe following CSV file contains a detailed report for all broken backlinks:`;
-      await uploadSlackFile(token, {
-        file, fileName, channel, ts, text,
-      });
-
-      log.info(`Successfully reported broken backlinks for ${url}`);
-    } catch (e) {
-      log.error(`Failed to send slack message to report broken backlinks for ${url}. Reason: ${e.message}`);
-    }
-  }));
+  await processBrokenBacklinksAuditResult(auditResult, auditContext.slackContext, token, log);
 
   return noContent();
 }
