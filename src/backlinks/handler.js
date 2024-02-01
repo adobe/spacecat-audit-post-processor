@@ -62,8 +62,10 @@ export default async function brokenBacklinksHandler(message, context) {
     const file = new Blob([csvData], { type: 'text/csv' });
 
     try {
-      const fileName = `broken-backlinks-${url.split('://')[1]?.replace(/\./g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
-      const text = `For *${url.split('://')[1]}*, ${result?.brokenBacklinks?.length} broken backlink(s) were detected.\nThe following CSV file contains a detailed report for all broken backlinks:`;
+      const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
+      const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
+      const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
+      const text = `For *${urlWithProtocolStripped}*, ${result?.brokenBacklinks?.length} broken backlink(s) were detected.\nThe following CSV file contains a detailed report for all broken backlinks:`;
       await uploadSlackFile(token, {
         file, fileName, channel, ts, text,
       });
