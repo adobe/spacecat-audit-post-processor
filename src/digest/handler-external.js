@@ -11,7 +11,7 @@
  */
 
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
-import { SlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
+import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 
 import {
   getSlackContextForAlert, hasAlertConfig, isDigestReport,
@@ -29,7 +29,7 @@ export default async function externalDigestHandler(
 
   const organizations = await dataAccess.getOrganizations();
   let sentInitialMessage = false;
-  const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_EXTERNAL);
+  const slackClient = BaseSlackClient.createFrom(context, SLACK_TARGETS.WORKSPACE_EXTERNAL);
 
   for (const organization of organizations) {
     const orgConfig = organization.getConfig();

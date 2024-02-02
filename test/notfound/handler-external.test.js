@@ -136,7 +136,7 @@ describe('not found external handler', () => {
     const orgChannel = 'channelOrg1';
     const siteChannel = 'channelSite2';
     context.slackClients = {
-      ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channel: orgChannel, threadId: 'thread-1' }) },
+      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().resolves({ channel: orgChannel, threadId: 'thread-1' }) },
     };
     const initialBlocks = build404InitialSlackMessage(['slackOrgId1']);
     const blocksOrg = build404SlackMessage(
@@ -151,15 +151,15 @@ describe('not found external handler', () => {
       ['slackSiteId2'],
     );
     const resp = await notFoundExternalDigestHandler({}, context);
-    expect(context.slackClients.ADOBE_EXTERNAL.postMessage).calledWith(
+    expect(context.slackClients.WORKSPACE_EXTERNAL_STANDARD.postMessage).calledWith(
       ({ blocks: initialBlocks, channel: orgChannel }),
     );
-    expect(context.slackClients.ADOBE_EXTERNAL.postMessage).calledWith(
+    expect(context.slackClients.WORKSPACE_EXTERNAL_STANDARD.postMessage).calledWith(
       {
         blocks: blocksOrg, channel: orgChannel, thread_ts: 'thread-1', unfurl_links: false,
       },
     );
-    expect(context.slackClients.ADOBE_EXTERNAL.postMessage).calledWith(
+    expect(context.slackClients.WORKSPACE_EXTERNAL_STANDARD.postMessage).calledWith(
       {
         blocks: blocksSite, channel: siteChannel, mentions: ['slackSiteId2'], unfurl_links: false,
       },
@@ -169,7 +169,7 @@ describe('not found external handler', () => {
 
   it('builds no message when there is no audit', async () => {
     context.slackClients = {
-      ADOBE_EXTERNAL: { postMessage: sandbox.stub().rejects(new Error('error')) },
+      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().rejects(new Error('error')) },
     };
     const noAuditContext = { ...context };
     noAuditContext.dataAccess = { ...context.dataAccess };
@@ -180,7 +180,7 @@ describe('not found external handler', () => {
 
   it('returns 500 if the initial slack api fails', async () => {
     context.slackClients = {
-      ADOBE_EXTERNAL: { postMessage: sandbox.stub().rejects(new Error('error')) },
+      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().rejects(new Error('error')) },
     };
     const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);
@@ -192,9 +192,9 @@ describe('not found external handler', () => {
       create404Backlink: sandbox.stub().resolves(backlink),
     };
     context.slackClients = {
-      ADOBE_EXTERNAL: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
+      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
     };
-    context.slackClients.ADOBE_EXTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
+    context.slackClients.WORKSPACE_EXTERNAL_STANDARD.postMessage.onSecondCall().rejects(new Error('error'));
 
     const resp = await notFoundExternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
@@ -206,7 +206,7 @@ describe('not found external handler', () => {
       create404Backlink: sandbox.stub().rejects('error'),
     };
     context.slackClients = {
-      ADOBE_EXTERNAL: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
+      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().resolves({ channel, ts: 'ts-1' }) },
     };
     const siteContext = { ...context };
     const newOrgData = {
