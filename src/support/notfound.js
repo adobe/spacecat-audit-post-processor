@@ -16,29 +16,6 @@ import { markdown, section } from './slack.js';
 
 export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
 
-export function build404InitialSlackMessage(mentions) {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${isArray(mentions) ? `${mentions.join(' ').toString()} ` : ''}${INITIAL_404_SLACK_MESSAGE}`,
-      },
-    },
-  ];
-}
-
-export const sendInitial404Message = async (slackClient, slackContext) => {
-  const blocks = build404InitialSlackMessage(slackContext?.mentions);
-  const { threadId } = await slackClient.postMessage(
-    {
-      channel: slackContext?.channel,
-      blocks,
-    },
-  );
-  return { thread_ts: threadId, channel: slackContext.channel };
-};
-
 export const get404Backlink = async (context, url) => {
   try {
     const rumApiClient = RUMAPIClient.createFrom(context);
@@ -81,12 +58,14 @@ export function build404SlackMessage(url, auditResult, backlink, mentions) {
   return blocks;
 }
 export const send404Report = async ({
-  context,
   slackClient,
   slackContext,
-  baseUrl,
-  finalUrl,
-  results,
+  message: {
+    context,
+    baseUrl,
+    finalUrl,
+    results,
+  },
 }) => {
   const backlink = await get404Backlink(context, finalUrl);
   const blocks = build404SlackMessage(
@@ -98,4 +77,45 @@ export const send404Report = async ({
   // send alert to the slack channel - group under a thread if ts value exists
   // eslint-disable-next-line no-await-in-loop
   return slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
+};
+
+/*
+ * Copyright 2023 Adobe. All rights reserved.
+ * This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+function isWithinLast7Days(date) {
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+  const checkedDate = new Date(date);
+  return checkedDate >= sevenDaysAgo;
+}
+
+export const processLatest404Audit = (context, site, latestAudits) => {
+  const results = [];
+  let finalUrl;
+  if (latestAudits.length > 0) {
+    finalUrl = latestAudits[0].getAuditResult().finalUrl;
+    for (const latestAudit of latestAudits) {
+      if (isWithinLast7Days(latestAudit.getAuditedAt())) {
+        const auditResult = latestAudit.getAuditResult();
+        const { result } = auditResult;
+        for (const resultItem of result) {
+          results.push(resultItem);
+        }
+      }
+    }
+  }
+  if (results.length > 0) {
+    return {
+      results, finalUrl, context, baseUrl: site.getBaseURL(),
+    };
+  }
+  return {};
 };

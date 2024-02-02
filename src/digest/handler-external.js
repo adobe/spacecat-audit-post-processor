@@ -16,13 +16,13 @@ import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-cli
 import {
   getSlackContextForAlert, hasAlertConfig, isDigestReport,
 } from '../support/config.js';
-import { processLatestAudit } from '../support/audits.js';
+import { sendInitialMessage } from '../support/slack.js';
 
 export default async function externalDigestHandler(
-  message,
   context,
   type,
-  sendInitialMessage,
+  INITIAL_MESSAGE,
+  processLatestAudit,
   sendReport,
 ) {
   const { dataAccess, log } = context;
@@ -44,8 +44,8 @@ export default async function externalDigestHandler(
       let slackContext = {};
       for (const site of sites) {
         const latestAuditReports = site.getAudits();
-        const { results, finalUrl } = processLatestAudit(latestAuditReports);
-        if (results && results.length > 0) {
+        const message = processLatestAudit(context, site, latestAuditReports);
+        if (Object.keys(message).length > 0) {
           const siteConfig = site.getConfig();
           const isDigest = isDigestReport(orgConfig, type);
           if (!isDigest || !sentInitialMessage) {
@@ -54,7 +54,7 @@ export default async function externalDigestHandler(
           if (!sentInitialMessage && isDigest) {
             try {
               // eslint-disable-next-line no-await-in-loop
-              slackContext = await sendInitialMessage(slackClient, slackContext);
+              slackContext = await sendInitialMessage(slackClient, slackContext, INITIAL_MESSAGE);
               sentInitialMessage = true;
             } catch (e) {
               log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
@@ -64,12 +64,9 @@ export default async function externalDigestHandler(
           try {
             // eslint-disable-next-line no-await-in-loop
             await sendReport({
-              context,
               slackClient,
               slackContext,
-              baseUrl: site.getBaseURL(),
-              finalUrl,
-              results,
+              message,
             });
           } catch (e) {
             log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);

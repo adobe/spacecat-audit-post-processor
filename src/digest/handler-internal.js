@@ -12,13 +12,13 @@
 
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
-import { processLatestAudit } from '../support/audits.js';
+import { sendInitialMessage } from '../support/slack.js';
 
 export default async function internalDigestHandler(
-  message,
   context,
   type,
-  sendInitialMessage,
+  INITIAL_MESSAGE,
+  processLatestAudit,
   sendReport,
 ) {
   const {
@@ -30,13 +30,17 @@ export default async function internalDigestHandler(
 
   const sites = await dataAccess.getSitesWithLatestAudit(type, false);
   for (const site of sites) {
-    const latest404AuditReports = site.getAudits();
-    const { results, finalUrl } = processLatestAudit(latest404AuditReports);
-    if (results && results.length > 0) {
+    const latestAuditReports = site.getAudits();
+    const message = processLatestAudit(context, site, latestAuditReports);
+    if (Object.keys(message).length > 0) {
       if (!sentInitialMessage) {
         try {
           // eslint-disable-next-line no-await-in-loop
-          slackContext = await sendInitialMessage(slackClient, { channel: slackChannelId });
+          slackContext = await sendInitialMessage(
+            slackClient,
+            { channel: slackChannelId },
+            INITIAL_MESSAGE,
+          );
           sentInitialMessage = true;
         } catch (e) {
           log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
@@ -46,12 +50,9 @@ export default async function internalDigestHandler(
       try {
         // eslint-disable-next-line no-await-in-loop
         await sendReport({
-          context,
           slackClient,
           slackContext,
-          baseUrl: site.getBaseURL(),
-          finalUrl,
-          results,
+          message,
         });
       } catch (e) {
         log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
