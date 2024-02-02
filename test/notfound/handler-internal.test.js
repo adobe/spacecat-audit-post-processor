@@ -87,7 +87,7 @@ describe('not found internal handler', () => {
       getDomainList: sandbox.stub().resolves(['abcd.com']),
     };
     context.slackClients = {
-      ADOBE_INTERNAL: {
+      WORKSPACE_INTERNAL_STANDARD: {
         postMessage: sandbox.stub().resolves(
           { channelId: channel, threadId: thread },
         ),
@@ -103,13 +103,13 @@ describe('not found internal handler', () => {
       getDomainList: sandbox.stub().resolves(['abcd.com']),
     };
     context.slackClients = {
-      ADOBE_INTERNAL: {
+      WORKSPACE_INTERNAL_STANDARD: {
         postMessage: sandbox.stub().onFirstCall().resolves(
           { channelId: channel, threadId: thread },
         ),
       },
     };
-    context.slackClients.ADOBE_INTERNAL.postMessage.onSecondCall().rejects(new Error('error'));
+    context.slackClients.WORKSPACE_INTERNAL_STANDARD.postMessage.onSecondCall().rejects(new Error('error'));
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
   });
@@ -119,7 +119,7 @@ describe('not found internal handler', () => {
       getDomainList: sandbox.stub().resolves(['abcd.com']),
     };
     context.slackClients = {
-      ADOBE_INTERNAL: { postMessage: sandbox.stub().onFirstCall().rejects(new Error('error')) },
+      WORKSPACE_INTERNAL_STANDARD: { postMessage: sandbox.stub().onFirstCall().rejects(new Error('error')) },
     };
     const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(500);

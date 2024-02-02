@@ -11,7 +11,7 @@
  */
 
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
-import { SLACK_TARGETS, SlackClient } from '@adobe/spacecat-shared-slack-client';
+import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 import { processLatestAudit } from '../support/audits.js';
 
 export default async function internalDigestHandler(
@@ -25,7 +25,7 @@ export default async function internalDigestHandler(
     env: { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId }, dataAccess, log,
   } = context;
   let sentInitialMessage = false;
-  const slackClient = SlackClient.createFrom(context, SLACK_TARGETS.ADOBE_INTERNAL);
+  const slackClient = BaseSlackClient.createFrom(context, SLACK_TARGETS.WORKSPACE_INTERNAL);
   let slackContext = {};
 
   const sites = await dataAccess.getSitesWithLatestAudit(type, false);
