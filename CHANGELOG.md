@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.4.2...v1.4.3) (2024-02-02)
+
+
+### Bug Fixes
+
+* update to latest slack-client ([#72](https://github.com/adobe/spacecat-audit-post-processor/issues/72)) ([74cec57](https://github.com/adobe/spacecat-audit-post-processor/commit/74cec57dab9802e91f1643098234fbab2ca7a0c0))
+
 ## [1.4.2](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.4.1...v1.4.2) (2024-02-02)
 
 
