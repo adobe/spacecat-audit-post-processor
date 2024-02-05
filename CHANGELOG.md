@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.4.6...v1.5.0) (2024-02-05)
+
+
+### Features
+
+* generify external and internal digest ([878cb05](https://github.com/adobe/spacecat-audit-post-processor/commit/878cb05eb72cd839c5f8c09b0b3ca0f4299c744a))
+
 ## [1.4.6](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.4.5...v1.4.6) (2024-02-04)
 
 
