@@ -10,10 +10,16 @@
  * governing permissions and limitations under the License.
  */
 import externalDigestHandler from '../digest/handler-external.js';
-import { send404Report, sendInitial404Message } from '../support/notfound.js';
+import { INITIAL_404_SLACK_MESSAGE, processLatest404Audit, send404Report } from '../support/notfound.js';
 
 const ALERT_TYPE = '404';
 
 export default async function notFoundExternalDigestHandler(message, context) {
-  return externalDigestHandler(message, context, ALERT_TYPE, sendInitial404Message, send404Report);
+  return externalDigestHandler(
+    context,
+    ALERT_TYPE,
+    INITIAL_404_SLACK_MESSAGE,
+    processLatest404Audit,
+    send404Report,
+  );
 }
