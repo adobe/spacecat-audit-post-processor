@@ -106,7 +106,7 @@ export async function uploadSlackFile(token, opts) {
   }
 }
 
-export function buildInitialSlackMessage(initialMessage, mentions) {
+export function buildBasicSlackMessage(initialMessage, mentions) {
   return [
     {
       type: 'section',
@@ -118,8 +118,8 @@ export function buildInitialSlackMessage(initialMessage, mentions) {
   ];
 }
 
-export const sendInitialMessage = async (slackClient, slackContext, initialMessage) => {
-  const blocks = buildInitialSlackMessage(initialMessage, slackContext?.mentions);
+export const sendBasicMessage = async (slackClient, slackContext, message) => {
+  const blocks = buildBasicSlackMessage(message, slackContext?.mentions);
   const { threadId } = await slackClient.postMessage(
     {
       channel: slackContext?.channel,

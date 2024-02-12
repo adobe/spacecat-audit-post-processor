@@ -10,7 +10,11 @@
  * governing permissions and limitations under the License.
  */
 import internalDigestHandler from '../digest/handler-internal.js';
-import { send404Report, INITIAL_404_SLACK_MESSAGE, processLatest404Audit } from '../support/notfound.js';
+import {
+  send404Report,
+  INITIAL_404_SLACK_MESSAGE,
+  processLatest404Audit,
+} from '../support/notfound.js';
 
 const ALERT_TYPE = '404';
 

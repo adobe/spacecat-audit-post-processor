@@ -15,6 +15,7 @@ import commaNumber from 'comma-number';
 import { markdown, section } from './slack.js';
 
 export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
+export const NO_404_SLACK_MESSAGE = 'Good news ! No 404 error was detected';
 
 export const get404Backlink = async (context, url) => {
   try {
@@ -30,7 +31,7 @@ export function build404SlackMessage(url, auditResult, backlink, mentions) {
   const blocks = [];
 
   blocks.push(section({
-    text: markdown(`${isArray(mentions) ? mentions.join(' ').toString() : ''} For *${url}*, ${auditResult.length} page(s) had 404s *last week* for the real users.\n More information is below (up to three pages):`),
+    text: markdown(`${isArray(mentions) ? mentions.join(' ').toString() : ''} For *${url}*, ${auditResult.length} page(s) had 404s *last week* for for the end users of the site.\n More information is below (up to three pages):`),
   }));
 
   for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {

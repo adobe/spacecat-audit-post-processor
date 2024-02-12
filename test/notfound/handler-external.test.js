@@ -16,8 +16,8 @@ import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import notFoundExternalDigestHandler from '../../src/notfound/handler-external.js';
-import { INITIAL_404_SLACK_MESSAGE, build404SlackMessage } from '../../src/support/notfound.js';
-import { buildInitialSlackMessage } from '../../src/support/slack.js';
+import { INITIAL_404_SLACK_MESSAGE, build404SlackMessage, NO_404_SLACK_MESSAGE } from '../../src/support/notfound.js';
+import { buildBasicSlackMessage } from '../../src/support/slack.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -109,13 +109,29 @@ describe('not found external handler', () => {
     getAudits: () => [auditData],
   };
 
+  const siteData3 = {
+    getId: () => 'site3',
+    getBaseURL: () => 'https://abcd.com',
+    getConfig: () => ({
+      slack: {
+        workspace: 'workspace',
+        channel: 'channelSite3',
+      },
+      alerts: [{
+        type: '404',
+        mentions: [{ slack: ['slackSiteId3'] }],
+      }],
+    }),
+    getAudits: () => [],
+  };
+
   const mockDataAccess = {
     getOrganizations: sinon.stub().resolves([organizationData1, { getId: () => 'default', getConfig: () => {} }, organizationData2]),
     getSitesByOrganizationIDWithLatestAudits: sinon.stub(),
     getLatestAuditForSite: sinon.stub().resolves(auditData),
   };
   mockDataAccess.getSitesByOrganizationIDWithLatestAudits.withArgs(organizationData1.getId(), '404', false).returns([siteData1]);
-  mockDataAccess.getSitesByOrganizationIDWithLatestAudits.withArgs(organizationData2.getId(), '404', false).returns([siteData2]);
+  mockDataAccess.getSitesByOrganizationIDWithLatestAudits.withArgs(organizationData2.getId(), '404', false).returns([siteData2, siteData3]);
   beforeEach('setup', () => {
     context = {
       log: console,
@@ -135,11 +151,13 @@ describe('not found external handler', () => {
       create404Backlink: sandbox.stub().resolves(backlink),
     };
     const orgChannel = 'channelOrg1';
-    const siteChannel = 'channelSite2';
+    const siteChannel2 = 'channelSite2';
+    const siteChannel3 = 'channelSite3';
     context.slackClients = {
       WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().resolves({ channel: orgChannel, threadId: 'thread-1' }) },
     };
-    const initialBlocks = buildInitialSlackMessage(INITIAL_404_SLACK_MESSAGE, ['slackOrgId1']);
+    const initialBlocks = buildBasicSlackMessage(INITIAL_404_SLACK_MESSAGE, ['slackOrgId1']);
+    const noNotFoundBlocks = buildBasicSlackMessage(NO_404_SLACK_MESSAGE, ['slackSiteId3']);
     const blocksOrg = build404SlackMessage(
       'https://abcd.com',
       auditData.getAuditResult().result,
@@ -162,7 +180,12 @@ describe('not found external handler', () => {
     );
     expect(context.slackClients.WORKSPACE_EXTERNAL_STANDARD.postMessage).calledWith(
       {
-        blocks: blocksSite, channel: siteChannel, mentions: ['slackSiteId2'], unfurl_links: false,
+        blocks: blocksSite, channel: siteChannel2, mentions: ['slackSiteId2'], unfurl_links: false,
+      },
+    );
+    expect(context.slackClients.WORKSPACE_EXTERNAL_STANDARD.postMessage).calledWith(
+      {
+        blocks: noNotFoundBlocks, channel: siteChannel3,
       },
     );
     expect(resp.status).to.equal(204);
