@@ -17,7 +17,7 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import notFoundExternalDigestHandler from '../../src/notfound/handler-external.js';
 import { INITIAL_404_SLACK_MESSAGE, build404SlackMessage, NO_404_SLACK_MESSAGE } from '../../src/support/notfound.js';
-import { buildBasicSlackMessage } from '../../src/support/slack.js';
+import { buildSlackMessage } from '../../src/support/slack.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -156,8 +156,8 @@ describe('not found external handler', () => {
     context.slackClients = {
       WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().resolves({ channel: orgChannel, threadId: 'thread-1' }) },
     };
-    const initialBlocks = buildBasicSlackMessage(INITIAL_404_SLACK_MESSAGE, ['slackOrgId1']);
-    const noNotFoundBlocks = buildBasicSlackMessage(NO_404_SLACK_MESSAGE, ['slackSiteId3']);
+    const initialBlocks = buildSlackMessage(INITIAL_404_SLACK_MESSAGE, ['slackOrgId1']);
+    const noNotFoundBlocks = buildSlackMessage(NO_404_SLACK_MESSAGE('https://abcd.com'), ['slackSiteId3']);
     const blocksOrg = build404SlackMessage(
       'https://abcd.com',
       auditData.getAuditResult().result,
@@ -193,7 +193,7 @@ describe('not found external handler', () => {
 
   it('builds no message when there is no audit', async () => {
     context.slackClients = {
-      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().resolves() },
+      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().resolves({ threadId: 't1' }) },
     };
     const noAuditContext = { ...context };
     noAuditContext.dataAccess = { ...context.dataAccess };

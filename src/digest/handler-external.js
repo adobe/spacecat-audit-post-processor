@@ -16,7 +16,7 @@ import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-cli
 import {
   getSlackContextForAlert, hasAlertConfig, isDigestReport,
 } from '../support/config.js';
-import { sendBasicMessage } from '../support/slack.js';
+import { sendMessage } from '../support/slack.js';
 
 export default async function externalDigestHandler(
   context,
@@ -29,7 +29,6 @@ export default async function externalDigestHandler(
   const { dataAccess, log } = context;
 
   const organizations = await dataAccess.getOrganizations();
-  let sentInitialMessage = false;
   const slackClient = BaseSlackClient.createFrom(context, SLACK_TARGETS.WORKSPACE_EXTERNAL);
 
   for (const organization of organizations) {
@@ -43,26 +42,25 @@ export default async function externalDigestHandler(
         false,
       );
       let slackContext = {};
+      const isDigest = isDigestReport(orgConfig, type);
+      if (isDigest && sites.length > 0) {
+        slackContext = getSlackContextForAlert(orgConfig, {}, type);
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          slackContext = await sendMessage(slackClient, slackContext, INITIAL_MESSAGE);
+        } catch (e) {
+          log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
+          return internalServerError('Failed to send initial Slack message');
+        }
+      }
       for (const site of sites) {
         const latestAuditReports = site.getAudits();
-        const message = processLatestAudit(context, site, latestAuditReports);
         const siteConfig = site.getConfig();
-        slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
+        if (!isDigest) {
+          slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
+        }
+        const message = processLatestAudit(context, site, latestAuditReports);
         if (Object.keys(message).length > 0) {
-          const isDigest = isDigestReport(orgConfig, type);
-          if (!isDigest) {
-            slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
-          }
-          if (!sentInitialMessage && isDigest) {
-            try {
-              // eslint-disable-next-line no-await-in-loop
-              slackContext = await sendBasicMessage(slackClient, slackContext, INITIAL_MESSAGE);
-              sentInitialMessage = true;
-            } catch (e) {
-              log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
-              return internalServerError('Failed to send initial Slack message');
-            }
-          }
           try {
             // eslint-disable-next-line no-await-in-loop
             await sendReport({
@@ -76,7 +74,7 @@ export default async function externalDigestHandler(
         } else {
           try {
             // eslint-disable-next-line no-await-in-loop
-            await sendBasicMessage(slackClient, slackContext, NO_DATA_MESSAGE);
+            await sendMessage(slackClient, slackContext, NO_DATA_MESSAGE(site.getBaseURL()));
           } catch (e) {
             log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
           }

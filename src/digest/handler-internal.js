@@ -12,7 +12,7 @@
 
 import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
-import { sendBasicMessage } from '../support/slack.js';
+import { sendMessage } from '../support/slack.js';
 
 export default async function internalDigestHandler(
   context,
@@ -36,7 +36,7 @@ export default async function internalDigestHandler(
       if (!sentInitialMessage) {
         try {
           // eslint-disable-next-line no-await-in-loop
-          slackContext = await sendBasicMessage(
+          slackContext = await sendMessage(
             slackClient,
             { channel: slackChannelId },
             INITIAL_MESSAGE,

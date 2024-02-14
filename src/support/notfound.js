@@ -15,7 +15,7 @@ import commaNumber from 'comma-number';
 import { markdown, section } from './slack.js';
 
 export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
-export const NO_404_SLACK_MESSAGE = 'Good news ! No 404 error was detected';
+export const NO_404_SLACK_MESSAGE = (url) => `Good news! For ${url}, there were no 404 errors last week for the end users`;
 
 export const get404Backlink = async (context, url) => {
   try {
