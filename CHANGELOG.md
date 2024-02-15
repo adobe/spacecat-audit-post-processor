@@ -1,3 +1,10 @@
+## [1.5.13](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.12...v1.5.13) (2024-02-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.17.1 ([#97](https://github.com/adobe/spacecat-audit-post-processor/issues/97)) ([30c925c](https://github.com/adobe/spacecat-audit-post-processor/commit/30c925c0828eabb240e899c0ff4b1081afd4c694))
+
 ## [1.5.12](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.11...v1.5.12) (2024-02-14)
 
 
