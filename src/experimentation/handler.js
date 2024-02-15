@@ -12,21 +12,11 @@
 
 import { badRequest, noContent } from '@adobe/spacecat-shared-http-utils';
 import { hasText, isObject } from '@adobe/spacecat-shared-utils';
+import { convertToCSV } from '../support/utils.js';
 
 import {
   uploadSlackFile, postSlackMessage, markdown, section,
 } from '../support/slack.js';
-
-function convertToCSV(array) {
-  const headers = Object.keys(array[0]).join(',');
-  const rows = array.map((item) => Object.values(item).map((value) => {
-    if (typeof value === 'object' && value !== null) {
-      return `"${JSON.stringify(value)}"`;
-    }
-    return `"${value}"`;
-  }).join(',')).join('\r\n');
-  return `${headers}\r\n${rows}\r\n`;
-}
 
 export function buildExperimentationSlackMessage(url, auditResult) {
   const blocks = [];
