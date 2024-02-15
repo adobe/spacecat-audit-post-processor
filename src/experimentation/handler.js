@@ -78,7 +78,7 @@ export default async function experimentationHandler(message, context) {
     });
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
-    log.error(`Failed to send slack message to report broken backlinks for ${url}.`);
+    log.error(`Failed to send slack message to report experimentations done for ${url}.`);
   }
 
   return noContent();
