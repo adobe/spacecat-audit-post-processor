@@ -47,10 +47,17 @@ export default async function experimentationHandler(message, context) {
 
   const slackClient = BaseSlackClient.createFrom(context, target);
   if (!isValidMessage(message)) {
-    return badRequest('Required parameters missing in the message or no experimentation data available');
+    const msg = 'Required parameters missing in the message or no experimentation data available';
+    log.info(msg);
+    return badRequest(msg);
   }
 
   const { result } = auditResult;
+  if (result.length === 0) {
+    log.info(`No experimentation data available for ${auditResult.finalUrl}`);
+    return noContent();
+  }
+
   const csvData = convertToCSV(result);
   log.info(`Converted to csv ${csvData}`);
   const csvFile = new Blob([csvData], { type: 'text/csv' });
