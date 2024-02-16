@@ -15,3 +15,14 @@ import { context as h2, h1 } from '@adobe/fetch';
 export const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
   ? h1()
   : h2();
+
+export function convertToCSV(array) {
+  const headers = Object.keys(array[0]).join(',');
+  const rows = array.map((item) => Object.values(item).map((value) => {
+    if (typeof value === 'object' && value !== null) {
+      return `"${JSON.stringify(value)}"`;
+    }
+    return `"${value}"`;
+  }).join(',')).join('\r\n');
+  return `${headers}\r\n${rows}\r\n`;
+}
