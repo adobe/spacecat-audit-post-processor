@@ -36,6 +36,12 @@ describe('experimentation handler', () => {
     message = {
       url: 'space.cat',
       auditResult: expectedAuditResult,
+      auditContext: {
+        slackContext: {
+          channel,
+          ts: 'thread-id',
+        },
+      },
     };
 
     mockLog = {

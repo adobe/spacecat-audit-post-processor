@@ -35,14 +35,14 @@ export function buildExperimentationSlackMessage(url, auditResult) {
 
 export function isValidMessage(message) {
   return hasText(message.url)
+    && hasText(message.auditContext?.slackContext?.channel)
     && Array.isArray(message.auditResult?.result)
     && Object.values(message.auditResult?.result).every((result) => isObject(result));
 }
 
 export default async function experimentationHandler(message, context) {
   const { log } = context;
-  const { url, auditResult } = message;
-  const { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannel } = context.env;
+  const { url, auditResult, auditContext } = message;
   const target = SLACK_TARGETS.WORKSPACE_INTERNAL;
 
   const slackClient = BaseSlackClient.createFrom(context, target);
@@ -67,14 +67,15 @@ export default async function experimentationHandler(message, context) {
     // send alert to the slack channel - group under a thread if ts value exists
     const slackMessage2 = buildExperimentationSlackMessage(url, result);
     await slackClient.postMessage({
-      channel: slackChannel,
+      ...auditContext.slackContext,
       text: slackMessage1,
     });
     await slackClient.postMessage({
-      channel: slackChannel,
+      ...auditContext.slackContext,
       text: slackMessage2,
     });
     await slackClient.fileUpload({
+      ...auditContext.slackContext,
       file: csvFile,
     });
     log.info(`Successfully reported experiment details for ${url}`);
