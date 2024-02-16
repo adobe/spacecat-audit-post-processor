@@ -64,7 +64,6 @@ export default async function experimentationHandler(message, context) {
 
   const csvData = convertToCSV(result);
   log.info(`Converted to csv ${csvData}`);
-  const csvFile = new Blob([csvData], { type: 'text/csv' });
 
   try {
     const { channel, ts } = auditContext.slackContext;
@@ -79,7 +78,8 @@ export default async function experimentationHandler(message, context) {
     await slackClient.fileUpload({
       channel,
       thread_ts: ts,
-      file: csvFile,
+      file: Buffer.from(csvData, 'utf8'),
+      filename: 'data.csv',
     });
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
