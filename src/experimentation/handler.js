@@ -35,8 +35,8 @@ export function buildExperimentationSlackMessage(url, auditResult) {
 
 export function isValidMessage(message) {
   return hasText(message.url)
-    && Array.isArray(message.auditResult)
-    && Object.values(message.auditResult).every((result) => isObject(result));
+    && Array.isArray(message.auditResult?.result)
+    && Object.values(message.auditResult?.result).every((result) => isObject(result));
 }
 
 export default async function experimentationHandler(message, context) {
@@ -49,14 +49,16 @@ export default async function experimentationHandler(message, context) {
   if (!isValidMessage(message)) {
     return badRequest('Required parameters missing in the message or no experimentation data available');
   }
-  const csvData = convertToCSV(auditResult);
+
+  const { result } = auditResult;
+  const csvData = convertToCSV(result);
   log.info(`Converted to csv ${csvData}`);
   const csvFile = new Blob([csvData], { type: 'text/csv' });
 
   try {
-    const slackMessage1 = `\nFor *${url}*, ${auditResult.length} experiment(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
+    const slackMessage1 = `\nFor *${url}*, ${result.length} experiment(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
     // send alert to the slack channel - group under a thread if ts value exists
-    const slackMessage2 = buildExperimentationSlackMessage(url, auditResult);
+    const slackMessage2 = buildExperimentationSlackMessage(url, result);
     await slackClient.postMessage({
       channel: slackChannel,
       text: slackMessage1,
