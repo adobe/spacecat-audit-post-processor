@@ -12,10 +12,11 @@
 
 import { badRequest, noContent } from '@adobe/spacecat-shared-http-utils';
 import { hasText, isObject } from '@adobe/spacecat-shared-utils';
+import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 import { convertToCSV } from '../support/utils.js';
 
 import {
-  uploadSlackFile, postSlackMessage, markdown, section,
+  markdown, section,
 } from '../support/slack.js';
 
 export function buildExperimentationSlackMessage(url, auditResult) {
@@ -32,43 +33,44 @@ export function buildExperimentationSlackMessage(url, auditResult) {
   return blocks;
 }
 
-function isValidMessage(message) {
+export function isValidMessage(message) {
   return hasText(message.url)
-    && isObject(message.auditContext?.slackContext)
     && Array.isArray(message.auditResult)
     && Object.values(message.auditResult).every((result) => isObject(result));
 }
 
 export default async function experimentationHandler(message, context) {
   const { log } = context;
-  const { url, auditResult, auditContext } = message;
-  const { env: { SLACK_BOT_TOKEN: token } } = context;
+  const { url, auditResult } = message;
+  const { SLACK_OPS_CHANNEL_WORKSPACE_INTERNAL: slackChannel } = context.env;
+  const target = SLACK_TARGETS.WORKSPACE_INTERNAL;
+
+  const slackClient = BaseSlackClient.createFrom(context, target);
   if (!isValidMessage(message)) {
     return badRequest('Required parameters missing in the message or no experimentation data available');
   }
-  const { channel, ts } = auditContext.slackContext;
   const csvData = convertToCSV(auditResult);
   log.info(`Converted to csv ${csvData}`);
-  const file = new Blob([csvData], { type: 'text/csv' });
+  const csvFile = new Blob([csvData], { type: 'text/csv' });
 
   try {
-    const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
-    const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
-    const fileName = `experiments-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
-    const text = `For *${url}*, ${auditResult.length} experiment(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
+    const slackMessage1 = `\nFor *${url}*, ${auditResult.length} experiment(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
     // send alert to the slack channel - group under a thread if ts value exists
-    const slackMessage = buildExperimentationSlackMessage(url, auditResult);
-    await postSlackMessage(token, {
-      blocks: slackMessage,
-      channel,
-      ts,
+    const slackMessage2 = buildExperimentationSlackMessage(url, auditResult);
+    await slackClient.postMessage({
+      channel: slackChannel,
+      text: slackMessage1,
     });
-    await uploadSlackFile(token, {
-      file, fileName, channel, ts, text,
+    await slackClient.postMessage({
+      channel: slackChannel,
+      text: slackMessage2,
+    });
+    await slackClient.fileUpload({
+      file: csvFile,
     });
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
-    log.error(`Failed to send slack message to report experimentations done for ${url}.`);
+    log.error(`Failed to send slack message to report experimentations done for ${url}. Reason :${e.message}`);
   }
 
   return noContent();

@@ -18,8 +18,6 @@ import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 import experimentationHandler from '../../src/experimentation/handler.js';
 import { expectedAuditResult } from '../fixtures/experimentation-data.js';
-import { getQueryParams } from '../../src/support/slack.js';
-import { slackRumRequestData } from '../fixtures/slack-experimentation-request-data.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -31,17 +29,12 @@ describe('experimentation handler', () => {
   let message;
   let context;
   let mockLog;
+  const channel = 'channel1';
+  const thread = 'thread1';
 
   beforeEach('setup', () => {
     message = {
       url: 'space.cat',
-      auditContext: {
-        finalUrl: 'www.space.cat',
-        slackContext: {
-          channel: 'channel-id',
-          ts: 'thread-id',
-        },
-      },
       auditResult: expectedAuditResult,
     };
 
@@ -54,7 +47,18 @@ describe('experimentation handler', () => {
     context = {
       log: mockLog,
       env: {
-        SLACK_BOT_TOKEN: 'token',
+        SLACK_TOKEN_WORKSPACE_INTERNAL: 'token',
+        SLACK_OPS_CHANNEL_WORKSPACE_INTERNAL: 'channel-id',
+      },
+    };
+    context.slackClients = {
+      WORKSPACE_INTERNAL_STANDARD: {
+        postMessage: sandbox.stub().resolves(
+          { channelId: channel, threadId: thread },
+        ),
+        fileUpload: sandbox.stub().resolves(
+          { fileUrl: 'fileurl', channels: ['channel-1', 'channel-2'] },
+        ),
       },
     };
   });
@@ -90,76 +94,24 @@ describe('experimentation handler', () => {
     expect(resp.status).to.equal(400);
   });
 
-  it('rejects when auditContext is missing', async () => {
-    delete message.auditContext;
+  it('sends a slack message when there are experimentation results', async () => {
     const resp = await experimentationHandler(message, context);
-    expect(resp.status).to.equal(400);
+    expect(resp.status).to.equal(204);
+    expect(mockLog.info).to.have.been.calledWith('Successfully reported experiment details for space.cat');
+    expect(mockLog.error).to.not.have.been.called;
   });
 
-  it('rejects when slackContext is missing in auditContext', async () => {
-    delete message.auditContext.slackContext;
-    const resp = await experimentationHandler(message, context);
-    expect(resp.status).to.equal(400);
-  });
-
-  it('throws error when slack api fails to upload file', async () => {
-    const { channel, ts } = message.auditContext.slackContext;
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .post('/api/files.upload')
-      .times(1)
-      .reply(500);
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .get('/api/chat.postMessage')
-      .query(getQueryParams(slackRumRequestData, channel, ts))
-      .reply(200, {
-        ok: 'success',
-        channel: 'ch-1',
-        ts: 'ts-1',
-      });
+  it('throws error when slack api fails to post message', async () => {
+    context.slackClients.WORKSPACE_INTERNAL_STANDARD.postMessage.rejects(new Error('error'));
     const resp = await experimentationHandler(message, context);
     expect(resp.status).to.equal(204);
     expect(mockLog.error).to.have.been.calledOnce;
   });
 
-  it('sends a slack message when there are experiment results', async () => {
-    const { channel, ts } = message.auditContext.slackContext;
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .post('/api/files.upload')
-      .times(1)
-      .reply(200, {
-        ok: true,
-        file: {
-          url_private: 'slack-file-url',
-        },
-      });
-
-    nock('https://slack.com', {
-      reqheaders: {
-        authorization: `Bearer ${context.env.SLACK_BOT_TOKEN}`,
-      },
-    })
-      .get('/api/chat.postMessage')
-      .query(getQueryParams(slackRumRequestData, channel, ts))
-      .reply(200, {
-        ok: 'success',
-        channel: 'ch-1',
-        ts: 'ts-1',
-      });
-
+  it('throws error when slack api fails to upload file', async () => {
+    context.slackClients.WORKSPACE_INTERNAL_STANDARD.fileUpload.rejects(new Error('error'));
     const resp = await experimentationHandler(message, context);
     expect(resp.status).to.equal(204);
-    expect(mockLog.error).to.not.have.been.called;
+    expect(mockLog.error).to.have.been.calledOnce;
   });
 });
