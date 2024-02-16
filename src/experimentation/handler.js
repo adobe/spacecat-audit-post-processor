@@ -22,6 +22,10 @@ import {
 export function buildExperimentationSlackMessage(url, auditResult) {
   const blocks = [];
   blocks.push(section({
+    text: markdown(`For *${url}*, ${auditResult.length} experiment(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`),
+  }));
+
+  blocks.push(section({
     text: markdown(`For *${url}*, ${auditResult.length} experiments have been run in the *last week*.\n More information is below :`),
   }));
   for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {
@@ -63,19 +67,18 @@ export default async function experimentationHandler(message, context) {
   const csvFile = new Blob([csvData], { type: 'text/csv' });
 
   try {
-    const slackMessage1 = `\nFor *${url}*, ${result.length} experiment(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
+    const { channel, ts } = auditContext.slackContext;
+
     // send alert to the slack channel - group under a thread if ts value exists
     const slackMessage2 = buildExperimentationSlackMessage(url, result);
     await slackClient.postMessage({
-      ...auditContext.slackContext,
-      text: slackMessage1,
-    });
-    await slackClient.postMessage({
-      ...auditContext.slackContext,
+      channel,
+      thread_ts: ts,
       blocks: slackMessage2,
     });
     await slackClient.fileUpload({
-      ...auditContext.slackContext,
+      channel,
+      thread_ts: ts,
       file: csvFile,
     });
     log.info(`Successfully reported experiment details for ${url}`);
