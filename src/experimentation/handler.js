@@ -42,7 +42,7 @@ export function isValidMessage(message) {
 export default async function experimentationHandler(message, context) {
   const { log } = context;
   const { url, auditResult } = message;
-  const { SLACK_OPS_CHANNEL_WORKSPACE_INTERNAL: slackChannel } = context.env;
+  const { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannel } = context.env;
   const target = SLACK_TARGETS.WORKSPACE_INTERNAL;
 
   const slackClient = BaseSlackClient.createFrom(context, target);
