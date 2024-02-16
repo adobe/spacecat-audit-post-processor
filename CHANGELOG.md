@@ -1,3 +1,31 @@
+## [1.6.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.0...v1.6.1) (2024-02-16)
+
+
+### Bug Fixes
+
+* added the experimentation type ([#99](https://github.com/adobe/spacecat-audit-post-processor/issues/99)) ([d5f6494](https://github.com/adobe/spacecat-audit-post-processor/commit/d5f6494a650519902a952b2a7a10845271e9aa16))
+
+# [1.6.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.13...v1.6.0) (2024-02-16)
+
+
+### Features
+
+* introduce post processor for experimentation audit  ([#96](https://github.com/adobe/spacecat-audit-post-processor/issues/96)) ([c7479de](https://github.com/adobe/spacecat-audit-post-processor/commit/c7479de7d6b418cde1a18e403c20a0b57644e641))
+
+## [1.5.13](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.12...v1.5.13) (2024-02-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.17.1 ([#97](https://github.com/adobe/spacecat-audit-post-processor/issues/97)) ([30c925c](https://github.com/adobe/spacecat-audit-post-processor/commit/30c925c0828eabb240e899c0ff4b1081afd4c694))
+
+## [1.5.12](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.11...v1.5.12) (2024-02-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.17.0 ([#95](https://github.com/adobe/spacecat-audit-post-processor/issues/95)) ([42c405f](https://github.com/adobe/spacecat-audit-post-processor/commit/42c405fcfa5ca20a97066cab38d47db975386798))
+
 ## [1.5.11](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.10...v1.5.11) (2024-02-14)
 
 
