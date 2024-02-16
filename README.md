@@ -1,6 +1,6 @@
 # SpaceCat Audit Post-Processor
 
-> Consumes completed audit events and post-processes them (e.g. to send alerts & notifications).
+> Consumes completed audit events and post-processes them (e.g. to send alerts & notifications)
 
 ## Status
 [![codecov](https://img.shields.io/codecov/c/github/adobe-rnd/spacecat-audit-post-processor.svg)](https://codecov.io/gh/adobe-rnd/spacecat-audit-post-processor)
