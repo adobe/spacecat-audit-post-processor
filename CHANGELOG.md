@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.13...v1.6.0) (2024-02-16)
+
+
+### Features
+
+* introduce post processor for experimentation audit  ([#96](https://github.com/adobe/spacecat-audit-post-processor/issues/96)) ([c7479de](https://github.com/adobe/spacecat-audit-post-processor/commit/c7479de7d6b418cde1a18e403c20a0b57644e641))
+
 ## [1.5.13](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.5.12...v1.5.13) (2024-02-15)
 
 
