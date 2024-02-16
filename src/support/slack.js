@@ -106,20 +106,20 @@ export async function uploadSlackFile(token, opts) {
   }
 }
 
-export function buildInitialSlackMessage(initialMessage, mentions) {
+export function buildSlackMessage(message, mentions) {
   return [
     {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${isArray(mentions) ? `${mentions.join(' ').toString()} ` : ''}${initialMessage}`,
+        text: `${isArray(mentions) ? `${mentions.join(' ').toString()} ` : ''}${message}`,
       },
     },
   ];
 }
 
-export const sendInitialMessage = async (slackClient, slackContext, initialMessage) => {
-  const blocks = buildInitialSlackMessage(initialMessage, slackContext?.mentions);
+export const sendMessage = async (slackClient, slackContext, message) => {
+  const blocks = buildSlackMessage(message, slackContext?.mentions);
   const { threadId } = await slackClient.postMessage(
     {
       channel: slackContext?.channel,
