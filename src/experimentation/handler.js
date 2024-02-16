@@ -61,25 +61,30 @@ export default async function experimentationHandler(message, context) {
     log.info(`No experimentation data available for ${auditResult.finalUrl}`);
     return noContent();
   }
-
+  const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
+  const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
+  const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
+  const textMsg = `For *${urlWithProtocolStripped}*, ${result.length} experiments(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
   const csvData = convertToCSV(result);
+  const csvFile = new Blob([csvData], { type: 'text/csv' });
   log.info(`Converted to csv ${csvData}`);
 
   try {
     const { channel, ts } = auditContext.slackContext;
 
     // send alert to the slack channel - group under a thread if ts value exists
-    const slackMessage2 = buildExperimentationSlackMessage(url, result);
+    const slackMessage = buildExperimentationSlackMessage(url, result);
     await slackClient.postMessage({
       channel,
       thread_ts: ts,
-      blocks: slackMessage2,
+      blocks: slackMessage,
     });
     await slackClient.fileUpload({
       channel,
       thread_ts: ts,
-      file: Buffer.from(csvData, 'utf8'),
-      filename: 'data.csv',
+      file: csvFile,
+      filename: fileName,
+      text: textMsg,
     });
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
