@@ -72,7 +72,7 @@ export default async function experimentationHandler(message, context) {
     });
     await slackClient.postMessage({
       ...auditContext.slackContext,
-      text: slackMessage2,
+      blocks: slackMessage2,
     });
     await slackClient.fileUpload({
       ...auditContext.slackContext,
