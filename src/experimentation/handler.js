@@ -66,7 +66,7 @@ export default async function experimentationHandler(message, context) {
   const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
   const textMsg = `For *${urlWithProtocolStripped}*, ${result.length} experiments(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
   const csvData = convertToCSV(result);
-  const csvFile = new Blob([csvData], { type: 'text/csv' });
+  // const csvFile = new Blob([csvData], { type: 'text/csv' });
   log.info(`Converted to csv ${csvData}`);
 
   try {
@@ -82,7 +82,7 @@ export default async function experimentationHandler(message, context) {
     await slackClient.fileUpload({
       channel,
       thread_ts: ts,
-      content: csvFile,
+      content: csvData,
       filename: fileName,
       initial_comment: textMsg,
     });
