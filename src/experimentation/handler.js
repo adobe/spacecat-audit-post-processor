@@ -59,7 +59,7 @@ export default async function experimentationHandler(message, context) {
   }
   const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
   const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
-  const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
+  const fileName = `Experiments - ${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
   const textMsg = `For *${urlWithProtocolStripped}*, ${result.length} experiments(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
   const csvData = convertToCSV(result);
   // const csvFile = new Blob([csvData], { type: 'text/csv' });
