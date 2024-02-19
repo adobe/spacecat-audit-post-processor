@@ -30,6 +30,7 @@ describe('experimentation handler', () => {
   let context;
   let mockLog;
   const channel = 'channel1';
+  const thread = 'thread1';
 
   beforeEach('setup', () => {
     message = {
@@ -58,6 +59,9 @@ describe('experimentation handler', () => {
     };
     context.slackClients = {
       WORKSPACE_INTERNAL_STANDARD: {
+        postMessage: sandbox.stub().resolves(
+          { channelId: channel, threadId: thread },
+        ),
         fileUpload: sandbox.stub().resolves(
           { fileUrl: 'fileurl', channels: ['channel-1', 'channel-2'] },
         ),
@@ -109,6 +113,13 @@ describe('experimentation handler', () => {
     expect(resp.status).to.equal(204);
     expect(mockLog.info).to.have.been.calledWith('Successfully reported experiment details for space.cat');
     expect(mockLog.error).to.not.have.been.called;
+  });
+
+  it('throws error when slack api fails to upload file', async () => {
+    context.slackClients.WORKSPACE_INTERNAL_STANDARD.fileUpload.rejects(new Error('error'));
+    const resp = await experimentationHandler(message, context);
+    expect(resp.status).to.equal(204);
+    expect(mockLog.error).to.have.been.calledOnce;
   });
 
   it('throws error when slack api fails to upload file', async () => {
