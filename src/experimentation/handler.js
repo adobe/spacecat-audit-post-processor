@@ -77,7 +77,7 @@ export default async function experimentationHandler(message, context) {
       thread_ts: ts,
       content: csvData.toString(),
       filename: fileName,
-      initial_comment: slackMessage,
+      blocks: slackMessage,
     });
     console.log(`Successfully reported experiment details for ${url}`);
     log.info(`Successfully reported experiment details for ${url}`);
