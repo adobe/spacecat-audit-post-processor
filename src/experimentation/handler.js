@@ -80,9 +80,9 @@ export default async function experimentationHandler(message, context) {
       blocks: slackMessage,
     });
     await slackClient.fileUpload({
-      channel,
+      channels: channel,
       thread_ts: ts,
-      content: csvData,
+      content: csvData.toString(),
       filename: fileName,
       initial_comment: textMsg,
     });
