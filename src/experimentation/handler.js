@@ -22,10 +22,6 @@ import {
 export function buildExperimentationSlackMessage(url, auditResult) {
   const blocks = [];
   blocks.push(section({
-    text: markdown(`For *${url}*, ${auditResult.length} experiment(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`),
-  }));
-
-  blocks.push(section({
     text: markdown(`For *${url}*, ${auditResult.length} experiments have been run in the *last week*.\n More information is below :`),
   }));
   for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {
@@ -34,6 +30,9 @@ export function buildExperimentationSlackMessage(url, auditResult) {
     });
     blocks.push(topLine);
   }
+  blocks.push(section({
+    text: markdown('\nThe following CSV file contains a detailed report for all experiments:'),
+  }));
   return blocks;
 }
 
@@ -63,8 +62,7 @@ export default async function experimentationHandler(message, context) {
   }
   const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
   const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
-  const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
-  const textMsg = `For *${urlWithProtocolStripped}*, ${result.length} experiments(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
+  const fileName = `experiments-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
   const csvData = convertToCSV(result);
   // const csvFile = new Blob([csvData], { type: 'text/csv' });
   log.info(`Converted to csv ${csvData}`);
@@ -74,17 +72,12 @@ export default async function experimentationHandler(message, context) {
 
     // send alert to the slack channel - group under a thread if ts value exists
     const slackMessage = buildExperimentationSlackMessage(url, result);
-    await slackClient.postMessage({
-      channel,
-      thread_ts: ts,
-      blocks: slackMessage,
-    });
     await slackClient.fileUpload({
       channels: channel,
       thread_ts: ts,
       content: csvData.toString(),
       filename: fileName,
-      initial_comment: textMsg,
+      initial_comment: slackMessage,
     });
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
