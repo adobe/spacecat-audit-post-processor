@@ -79,6 +79,7 @@ export default async function experimentationHandler(message, context) {
       filename: fileName,
       initial_comment: slackMessage,
     });
+    console.log(`Successfully reported experiment details for ${url}`);
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
     log.error(`Failed to send slack message to report experimentations done for ${url}. Reason :${e.message}`);
