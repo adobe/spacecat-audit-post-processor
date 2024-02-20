@@ -36,6 +36,12 @@ describe('experimentation handler', () => {
     message = {
       url: 'space.cat',
       auditResult: expectedAuditResult,
+      auditContext: {
+        slackContext: {
+          channel,
+          ts: 'thread-id',
+        },
+      },
     };
 
     mockLog = {
@@ -86,6 +92,14 @@ describe('experimentation handler', () => {
     expect(resp.status).to.equal(400);
   });
 
+  it('do not send message when no experimentation data available', async () => {
+    message.auditResult = {
+      result: [],
+    };
+    const resp = await experimentationHandler(message, context);
+    expect(resp.status).to.equal(204);
+  });
+
   it('rejects when auditResult is not an object of objects', async () => {
     message.auditResult = {
       experiment: '24-101c-lp-enhanced-applicant-tracking-system',
@@ -101,8 +115,8 @@ describe('experimentation handler', () => {
     expect(mockLog.error).to.not.have.been.called;
   });
 
-  it('throws error when slack api fails to post message', async () => {
-    context.slackClients.WORKSPACE_INTERNAL_STANDARD.postMessage.rejects(new Error('error'));
+  it('throws error when slack api fails to upload file', async () => {
+    context.slackClients.WORKSPACE_INTERNAL_STANDARD.fileUpload.rejects(new Error('error'));
     const resp = await experimentationHandler(message, context);
     expect(resp.status).to.equal(204);
     expect(mockLog.error).to.have.been.calledOnce;
