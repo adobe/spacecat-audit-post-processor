@@ -68,7 +68,7 @@ export default async function experimentationHandler(message, context) {
   try {
     const { channel, ts } = auditContext.slackContext;
     // send alert to the slack channel - group under a thread if ts value exists
-    const slackMessage = buildExperimentationSlackMessage(url, result);
+    const slackMessage = buildExperimentationSlackMessage(urlWithProtocolStripped, result);
     await slackClient.postMessage({
       channel,
       thread_ts: ts,
