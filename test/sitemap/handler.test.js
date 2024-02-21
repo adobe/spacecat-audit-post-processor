@@ -12,10 +12,12 @@
 /* eslint-env mocha */
 
 import chai from 'chai';
+import { noContent } from '@adobe/spacecat-shared-http-utils';
 import sitemapHandler, { buildSlackMessage, isValidMessage } from '../../src/sitemap/handler.js';
 
 const { expect } = chai;
 let message;
+let context;
 
 beforeEach('setup', () => {
   message = {
@@ -28,13 +30,25 @@ beforeEach('setup', () => {
       },
     },
     auditResult: [
-      { success: true, url: 'https://space.cat' },
-      { success: false, url: 'https://www.space.cat' },
+      {
+        success: true,
+        url: 'https://space.cat',
+      },
+      {
+        success: false,
+        url: 'https://www.space.cat',
+      },
     ],
+  };
+  context = {
+    log: console,
+    env: {
+      SLACK_BOT_TOKEN: 'token',
+    },
   };
 });
 
-describe('handler.js tests', () => {
+describe('Sitemap detection audit tests', () => {
   it('isValidMessage returns true when message is valid', () => {
     expect(isValidMessage(message)).to.be.true;
   });
@@ -64,13 +78,25 @@ describe('handler.js tests', () => {
       auditContext: {},
       auditResult: [],
     };
-    const context = {
-      log: console,
-      env: {
-        SLACK_BOT_TOKEN: 'token',
-      },
-    };
     const resp = await sitemapHandler(invalidMessage, context);
     expect(resp.status).to.equal(400);
+  });
+
+  it('returns no content when audit result is successful', async () => {
+    const successfulMessage = {
+      url: 'space.cat',
+      auditContext: {
+        slackContext: {
+          channel: 'channel-id',
+          ts: 'thread-id',
+        },
+      },
+      auditResult: [
+        { success: true, url: 'https://space.cat/sitemap.xml' },
+        { success: true, url: 'https://www.space.cat/sitemap.xml' },
+      ],
+    };
+    const resp = await sitemapHandler(successfulMessage, context);
+    expect(resp).to.contain(noContent());
   });
 });
