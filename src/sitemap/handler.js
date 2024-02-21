@@ -14,7 +14,7 @@ import { hasText, isArray } from '@adobe/spacecat-shared-utils';
 import { badRequest, internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { markdown, postSlackMessage, section } from '../support/slack.js';
 
-function buildSlackMessage({ url, reasons }) {
+export function buildSlackMessage({ url, reasons }) {
   const blocks = [];
 
   const informativePart = `Error finding sitemap for ${url}: ${reasons.map((reason) => `${reason.value} - ${reason.error}`)}`;
@@ -28,7 +28,7 @@ function buildSlackMessage({ url, reasons }) {
   return blocks;
 }
 
-function isValidMessage(message) {
+export function isValidMessage(message) {
   return hasText(message.url)
     && hasText(message.auditContext?.slackContext?.channel)
     && isArray(message.auditResult)
