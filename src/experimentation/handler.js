@@ -79,7 +79,6 @@ export default async function experimentationHandler(message, context) {
   const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
   const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
   const fileName = `Experiments - ${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
-  const textMsg = `For *${urlWithProtocolStripped}*, the following CSV file contains a detailed report for all experiments:`;
   const csvData = convertToCSV(result);
   // const csvFile = new Blob([csvData], { type: 'text/csv' });
   log.info(`Converted to csv ${csvData}`);
@@ -98,7 +97,7 @@ export default async function experimentationHandler(message, context) {
       thread_ts: ts,
       content: csvData.toString(),
       filename: fileName,
-      initial_comment: textMsg,
+      initial_comment: JSON.stringify(slackMessage),
     });
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
