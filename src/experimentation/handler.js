@@ -31,16 +31,34 @@ export function buildExperimentationSlackMessage(url, auditResult) {
   }, {});
   // console.log(`GroupedData Array : ${JSON.stringify(groupedData)}`);
   // console.log(`GroupedDataLength : ${Object.keys(groupedData).length}`)
+  // console.log(${groupedData});
   const blocks = [];
   blocks.push(section({
     text: markdown(`For *${url}*, ${Object.keys(groupedData).length} experiments have been run in the *last week*.\n More information is below :`),
   }));
-  for (let i = 0; i < Math.min(3, Object.keys(groupedData).length); i += 1) {
+
+  Object.entries(groupedData).forEach(([key, value]) => {
+    // console.log("Category:", key);
+    // console.log("Objects:", groupedData[key]);
     const topLine = section({
-      text: markdown(`:arrow-red2: * Experiment - ${Object.keys(i)} *`),
+      text: markdown(`:arrow-red2: * Experiment - ${key} *`),
     });
     blocks.push(topLine);
-  }
+
+    // const experiments = groupedData[key];
+    // console.log(`${JSON.stringify(experiments)}`);
+    const variantstats = [];
+    // console.log('Reached here1');
+    for (let i = 0; i < Math.min(3, value.length); i += 1) {
+      variantstats.push(markdown(`*Variant:* ${value[i].variant} | *Experimentations:* ${value[i].variant_experimentations}`));
+    }
+    // console.log('Reached here2');
+    const stats = section({
+      fields: variantstats,
+    });
+    blocks.push(stats);
+  });
+  // console.log(JSON.stringify(blocks));
   return blocks;
 }
 
@@ -80,6 +98,7 @@ export default async function experimentationHandler(message, context) {
     const { channel, ts } = auditContext.slackContext;
     // send alert to the slack channel - group under a thread if ts value exists
     const slackMessage = buildExperimentationSlackMessage(urlWithProtocolStripped, result);
+    // console.log(JSON.stringify(slackMessage));
     await slackClient.postMessage({
       channel,
       thread_ts: ts,
