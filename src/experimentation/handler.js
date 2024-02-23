@@ -20,13 +20,24 @@ import {
 } from '../support/slack.js';
 
 export function buildExperimentationSlackMessage(url, auditResult) {
+  // Grouping objects based on the 'experiment id' field
+  const groupedData = auditResult.reduce((acc, obj) => {
+    const key = obj.experiment;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(obj);
+    return acc;
+  }, {});
+  // console.log(`GroupedData Array : ${JSON.stringify(groupedData)}`);
+  // console.log(`GroupedDataLength : ${Object.keys(groupedData).length}`)
   const blocks = [];
   blocks.push(section({
-    text: markdown(`For *${url}*, ${auditResult.length} experiments have been run in the *last week*.\n More information is below :`),
+    text: markdown(`For *${url}*, ${Object.keys(groupedData).length} experiments have been run in the *last week*.\n More information is below :`),
   }));
-  for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {
+  for (let i = 0; i < Math.min(3, Object.keys(groupedData).length); i += 1) {
     const topLine = section({
-      text: markdown(`:arrow-red2: * Experiment - ${auditResult[i].experiment}| Period - ${auditResult[i].time5} to ${auditResult[i].time95} | Confidence - ${auditResult[i].p_value} | Events - ${auditResult[i].variant_experimentations} | Conversion - ${auditResult[i].variant_conversions} | Conversion Rate - ${auditResult[i].variant_conversion_rate} *`),
+      text: markdown(`:arrow-red2: * Experiment - ${Object.keys(i)} *`),
     });
     blocks.push(topLine);
   }
