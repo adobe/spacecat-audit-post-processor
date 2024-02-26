@@ -59,6 +59,7 @@ describe('not found internal handler', () => {
     getAudits: () => [auditData],
   };
   auditData.getAuditResult = () => auditData.state.auditResult;
+  auditData.getFullAuditRef = () => 'https://helix-pages.anywhere.run/helix-services/run-query@v3/rum-sources?domainkey=hebele&interval=7&offset=0&limit=101&checkpoint=404&url=http%3A%2F%2Fspacecar.com';
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   auditData.getAuditedAt = () => yesterday.toISOString();

@@ -36,6 +36,7 @@ describe('not found util', () => {
     const latestAudits = [auditData];
     const site = { getBaseURL: () => 'https://abcd.com' };
     auditData.getAuditResult = () => auditData.state.auditResult;
+    auditData.getFullAuditRef = () => 'https://helix-pages.anywhere.run/helix-services/run-query@v3/rum-sources?domainkey=hebele&interval=7&offset=0&limit=101&checkpoint=404&url=http%3A%2F%2Fspacecar.com';
     const message = processLatest404Audit({}, site, latestAudits);
     expect(message.results).to.deep.equal(auditData.state.auditResult.result);
   });
