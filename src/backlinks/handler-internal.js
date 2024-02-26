@@ -11,9 +11,9 @@
  */
 import internalDigestHandler from '../digest/handler-internal.js';
 import {
-  INITIAL_BACKLINKS_SLACK_MESSAGE,
+  INITIAL_BROKEN_BACKLINKS_SLACK_MESSAGE,
   processLatestBrokenBacklinksAudit, sendBrokenBacklinksReport,
-} from '../support/backlinks.js';
+} from './utils.js';
 
 const ALERT_TYPE = 'broken-backlinks';
 
@@ -21,7 +21,7 @@ export default async function brokenBacklinksInternalHandler(message, context) {
   return internalDigestHandler(
     context,
     ALERT_TYPE,
-    INITIAL_BACKLINKS_SLACK_MESSAGE,
+    INITIAL_BROKEN_BACKLINKS_SLACK_MESSAGE,
     processLatestBrokenBacklinksAudit,
     sendBrokenBacklinksReport,
   );

@@ -17,6 +17,10 @@ export const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
   : h2();
 
 export function convertToCSV(array) {
+  if (array.length === 0) {
+    return '';
+  }
+
   const headers = Object.keys(array[0]).join(',');
   const rows = array.map((item) => Object.values(item).map((value) => {
     if (typeof value === 'object' && value !== null) {

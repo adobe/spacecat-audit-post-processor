@@ -24,7 +24,7 @@ const { expect } = chai;
 
 const sandbox = sinon.createSandbox();
 
-describe('backlinks handler', () => {
+describe('broken backlinks handler', () => {
   let message;
   let context;
   let mockLog;
@@ -42,18 +42,19 @@ describe('backlinks handler', () => {
         brokenBacklinks: [
           {
             title: 'backlink title',
-            url_from: 'url-from',
-            url_to: 'url-to',
+            url_from: 'https://from.com/from-1',
+            url_to: 'https://www.abcd.com/to-1',
             languages: ['en'],
           },
           {
             title: 'backlink title 2',
-            url_from: 'url-from-2',
-            url_to: 'url-to-2',
+            url_from: 'https://from.com/from-2',
+            url_to: 'https://www.abcd.com/to-2',
             languages: ['en'],
           },
         ],
-        finalUrl: 'www.space.cat',
+        finalUrl: 'www.abcd.com',
+        fullAuditRef: 'https://audit-ref.com/full-audit-ref',
       },
     };
 
@@ -137,7 +138,7 @@ describe('backlinks handler', () => {
       .reply(500);
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
-    expect(mockLog.error).to.have.been.calledWith('Failed to send slack message to report broken backlinks for www.space.cat. Reason:'
+    expect(mockLog.error).to.have.been.calledWith('Failed to send slack message to report broken backlinks for www.abcd.com. Reason:'
       + ' Failed to upload file to slack. Reason: Slack upload file API request failed. Status: 500');
   });
 

@@ -10,21 +10,19 @@
  * governing permissions and limitations under the License.
  */
 import { isArray } from '@adobe/spacecat-shared-utils';
-import { convertToCSV, isWithinDays } from './utils.js';
+import { convertToCSV, isWithinDays } from '../support/utils.js';
 
-export const INITIAL_BACKLINKS_SLACK_MESSAGE = '*BROKEN BACKLINKS REPORT* for the *last week* :thread:';
+export const INITIAL_BROKEN_BACKLINKS_SLACK_MESSAGE = '*BROKEN BACKLINKS REPORT* for the *last week* :thread:';
 
 export const sendBrokenBacklinksReport = async ({
-  slackClient,
-  slackContext,
   message: {
     finalUrl,
     brokenBacklinks,
   },
-  log = console,
+  slackClient,
+  slackContext,
 }) => {
   const csvData = convertToCSV(brokenBacklinks);
-  log.info(`Converted to csv:\n${csvData}`);
   const file = Buffer.from(csvData, 'utf-8');
 
   const urlWithProtocolStripped = finalUrl?.replace(/^(https?:\/\/)/, '');
@@ -34,7 +32,7 @@ export const sendBrokenBacklinksReport = async ({
 
   // send alert to the Slack channel - group under a thread if ts value exists
   await slackClient.fileUpload({
-    ...slackContext,
+    mentions: slackContext?.mentions,
     thread_ts: slackContext?.thread_ts,
     channel_id: slackContext?.channel,
     file,
@@ -43,7 +41,6 @@ export const sendBrokenBacklinksReport = async ({
       ? slackContext?.mentions.join(' ').toString() : ''} ${text}`,
     unfurl_links: false,
   });
-  log.info(`Successfully reported broken backlinks for ${finalUrl}`);
 };
 
 export const processLatestBrokenBacklinksAudit = (context, site, latestAudits) => {
