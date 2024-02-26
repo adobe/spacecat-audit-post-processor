@@ -39,25 +39,21 @@ describe('backlinks handler', () => {
         },
       },
       auditResult: {
-        'space.cat': {
-          brokenBacklinks: [],
-        },
-        'www.space.cat': {
-          brokenBacklinks: [
-            {
-              title: 'backlink title',
-              url_from: 'url-from',
-              url_to: 'url-to',
-              languages: ['en'],
-            },
-            {
-              title: 'backlink title 2',
-              url_from: 'url-from-2',
-              url_to: 'url-to-2',
-              languages: ['en'],
-            },
-          ],
-        },
+        brokenBacklinks: [
+          {
+            title: 'backlink title',
+            url_from: 'url-from',
+            url_to: 'url-to',
+            languages: ['en'],
+          },
+          {
+            title: 'backlink title 2',
+            url_from: 'url-from-2',
+            url_to: 'url-to-2',
+            languages: ['en'],
+          },
+        ],
+        finalUrl: 'www.space.cat',
       },
     };
 
@@ -98,14 +94,6 @@ describe('backlinks handler', () => {
     expect(resp.status).to.equal(400);
   });
 
-  it('rejects when auditResult for url is not an object', async () => {
-    message.auditResult = {
-      'some-url': [],
-    };
-    const resp = await brokenBacklinksHandler(message, context);
-    expect(resp.status).to.equal(400);
-  });
-
   it('rejects when auditContext is missing', async () => {
     delete message.auditContext;
     const resp = await brokenBacklinksHandler(message, context);
@@ -120,9 +108,8 @@ describe('backlinks handler', () => {
 
   it('sends no slack message when audit result item has error', async () => {
     message.auditResult = {
-      [`${message.url}`]: {
-        error: 'some-error',
-      },
+      error: 'some-error',
+      finalUrl: `${message.url}`,
     };
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
@@ -130,6 +117,10 @@ describe('backlinks handler', () => {
   });
 
   it('sends no slack message when there are no broken backlinks', async () => {
+    message.auditResult = {
+      brokenBacklinks: [],
+      finalUrl: `${message.url}`,
+    };
     const resp = await brokenBacklinksHandler(message, context);
     expect(resp.status).to.equal(204);
     expect(mockLog.info).to.have.been.calledWith(`No broken backlinks detected for ${message.url}`);

@@ -18,8 +18,7 @@ import { convertToCSV } from '../support/utils.js';
 function isValidMessage(message) {
   return hasText(message.url)
     && isObject(message.auditContext?.slackContext)
-    && isObject(message.auditResult)
-    && Object.values(message.auditResult).every((result) => isObject(result));
+    && isObject(message.auditResult);
 }
 
 export default async function brokenBacklinksHandler(message, context) {
@@ -31,40 +30,37 @@ export default async function brokenBacklinksHandler(message, context) {
     return badRequest('Required parameters missing in the message.');
   }
 
-  await Promise.all(Object.keys(auditResult).map(async (url) => {
-    const result = auditResult[url];
-    const { brokenBacklinks, error } = result;
+  const { finalUrl, brokenBacklinks, error } = auditResult;
 
-    if (error) {
-      log.warn(`Not reporting broken backlinks: ${error}`);
-      return;
-    }
+  if (error) {
+    log.warn(`Not reporting broken backlinks: ${error}`);
+    return noContent();
+  }
 
-    if (!brokenBacklinks || brokenBacklinks.length === 0) {
-      log.info(`No broken backlinks detected for ${url}`);
-      return;
-    }
+  if (!brokenBacklinks || brokenBacklinks.length === 0) {
+    log.info(`No broken backlinks detected for ${finalUrl}`);
+    return noContent();
+  }
 
-    const { channel, ts } = auditContext.slackContext;
+  const { channel, ts } = auditContext.slackContext;
 
-    const csvData = convertToCSV(brokenBacklinks);
-    log.info(`Converted to csv ${csvData}`);
-    const file = new Blob([csvData], { type: 'text/csv' });
+  const csvData = convertToCSV(brokenBacklinks);
+  log.info(`Converted to csv ${csvData}`);
+  const file = new Blob([csvData], { type: 'text/csv' });
 
-    try {
-      const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
-      const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
-      const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
-      const text = `For *${urlWithProtocolStripped}*, ${result?.brokenBacklinks?.length} broken backlink(s) were detected.\nThe following CSV file contains a detailed report for all broken backlinks:`;
-      await uploadSlackFile(token, {
-        file, fileName, channel, ts, text,
-      });
+  try {
+    const urlWithProtocolStripped = finalUrl?.replace(/^(https?:\/\/)/, '');
+    const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
+    const fileName = `broken-backlinks-${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
+    const text = `For *${urlWithProtocolStripped}*, ${brokenBacklinks?.length} broken backlink(s) were detected.\nThe following CSV file contains a detailed report for all broken backlinks:`;
+    await uploadSlackFile(token, {
+      file, fileName, channel, ts, text,
+    });
 
-      log.info(`Successfully reported broken backlinks for ${url}`);
-    } catch (e) {
-      log.error(`Failed to send slack message to report broken backlinks for ${url}. Reason: ${e.message}`);
-    }
-  }));
+    log.info(`Successfully reported broken backlinks for ${finalUrl}`);
+  } catch (e) {
+    log.error(`Failed to send slack message to report broken backlinks for ${finalUrl}. Reason: ${e.message}`);
+  }
 
   return noContent();
 }
