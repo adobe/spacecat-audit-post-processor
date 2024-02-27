@@ -22,7 +22,7 @@ export function buildSlackMessage({ url, reasons }) {
   blocks.push(section({ text: markdown(informativePart) }));
 
   blocks.push(section({
-    text: markdown('Please verify and adjust the redirection settings as per your requirements. Delay in resolving this issue could result in SEO repercussions, potentially leading to a decrease in organic traffic. Prompt action is advised to mitigate this risk.'),
+    text: markdown('Please ensure your sitemap is properly defined and accessible.'),
   }));
 
   return blocks;
@@ -31,9 +31,12 @@ export function buildSlackMessage({ url, reasons }) {
 export function isValidMessage(message) {
   return hasText(message.url)
     && hasText(message.auditContext?.slackContext?.channel)
-    && isArray(message.auditResult)
-    && message.auditResult.length === 2
-    && message.auditResult.every((result) => 'success' in result && hasText(result.url));
+    && (
+      (message.auditResult.success && hasText(message.auditResult.url))
+      || (!message.auditResult.success
+        && isArray(message.auditResult.reasons)
+        && message.auditResult.reasons.length > 0)
+    );
 }
 
 export default async function sitemapHandler(message, context) {
@@ -47,6 +50,7 @@ export default async function sitemapHandler(message, context) {
     return badRequest(msg);
   }
 
+  // if (auditResult.every((result) => result.success))
   if (auditResult.success) {
     log.info(`Sitemap audit was successful for ${url}. Won't notify.`);
     return noContent();
@@ -59,6 +63,7 @@ export default async function sitemapHandler(message, context) {
     await postSlackMessage(token, {
       blocks: buildSlackMessage({
         url,
+        // reasons: auditResult.reasons || [],
         reasons: auditResult.reasons,
       }),
       channel,
