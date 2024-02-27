@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Adobe. All rights reserved.
+ * Copyright 2024 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -12,13 +12,11 @@
 
 import { noContent } from '@adobe/spacecat-shared-http-utils';
 
-const ALERT_TYPE = '404';
-
-export default async function notFoundHandler(message, context) {
-  const { url } = message;
+export default async function noopHandler(message, context) {
+  const { url, type } = message;
   const { log } = context;
 
-  log.info(`Alert report of type ${ALERT_TYPE} received for: ${url}`);
+  log.info(`Alert report of type ${type} received for: ${url}`);
 
   return noContent();
 }

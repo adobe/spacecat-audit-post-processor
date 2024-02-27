@@ -12,6 +12,8 @@
 import { isArray } from '@adobe/spacecat-shared-utils';
 import { convertToCSV, isWithinDays } from '../support/utils.js';
 
+export const ALERT_TYPE = 'broken-backlinks';
+
 export const INITIAL_BROKEN_BACKLINKS_SLACK_MESSAGE = '*BROKEN BACKLINKS REPORT* for the *last week* :thread:';
 
 export const sendBrokenBacklinksReport = async ({

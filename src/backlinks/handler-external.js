@@ -11,11 +11,10 @@
  */
 import externalDigestHandler from '../digest/handler-external.js';
 import {
+  ALERT_TYPE,
   INITIAL_BROKEN_BACKLINKS_SLACK_MESSAGE,
   processLatestBrokenBacklinksAudit, sendBrokenBacklinksReport,
 } from './utils.js';
-
-const ALERT_TYPE = 'broken-backlinks';
 
 export default async function brokenBacklinksExternalHandler(message, context) {
   return externalDigestHandler(
