@@ -1,3 +1,10 @@
+## [1.6.8](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.7...v1.6.8) (2024-02-27)
+
+
+### Bug Fixes
+
+* set params to backlink ([9c6c6f0](https://github.com/adobe/spacecat-audit-post-processor/commit/9c6c6f08fab658586005d807a5d5881f35b9fae1))
+
 ## [1.6.7](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.6...v1.6.7) (2024-02-27)
 
 
