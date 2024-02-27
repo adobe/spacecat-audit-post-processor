@@ -50,7 +50,6 @@ export default async function sitemapHandler(message, context) {
     return badRequest(msg);
   }
 
-  // if (auditResult.every((result) => result.success))
   if (auditResult.success) {
     log.info(`Sitemap audit was successful for ${url}. Won't notify.`);
     return noContent();
@@ -63,7 +62,6 @@ export default async function sitemapHandler(message, context) {
     await postSlackMessage(token, {
       blocks: buildSlackMessage({
         url,
-        // reasons: auditResult.reasons || [],
         reasons: auditResult.reasons,
       }),
       channel,

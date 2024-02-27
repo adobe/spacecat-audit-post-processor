@@ -83,17 +83,9 @@ describe('Sitemap detection audit tests', () => {
       reasons,
     });
 
-    expect(result)
-      .to
-      .be
-      .an('array');
-    expect(result[0].text.text)
-      .to
-      .equal(`Error finding sitemap for ${url}: ${reasons.map((reason) => `${reason.value} - ${reason.error}`)
-        .join(',')}`);
-    expect(result[1].text.text)
-      .to
-      .equal('Please ensure your sitemap is properly defined and accessible.');
+    expect(result).to.be.an('array');
+    expect(result[0].text.text).to.equal(`Error finding sitemap for ${url}: ${reasons.map((reason) => `${reason.value} - ${reason.error}`).join(',')}`);
+    expect(result[1].text.text).to.equal('Please ensure your sitemap is properly defined and accessible.');
   });
 
   it('sitemapHandler returns bad request when message is not valid', async () => {
@@ -103,9 +95,7 @@ describe('Sitemap detection audit tests', () => {
       auditResult: [],
     };
     const resp = await sitemapHandler(invalidMessage, context);
-    expect(resp.status)
-      .to
-      .equal(400);
+    expect(resp.status).to.equal(400);
   });
 
   it('returns no content when audit result is successful', async () => {
