@@ -18,6 +18,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import sitemapHandler, { buildSlackMessage, isValidMessage } from '../../src/sitemap/handler.js';
+import { queryData } from '../fixtures/sitemap-request-data.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -137,10 +138,7 @@ describe('Sitemap detection audit tests', () => {
 
     const scope = nock('https://slack.com')
       .get('/api/chat.postMessage')
-      .query((inputData) => {
-        const { blocks } = inputData;
-        return blocks === '[{"type":"section","text":{"type":"mrkdwn","text":"Error finding sitemap for space.cat: https://space.cat/sitemap.xml - SITEMAP_NOT_FOUND"}},{"type":"section","text":{"type":"mrkdwn","text":"Please ensure your sitemap is properly defined and accessible."}}]';
-      })
+      .query(queryData)
       .reply(200, `{ "ok": true, "channel": "${opts.channel}", "ts": "${opts.ts}" }`);
 
     const resp = await sitemapHandler({
@@ -180,10 +178,7 @@ describe('Sitemap detection audit tests', () => {
       },
     })
       .get('/api/chat.postMessage')
-      .query((inputData) => {
-        const { blocks } = inputData;
-        return blocks === '[{"type":"section","text":{"type":"mrkdwn","text":"Error finding sitemap for space.cat: https://space.cat/sitemap.xml - SITEMAP_NOT_FOUND"}},{"type":"section","text":{"type":"mrkdwn","text":"Please ensure your sitemap is properly defined and accessible."}}]';
-      })
+      .query(queryData)
       .reply(500, 'invalid-');
 
     const resp = await sitemapHandler(message, context);
