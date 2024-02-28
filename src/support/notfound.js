@@ -17,12 +17,17 @@ import { isWithinDays } from './utils.js';
 
 export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
 
-export const get404Backlink = async (context, url) => {
+export const get404Backlink = async (context, fullAuditRef) => {
+  const url = new URL(fullAuditRef);
+  const urlParams = url.searchParams;
+  const entries = urlParams.entries();
+  const params = Object.fromEntries(entries);
+  const domainUrl = urlParams.get('url');
   try {
     const rumApiClient = RUMAPIClient.createFrom(context);
-    return await rumApiClient.create404Backlink(url, 7);
+    return await rumApiClient.create404Backlink(domainUrl, 7, params);
   } catch (e) {
-    context.log.warn(`Failed to get a backlink for ${url}`);
+    context.log.warn(`Failed to get a backlink for ${domainUrl}`);
     return null;
   }
 };
@@ -64,11 +69,11 @@ export const send404Report = async ({
   message: {
     context,
     baseUrl,
-    finalUrl,
+    fullAuditRef,
     results,
   },
 }) => {
-  const backlink = await get404Backlink(context, finalUrl);
+  const backlink = await get404Backlink(context, fullAuditRef);
   const blocks = build404SlackMessage(
     baseUrl,
     results,
@@ -86,10 +91,11 @@ export const processLatest404Audit = (context, site, latestAudits) => {
   const latestAudit = latestAudits[0];
   if (isWithinDays(latestAudit.getAuditedAt(), 7)) {
     const auditResult = latestAudit.getAuditResult();
-    const { result, finalUrl } = auditResult;
+    const fullAuditRef = latestAudit.getFullAuditRef();
+    const { result } = auditResult;
     if (result.length > 0) {
       return {
-        results: result, finalUrl, context, baseUrl: site.getBaseURL(),
+        results: result, fullAuditRef, context, baseUrl: site.getBaseURL(),
       };
     }
   }

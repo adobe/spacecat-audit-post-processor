@@ -1,3 +1,31 @@
+## [1.6.9](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.8...v1.6.9) (2024-02-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-utils to v1.12.2 ([#116](https://github.com/adobe/spacecat-audit-post-processor/issues/116)) ([ba8083c](https://github.com/adobe/spacecat-audit-post-processor/commit/ba8083c0c7acd31f019fe5376532871d79f24a69))
+
+## [1.6.8](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.7...v1.6.8) (2024-02-27)
+
+
+### Bug Fixes
+
+* set params to backlink ([9c6c6f0](https://github.com/adobe/spacecat-audit-post-processor/commit/9c6c6f08fab658586005d807a5d5881f35b9fae1))
+
+## [1.6.7](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.6...v1.6.7) (2024-02-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-rum-api-client to v1.6.3 ([#115](https://github.com/adobe/spacecat-audit-post-processor/issues/115)) ([d26ed2d](https://github.com/adobe/spacecat-audit-post-processor/commit/d26ed2d842ff999d6c7e42794bf9457643dfaa70))
+
+## [1.6.6](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.5...v1.6.6) (2024-02-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-utils to v1.11.6 ([#114](https://github.com/adobe/spacecat-audit-post-processor/issues/114)) ([9a8fa0f](https://github.com/adobe/spacecat-audit-post-processor/commit/9a8fa0f862545f18ae2134a0d74c16d1815601f9))
+
 ## [1.6.5](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.4...v1.6.5) (2024-02-26)
 
 
