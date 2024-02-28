@@ -17,6 +17,10 @@ export const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
   : h2();
 
 export function convertToCSV(array) {
+  if (array.length === 0) {
+    return '';
+  }
+
   const headers = Object.keys(array[0]).join(',');
   const rows = array.map((item) => Object.values(item).map((value) => {
     if (typeof value === 'object' && value !== null) {
@@ -25,4 +29,11 @@ export function convertToCSV(array) {
     return `"${value}"`;
   }).join(',')).join('\r\n');
   return `${headers}\r\n${rows}\r\n`;
+}
+
+export function isWithinDays(date, numDays) {
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - numDays);
+  const checkedDate = new Date(date);
+  return checkedDate >= sevenDaysAgo;
 }

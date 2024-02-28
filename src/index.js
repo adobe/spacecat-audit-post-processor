@@ -17,19 +17,22 @@ import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
 import apex from './apex/handler.js';
 import cwv from './cwv/handler.js';
-import notFoundHandler from './notfound/handler.js';
-import backlinks from './backlinks/handler.js';
+import noopHandler from './digest/handler-noop.js';
 import notFoundInternalDigestHandler from './notfound/handler-internal.js';
 import notFoundExternalDigestHandler from './notfound/handler-external.js';
+import brokenBacklinksInternal from './backlinks/handler-internal.js';
+import brokenBacklinksExternal from './backlinks/handler-external.js';
 import experimentation from './experimentation/handler.js';
 
 export const HANDLERS = {
   apex,
   cwv,
-  404: notFoundHandler,
+  404: noopHandler,
   '404-external': notFoundExternalDigestHandler,
   '404-internal': notFoundInternalDigestHandler,
-  'broken-backlinks': backlinks,
+  'broken-backlinks': noopHandler,
+  'broken-backlinks-external': brokenBacklinksExternal,
+  'broken-backlinks-internal': brokenBacklinksInternal,
   experimentation,
 };
 
