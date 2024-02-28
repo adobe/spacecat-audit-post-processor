@@ -20,16 +20,47 @@ import {
 } from '../support/slack.js';
 
 export function buildExperimentationSlackMessage(url, auditResult) {
+  // Grouping objects based on the 'experiment id' field
+  const groupedData = auditResult.reduce((acc, obj) => {
+    const key = obj.experiment;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(obj);
+    return acc;
+  }, {});
   const blocks = [];
   blocks.push(section({
-    text: markdown(`For *${url}*, ${auditResult.length} experiments have been run in the *last week*.\n More information is below :`),
+    text: markdown(`For *${url}*, ${Object.keys(groupedData).length} experiments have been run in the *last week*.\n More information is below :`),
   }));
-  for (let i = 0; i < Math.min(3, auditResult.length); i += 1) {
+
+  Object.entries(groupedData).forEach(([key, value]) => {
     const topLine = section({
-      text: markdown(`:arrow-red2: * Experiment - ${auditResult[i].experiment}| Period - ${auditResult[i].time5} to ${auditResult[i].time95} | Confidence - ${auditResult[i].p_value} | Events - ${auditResult[i].variant_experimentations} | Conversion - ${auditResult[i].variant_conversions} | Conversion Rate - ${auditResult[i].variant_conversion_rate} *`),
+      text: markdown(`:arrow-red2: * Experiment - ${key} *`),
     });
     blocks.push(topLine);
-  }
+
+    const variantstats = [];
+    for (let i = 0; i < Math.min(3, value.length); i += 1) {
+      const score = (confidence) => {
+        if (confidence < 0.005) {
+          return `${confidence} *(highly significant)*`;
+        }
+        if (confidence < 0.05) {
+          return `${confidence} *(significant)*`;
+        }
+        if (confidence < 0.1) {
+          return `${confidence} *(marginally significant)*`;
+        }
+        return `${confidence} *(not significant)*`;
+      };
+      variantstats.push(markdown(`*Variant:* ${value[i].variant} | *Period:* ${value[i].time5} - ${value[i].time95} | *Confidence:* ${(value[i].p_value === null) ? 0 : score(value[i].p_value)} | *Events:* ${(value[i].variant_experimentations === null) ? 0 : value[i].variant_experimentations} | *Conversions:* ${(value[i].variant_conversions === null) ? 0 : value[i].variant_conversions} | *Conversion Rate:* ${(value[i].variant_conversion_rate === null) ? 0 : value[i].variant_conversion_rate}`));
+    }
+    const stats = section({
+      fields: variantstats,
+    });
+    blocks.push(stats);
+  });
   return blocks;
 }
 
@@ -60,7 +91,7 @@ export default async function experimentationHandler(message, context) {
   const urlWithProtocolStripped = url?.replace(/^(https?:\/\/)/, '');
   const urlWithDotsAndSlashesReplaced = urlWithProtocolStripped?.replace(/\./g, '-')?.replace(/\//g, '-');
   const fileName = `Experiments - ${urlWithDotsAndSlashesReplaced}-${new Date().toISOString().split('T')[0]}.csv`;
-  const textMsg = `For *${urlWithProtocolStripped}*, ${result.length} experiments(s) were detected.\nThe following CSV file contains a detailed report for all experiments:`;
+  const textMsg = 'The following CSV file contains a detailed report for all related experiments:';
   const csvData = convertToCSV(result);
   // const csvFile = new Blob([csvData], { type: 'text/csv' });
   log.info(`Converted to csv ${csvData}`);
