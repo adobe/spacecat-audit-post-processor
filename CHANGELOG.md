@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.0...v1.7.1) (2024-02-28)
+
+
+### Bug Fixes
+
+* Incorporating Message format feedback ([#107](https://github.com/adobe/spacecat-audit-post-processor/issues/107)) ([27c121b](https://github.com/adobe/spacecat-audit-post-processor/commit/27c121b48e25fb959c0665f9e8ebab176b668af2))
+
 # [1.7.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.9...v1.7.0) (2024-02-28)
 
 
