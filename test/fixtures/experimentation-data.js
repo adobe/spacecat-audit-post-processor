@@ -26,7 +26,7 @@ export const expectedAuditResult = {
     },
     {
       experiment: '24-101c-lp-enhanced-applicant-tracking-system',
-      p_value: 0.5000000005,
+      p_value: 0.004,
       variant: 'challenger-1',
       variant_experimentation_events: 11,
       variant_conversion_events: 3,
@@ -38,7 +38,7 @@ export const expectedAuditResult = {
     },
     {
       experiment: '24-101a-lp-enhanced-onboarding',
-      p_value: 0.5000000005,
+      p_value: 0.04,
       variant: 'challenger-1',
       variant_experimentation_events: 23,
       variant_conversion_events: 8,
@@ -50,7 +50,7 @@ export const expectedAuditResult = {
     },
     {
       experiment: '24-101a-lp-enhanced-onboarding',
-      p_value: 0.5000000005,
+      p_value: 0.09,
       variant: 'challenger-2',
       variant_experimentation_events: 31,
       variant_conversion_events: 3,
@@ -62,7 +62,7 @@ export const expectedAuditResult = {
     },
     {
       experiment: '2-21-free-trial-cp-delay-load',
-      p_value: 0.3431751933689274,
+      p_value: 0.1,
       variant: 'challenger-1',
       variant_experimentation_events: 24,
       variant_conversion_events: 20,
