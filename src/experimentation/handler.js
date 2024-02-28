@@ -44,15 +44,15 @@ export function buildExperimentationSlackMessage(url, auditResult) {
     for (let i = 0; i < Math.min(3, value.length); i += 1) {
       const score = (confidence) => {
         if (confidence < 0.005) {
-          return `${confidence} (highly significant)`;
+          return `${confidence} *(highly significant)*`;
         }
         if (confidence < 0.05) {
-          return `${confidence} (significant)`;
+          return `${confidence} *(significant)*`;
         }
         if (confidence < 0.1) {
-          return `${confidence} (marginally significant)`;
+          return `${confidence} *(marginally significant)*`;
         }
-        return `${confidence} (not significant)`;
+        return `${confidence} *(not significant)*`;
       };
       variantstats.push(markdown(`*Variant:* ${value[i].variant} | *Period:* ${value[i].time5} - ${value[i].time95} | *Confidence:* ${(value[i].p_value === null) ? 0 : score(value[i].p_value)} | *Events:* ${(value[i].variant_experimentations === null) ? 0 : value[i].variant_experimentations} | *Conversions:* ${(value[i].variant_conversions === null) ? 0 : value[i].variant_conversions} | *Conversion Rate:* ${(value[i].variant_conversion_rate === null) ? 0 : value[i].variant_conversion_rate}`));
     }
