@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.9...v1.7.0) (2024-02-28)
+
+
+### Features
+
+* add internal and external handlers for broken backlinks (SITES-18417) ([#111](https://github.com/adobe/spacecat-audit-post-processor/issues/111)) ([2f004bd](https://github.com/adobe/spacecat-audit-post-processor/commit/2f004bd9c03486b22fc26324292dc76e3d4b7147))
+
 ## [1.6.9](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.8...v1.6.9) (2024-02-27)
 
 
