@@ -42,7 +42,7 @@ export function buildExperimentationSlackMessage(url, auditResult) {
 
     const variantstats = [];
     for (let i = 0; i < Math.min(3, value.length); i += 1) {
-      variantstats.push(markdown(`*Variant:* ${value[i].variant} | *Period:* ${value[i].time5} - ${value[i].time95} | *Events:* ${(value[i].variant_experimentations === null) ? 0 : value[i].variant_experimentations} | *Conversions:* ${(value[i].variant_conversions === null) ? 0 : value[i].variant_conversions} | *Confidence:* ${(value[i].p_value === null) ? 0 : value[i].p_value} | *Conversion Rate:* ${(value[i].variant_conversion_rate === 0) ? 0 : value[i].variant_conversion_rate}`));
+      variantstats.push(markdown(`*Variant:* ${value[i].variant} | *Period:* ${value[i].time5} - ${value[i].time95} | *Events:* ${(value[i].variant_experimentations === null) ? 0 : value[i].variant_experimentations} | *Conversions:* ${(value[i].variant_conversions === null) ? 0 : value[i].variant_conversions} | *Confidence:* ${(value[i].p_value === null) ? 0 : value[i].p_value} | *Conversion Rate:* ${(value[i].variant_conversion_rate === null) ? 0 : value[i].variant_conversion_rate}`));
     }
     const stats = section({
       fields: variantstats,
