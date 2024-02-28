@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Adobe. All rights reserved.
+ * Copyright 2024 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -9,20 +9,14 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-export const notFoundSourcesResults = [
-  {
-    url: 'https://www.adobe.com/tr/creativecloud/animation/discover/cgi-animation.html',
-    pageviews: '1300',
-    source: 'https://www.google.com/',
-  },
-  {
-    url: 'https://www.adobe.com/sea/',
-    pageviews: '800',
-    source: 'https://www.bing.com/',
-  },
-  {
-    url: 'https://www.adobe.com/express/',
-    pageviews: '500',
-    source: 'https://www.snapchat.com/',
-  },
-];
+
+import { noContent } from '@adobe/spacecat-shared-http-utils';
+
+export default async function noopHandler(message, context) {
+  const { url, type } = message;
+  const { log } = context;
+
+  log.info(`Alert report of type ${type} received for: ${url}`);
+
+  return noContent();
+}
