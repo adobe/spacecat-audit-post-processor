@@ -13,6 +13,7 @@ import RUMAPIClient from '@adobe/spacecat-shared-rum-api-client';
 import { isArray } from '@adobe/spacecat-shared-utils';
 import commaNumber from 'comma-number';
 import { markdown, section } from './slack.js';
+import { isWithinDays } from './utils.js';
 
 export const INITIAL_404_SLACK_MESSAGE = '*404 REPORT* for the *last week* :thread:';
 
@@ -79,17 +80,9 @@ export const send404Report = async ({
     backlink,
     slackContext?.mentions,
   );
-  // send alert to the slack channel - group under a thread if ts value exists
-  // eslint-disable-next-line no-await-in-loop
+  // send alert to the Slack channel - group under a thread if ts value exists
   return slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
 };
-
-function isWithinDays(date, numDays) {
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - numDays);
-  const checkedDate = new Date(date);
-  return checkedDate >= sevenDaysAgo;
-}
 
 export const processLatest404Audit = (context, site, latestAudits) => {
   if (latestAudits.length === 0) {

@@ -1,3 +1,31 @@
+## [1.7.3](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.2...v1.7.3) (2024-02-28)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#118](https://github.com/adobe/spacecat-audit-post-processor/issues/118)) ([dfa30cb](https://github.com/adobe/spacecat-audit-post-processor/commit/dfa30cbadb203a83bc79d061d94a34126d60155d))
+
+## [1.7.2](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.1...v1.7.2) (2024-02-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.19.0 ([#117](https://github.com/adobe/spacecat-audit-post-processor/issues/117)) ([261f126](https://github.com/adobe/spacecat-audit-post-processor/commit/261f126684fa7a8f086b51d3ed3fd77ca18c6f50))
+
+## [1.7.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.0...v1.7.1) (2024-02-28)
+
+
+### Bug Fixes
+
+* Incorporating Message format feedback ([#107](https://github.com/adobe/spacecat-audit-post-processor/issues/107)) ([27c121b](https://github.com/adobe/spacecat-audit-post-processor/commit/27c121b48e25fb959c0665f9e8ebab176b668af2))
+
+# [1.7.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.9...v1.7.0) (2024-02-28)
+
+
+### Features
+
+* add internal and external handlers for broken backlinks (SITES-18417) ([#111](https://github.com/adobe/spacecat-audit-post-processor/issues/111)) ([2f004bd](https://github.com/adobe/spacecat-audit-post-processor/commit/2f004bd9c03486b22fc26324292dc76e3d4b7147))
+
 ## [1.6.9](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.6.8...v1.6.9) (2024-02-27)
 
 
