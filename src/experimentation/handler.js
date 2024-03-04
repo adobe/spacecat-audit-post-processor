@@ -70,13 +70,13 @@ export function buildExperimentationSlackMessage(url, auditResult) {
     };
     const summary = () => {
       if (totalVariantConversions < 500 && variantConfidence[0].vConfidence > 0.05) {
-        return `Not yet enough data to determine a winner. Keep going until you get ${bigcountformat.format((500 * totalVariantExperimentations) / totalVariantConversions)} visits.`;
+        return markdown(`Not yet enough data to determine a winner. Keep going until you get ${bigcountformat.format((500 * totalVariantExperimentations) / totalVariantConversions)} visits.`);
       } else if (variantConfidence[0].vConfidence > 0.05) {
-        return 'No significant difference between variants. In doubt, stick with *control*';
+        return markdown('No significant difference between variants. In doubt, stick with *control*');
       } else if (variantConfidence[0].vName === 'control') {
-        return 'Stick with *control*. No variant is better than the control.';
+        return markdown('Stick with *control*. No variant is better than the control.');
       } else {
-        return `${variantConfidence[0].vName} is the winner.`;
+        return markdown(`${variantConfidence[0].vName} is the winner.`);
       }
     };
 
