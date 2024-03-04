@@ -101,7 +101,7 @@ export function buildExperimentationSlackMessage(url, auditResult) {
     });
     blocks.push(stats);
     const expSummary = section({
-      fields: summary(),
+      text: summary(),
     });
     blocks.push(expSummary);
   });
