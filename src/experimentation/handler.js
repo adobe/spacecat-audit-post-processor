@@ -53,7 +53,7 @@ export function buildExperimentationSlackMessage(url, auditResult) {
     variantConfidence.sort((a, b) => b.vConfidence - a.vConfidence);
     const expDuration = Math.max(...variantDuration);
     const topLine = section({
-      text: markdown(`:arrow-red2: The Experiment ${key} has been running for ${expDuration} days with ${numOfVariants} variants.`),
+      text: markdown(`:arrow-red2: The Experiment ${key} has been running for nearly ${Math.round(expDuration)} days with ${numOfVariants} variants.`),
     });
     blocks.push(topLine);
     const countformat = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
@@ -82,19 +82,19 @@ export function buildExperimentationSlackMessage(url, auditResult) {
 
     const score = (confidence) => {
       if (confidence < 0.005) {
-        return `${confidence} is *highly significant*`;
+        return `${confidence.toPrecision(4)} is *highly significant*`;
       }
       if (confidence < 0.05) {
-        return `${confidence} is *significant*`;
+        return `${confidence.toPrecision(4)} is *significant*`;
       }
       if (confidence < 0.1) {
-        return `${confidence} is *marginally significant*`;
+        return `${confidence.toPrecision(4)} is *marginally significant*`;
       }
-      return `${confidence} is *not significant*`;
+      return `${confidence.toPrecision(4)} is *not significant*`;
     };
     const variantstats = [];
     for (let i = 0; i < value.length; i += 1) {
-      variantstats.push(markdown(`The *Variant:* ${value[i].variant} shows a conversion rate of ${(value[i].variant_conversion_rate === null) ? 0 : (value[i].variant_conversion_rate * 100)} %. The statistical confidence ${(value[i].p_value === null) ? 0 : score(value[i].p_value)}`));
+      variantstats.push(markdown(`The *Variant:* ${value[i].variant} shows a conversion rate of ${(value[i].variant_conversion_rate === null) ? 0 : (value[i].variant_conversion_rate * 100).toPrecision(3)} %. The statistical confidence ${(value[i].p_value === null) ? 0 : score(value[i].p_value)}`));
     }
     const stats = section({
       fields: variantstats,
