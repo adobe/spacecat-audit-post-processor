@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.6...v1.8.0) (2024-03-04)
+
+
+### Features
+
+* sitemap detection audit ([#67](https://github.com/adobe/spacecat-audit-post-processor/issues/67)) ([fa09623](https://github.com/adobe/spacecat-audit-post-processor/commit/fa09623c6028e581a5e6a35d3304b71a9b1ef64d))
+
 ## [1.7.6](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.5...v1.7.6) (2024-03-03)
 
 
