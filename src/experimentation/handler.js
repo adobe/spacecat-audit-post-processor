@@ -33,33 +33,77 @@ export function buildExperimentationSlackMessage(url, auditResult) {
   blocks.push(section({
     text: markdown(`For *${url}*, ${Object.keys(groupedData).length} experiments have been run in the *last week*.\n More information is below :`),
   }));
-
   Object.entries(groupedData).forEach(([key, value]) => {
+    const numOfVariants = value.length;
+    const duration = (date1, date2) => Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
+    const variantDuration = [];
+    const variantConfidence = [];
+    let totalVariantConversions = 0;
+    let totalVariantExperimentations = 0;
+    for (let i = 0; i < value.length; i += 1) {
+      const time95 = new Date(value[i].time95);
+      const time5 = new Date(value[i].time5);
+      variantDuration.push(duration(time95, time5));
+      variantConfidence.push({ vName: value[i].variant, vConfidence: value[i].p_value });
+      const vConversions = Number(value[i].variant_conversions);
+      const vExperimentations = Number(value[i].variant_experimentations);
+      totalVariantConversions += vConversions;
+      totalVariantExperimentations += vExperimentations;
+    }
+    variantConfidence.sort((a, b) => b.vConfidence - a.vConfidence);
+    const expDuration = Math.max(...variantDuration);
     const topLine = section({
-      text: markdown(`:arrow-red2: * Experiment - ${key} *`),
+      text: markdown(`:arrow-red2: The Experiment ${key} has been running for ${expDuration} days with ${numOfVariants} variants.`),
     });
     blocks.push(topLine);
+    const countformat = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
+    const bigcountformat = {
+      format: (number) => {
+        if (number > 1000000) {
+          return `${countformat.format(number / 1000000)}M`;
+        }
+        if (number > 1000) {
+          return `${countformat.format(number / 1000)}K`;
+        }
+        return countformat.format(number);
+      },
+    };
+    const summary = () => {
+      if (totalVariantConversions < 500 && variantConfidence[0].vConfidence > 0.05) {
+        return `Not yet enough data to determine a winner. Keep going until you get ${bigcountformat.format((500 * totalVariantExperimentations) / totalVariantConversions)} visits.`;
+      } else if (variantConfidence[0].vConfidence > 0.05) {
+        return 'No significant difference between variants. In doubt, stick with *control*';
+      } else if (variantConfidence[0].vName === 'control') {
+        return 'Stick with *control*. No variant is better than the control.';
+      } else {
+        return `${variantConfidence[0].vName} is the winner.`;
+      }
+    };
 
+    const score = (confidence) => {
+      if (confidence < 0.005) {
+        return `${confidence} is *highly significant*`;
+      }
+      if (confidence < 0.05) {
+        return `${confidence} is *significant*`;
+      }
+      if (confidence < 0.1) {
+        return `${confidence} is *marginally significant*`;
+      }
+      return `${confidence} is *not significant*`;
+    };
     const variantstats = [];
-    for (let i = 0; i < Math.min(3, value.length); i += 1) {
-      const score = (confidence) => {
-        if (confidence < 0.005) {
-          return `${confidence} *(highly significant)*`;
-        }
-        if (confidence < 0.05) {
-          return `${confidence} *(significant)*`;
-        }
-        if (confidence < 0.1) {
-          return `${confidence} *(marginally significant)*`;
-        }
-        return `${confidence} *(not significant)*`;
-      };
-      variantstats.push(markdown(`*Variant:* ${value[i].variant} | *Period:* ${value[i].time5} - ${value[i].time95} | *Confidence:* ${(value[i].p_value === null) ? 0 : score(value[i].p_value)} | *Events:* ${(value[i].variant_experimentations === null) ? 0 : value[i].variant_experimentations} | *Conversions:* ${(value[i].variant_conversions === null) ? 0 : value[i].variant_conversions} | *Conversion Rate:* ${(value[i].variant_conversion_rate === null) ? 0 : value[i].variant_conversion_rate}`));
+    for (let i = 0; i < value.length; i += 1) {
+      variantstats.push(markdown(`The *Variant:* ${value[i].variant} shows a conversion rate of ${(value[i].variant_conversion_rate === null) ? 0 : (value[i].variant_conversion_rate * 100)} %. The statistical confidence ${(value[i].p_value === null) ? 0 : score(value[i].p_value)}`));
     }
     const stats = section({
       fields: variantstats,
     });
     blocks.push(stats);
+    const expSummary = section({
+      fields: summary(),
+    });
+    blocks.push(expSummary);
   });
   return blocks;
 }
@@ -75,14 +119,12 @@ export default async function experimentationHandler(message, context) {
   const { log } = context;
   const { url, auditResult, auditContext } = message;
   const target = SLACK_TARGETS.WORKSPACE_INTERNAL;
-
   const slackClient = BaseSlackClient.createFrom(context, target);
   if (!isValidMessage(message)) {
     const msg = 'Required parameters missing in the message or no experimentation data available';
     log.info(msg);
     return badRequest(msg);
   }
-
   const { result } = auditResult;
   if (result.length === 0) {
     log.info(`No experimentation data available for ${auditResult.finalUrl}`);
@@ -95,7 +137,6 @@ export default async function experimentationHandler(message, context) {
   const csvData = convertToCSV(result);
   // const csvFile = new Blob([csvData], { type: 'text/csv' });
   log.info(`Converted to csv ${csvData}`);
-
   try {
     const { channel, ts } = auditContext.slackContext;
     // send alert to the slack channel - group under a thread if ts value exists
