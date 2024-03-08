@@ -92,10 +92,15 @@ export async function findSuggestion(url, searchEngineId, searchEngineKey) {
   const query = getSuggestionQuery(url);
   const resp = await fetch(`${SEARCH_ENGINE_BASE_URL}?cx=${searchEngineId}&key=${searchEngineKey}&q=${encodeURIComponent(query)}`);
   const json = await resp.json();
-  return new URL(json.items[0].formattedUrl).pathname;
+  const suggestion = json.items[0].link;
+  const suggestionResp = await fetch(new URL(suggestion, url));
+  if (!suggestionResp.ok || url === suggestion) {
+    return '/';
+  }
+  return new URL(suggestion).pathname;
 }
 
-export async function build404Suggestions(url, auditResult, context) {
+export async function build404Suggestions(results, context) {
   const {
     GOOGLE_SEARCH_API_ID: searchEngineId,
     GOOGLE_SEARCH_API_KEY: searchEngineKey,
@@ -103,17 +108,19 @@ export async function build404Suggestions(url, auditResult, context) {
   const { log } = context;
 
   const suggestions = [];
+  const uniqueAuditResults = [...new Set(results.map((result) => result.url))];
 
-  for (const result of auditResult) {
+  for (const url of uniqueAuditResults) {
     let suggestion = '/';
     try {
       // eslint-disable-next-line no-await-in-loop
-      suggestion = await findSuggestion(result.url, searchEngineId, searchEngineKey);
+      suggestion = await findSuggestion(url, searchEngineId, searchEngineKey);
     } catch (e) {
-      log.warn(`Error while finding a suggestion for ${result.url}, failling back to '/'`);
+      log.warn(`Error while finding a suggestion for ${url}, failling back to '/'`);
     }
+
     suggestions.push({
-      Source: new URL(result.url).pathname,
+      Source: new URL(url).pathname,
       Destination: suggestion,
     });
   }
@@ -159,7 +166,7 @@ export const send404Report = async ({
   // send alert to the Slack channel - group under a thread if ts value exists
   await slackClient.postMessage({ ...slackContext, blocks, unfurl_links: false });
 
-  const suggestions = await build404Suggestions(baseUrl, results, context);
+  const suggestions = await build404Suggestions(results, context);
   await uploadSuggestions(baseUrl, slackClient, slackContext, suggestions);
 };
 
