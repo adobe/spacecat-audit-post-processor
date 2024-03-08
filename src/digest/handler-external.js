@@ -57,7 +57,7 @@ export default async function externalDigestHandler(
               slackContext = await sendInitialMessage(slackClient, slackContext, INITIAL_MESSAGE);
               sentInitialMessage = true;
             } catch (e) {
-              log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
+              log.error(`Failed to send initial Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
               return internalServerError('Failed to send initial Slack message');
             }
           }
@@ -69,7 +69,7 @@ export default async function externalDigestHandler(
               message,
             });
           } catch (e) {
-            log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
+            log.error(`Failed to send Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
           }
         }
       }
