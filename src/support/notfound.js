@@ -93,8 +93,7 @@ export async function findSuggestion(url, searchEngineId, searchEngineKey) {
   const resp = await fetch(`${SEARCH_ENGINE_BASE_URL}?cx=${searchEngineId}&key=${searchEngineKey}&q=${encodeURIComponent(query)}`);
   const json = await resp.json();
   const suggestion = json.items[0].link;
-  const suggestionResp = await fetch(new URL(suggestion, url));
-  if (!suggestionResp.ok || url === suggestion) {
+  if (url === suggestion) {
     return '/';
   }
   return new URL(suggestion).pathname;
