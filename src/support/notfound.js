@@ -91,10 +91,14 @@ export function getSuggestionQuery(href) {
 export async function findSuggestion(url, searchEngineId, searchEngineKey) {
   const query = getSuggestionQuery(url);
   const resp = await fetch(`${SEARCH_ENGINE_BASE_URL}?cx=${searchEngineId}&key=${searchEngineKey}&q=${encodeURIComponent(query)}`);
+  if (!resp.ok) {
+    throw new Error(`Google API returned unsuccessful response ${resp.status}`);
+  }
   const json = await resp.json();
+
   const suggestion = json.items[0].link;
   if (url === suggestion) {
-    return '/';
+    throw new Error('Google API suggested the same URL');
   }
   return new URL(suggestion).pathname;
 }
@@ -115,7 +119,7 @@ export async function build404Suggestions(results, context) {
       // eslint-disable-next-line no-await-in-loop
       suggestion = await findSuggestion(url, searchEngineId, searchEngineKey);
     } catch (e) {
-      log.warn(`Error while finding a suggestion for ${url}, failling back to '/'`);
+      log.warn(`Error while finding a suggestion for ${url}, failling back to '/'. Reason: ${e.message}`);
     }
 
     suggestions.push({
