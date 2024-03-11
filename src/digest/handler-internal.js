@@ -24,39 +24,44 @@ export default async function internalDigestHandler(
   const {
     env: { AUDIT_REPORT_SLACK_CHANNEL_ID: slackChannelId }, dataAccess, log,
   } = context;
-  let sentInitialMessage = false;
+
   const slackClient = BaseSlackClient.createFrom(context, SLACK_TARGETS.WORKSPACE_INTERNAL);
+
+  let sentInitialMessage = false;
   let slackContext = {};
 
   const sites = await dataAccess.getSitesWithLatestAudit(type, false);
   for (const site of sites) {
     const latestAuditReports = site.getAudits();
-    const message = processLatestAudit(context, site, latestAuditReports);
-    if (Object.keys(message).length > 0) {
-      if (!sentInitialMessage) {
+    if (latestAuditReports.length > 0) {
+      const message = processLatestAudit(context, site, latestAuditReports);
+      if (Object.keys(message).length > 0) {
+        if (!sentInitialMessage) {
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            slackContext = await sendInitialMessage(
+              slackClient,
+              { channel: slackChannelId },
+              INITIAL_MESSAGE,
+            );
+            sentInitialMessage = true;
+          } catch (e) {
+            log.error(`Failed to send initial Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
+          }
+        }
         try {
           // eslint-disable-next-line no-await-in-loop
-          slackContext = await sendInitialMessage(
+          await sendReport({
             slackClient,
-            { channel: slackChannelId },
-            INITIAL_MESSAGE,
-          );
-          sentInitialMessage = true;
+            slackContext,
+            message,
+          });
         } catch (e) {
-          log.error(`Failed to send initial Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
+          log.error(`Failed to send Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
         }
-      }
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        await sendReport({
-          slackClient,
-          slackContext,
-          message,
-        });
-      } catch (e) {
-        log.error(`Failed to send Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
       }
     }
   }
+
   return noContent();
 }

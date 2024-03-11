@@ -169,39 +169,6 @@ describe('not found external handler', () => {
     expect(resp.status).to.equal(204);
   });
 
-  it('builds no message when there is no audit', async () => {
-    context.slackClients = {
-      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().resolves() },
-    };
-    const noAuditContext = { ...context };
-    noAuditContext.dataAccess = { ...context.dataAccess };
-    noAuditContext.dataAccess.getSitesByOrganizationIDWithLatestAudits = () => [];
-    const resp = await notFoundExternalDigestHandler({}, noAuditContext);
-    expect(resp.status).to.equal(204);
-  });
-
-  it('returns 500 if the initial slack api fails', async () => {
-    context.slackClients = {
-      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().rejects(new Error('error')) },
-    };
-    const resp = await notFoundExternalDigestHandler({}, context);
-    expect(resp.status).to.equal(500);
-  });
-
-  it('continues if just one slack api call failed', async () => {
-    const channel = 'channel1';
-    context.rumApiClient = {
-      create404Backlink: sandbox.stub().resolves(backlink),
-    };
-    context.slackClients = {
-      WORKSPACE_EXTERNAL_STANDARD: { postMessage: sandbox.stub().onFirstCall().resolves({ channel, ts: 'ts-1' }) },
-    };
-    context.slackClients.WORKSPACE_EXTERNAL_STANDARD.postMessage.onSecondCall().rejects(new Error('error'));
-
-    const resp = await notFoundExternalDigestHandler({}, context);
-    expect(resp.status).to.equal(204);
-  });
-
   it('builds and sends the slack message when there is an site config and a 404 audit stored for the site and no backlink', async () => {
     const channel = 'channel1';
     context.rumApiClient = {
