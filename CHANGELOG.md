@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.1...v1.8.2) (2024-03-11)
+
+
+### Bug Fixes
+
+* silently ignore unknown types ([#137](https://github.com/adobe/spacecat-audit-post-processor/issues/137)) ([84608a8](https://github.com/adobe/spacecat-audit-post-processor/commit/84608a8edf5be61780b7285b1f208b540c3dd215))
+
 ## [1.8.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.0...v1.8.1) (2024-03-07)
 
 
