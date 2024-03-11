@@ -91,7 +91,7 @@ async function run(message, context) {
   const handler = HANDLERS[type];
   if (!handler) {
     const msg = `No handler found for the type: ${type}`;
-    log.warn(msg);
+    log.info(msg);
     return notFound(msg);
   }
 
