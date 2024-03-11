@@ -90,9 +90,9 @@ async function run(message, context) {
 
   const handler = HANDLERS[type];
   if (!handler) {
-    const msg = `no such audit type: ${type}`;
-    log.error(msg);
-    return notFound();
+    const msg = `No handler found for the type: ${type}`;
+    log.warn(msg);
+    return notFound(msg);
   }
 
   const t0 = Date.now();
