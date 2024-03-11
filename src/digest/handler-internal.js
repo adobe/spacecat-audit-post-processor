@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
+import { noContent } from '@adobe/spacecat-shared-http-utils';
 import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 import { sendInitialMessage } from '../support/slack.js';
 
@@ -43,8 +43,7 @@ export default async function internalDigestHandler(
           );
           sentInitialMessage = true;
         } catch (e) {
-          log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
-          return internalServerError('Failed to send initial Slack message');
+          log.error(`Failed to send initial Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
         }
       }
       try {
@@ -55,7 +54,7 @@ export default async function internalDigestHandler(
           message,
         });
       } catch (e) {
-        log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
+        log.error(`Failed to send Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
       }
     }
   }
