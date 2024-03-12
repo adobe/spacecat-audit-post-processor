@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import { badRequest, noContent } from '@adobe/spacecat-shared-http-utils';
+import { badRequest, internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
 import { hasText, isObject } from '@adobe/spacecat-shared-utils';
 import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 import { convertToCSV } from '../support/utils.js';
@@ -96,8 +96,8 @@ export default async function experimentationHandler(message, context) {
   // const csvFile = new Blob([csvData], { type: 'text/csv' });
   log.info(`Converted to csv ${csvData}`);
 
+  const { channel, ts } = auditContext.slackContext;
   try {
-    const { channel, ts } = auditContext.slackContext;
     // send alert to the slack channel - group under a thread if ts value exists
     const slackMessage = buildExperimentationSlackMessage(urlWithProtocolStripped, result);
     await slackClient.postMessage({
@@ -114,7 +114,8 @@ export default async function experimentationHandler(message, context) {
     });
     log.info(`Successfully reported experiment details for ${url}`);
   } catch (e) {
-    log.error(`Failed to send slack message to report experimentations done for ${url}. Reason :${e.message}`);
+    log.error(`Failed to send Slack message for ${url} on channel ${channel}. Reason: ${e.message}`);
+    return internalServerError(`Failed to send Slack message for ${url} on channel ${channel}`);
   }
 
   return noContent();

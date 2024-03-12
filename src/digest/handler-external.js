@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-import { internalServerError, noContent } from '@adobe/spacecat-shared-http-utils';
+import { noContent } from '@adobe/spacecat-shared-http-utils';
 import { BaseSlackClient, SLACK_TARGETS } from '@adobe/spacecat-shared-slack-client';
 
 import {
@@ -28,10 +28,10 @@ export default async function externalDigestHandler(
   const { dataAccess, log } = context;
 
   const organizations = await dataAccess.getOrganizations();
-  let sentInitialMessage = false;
   const slackClient = BaseSlackClient.createFrom(context, SLACK_TARGETS.WORKSPACE_EXTERNAL);
 
   for (const organization of organizations) {
+    let sentInitialMessage = false;
     const orgConfig = organization.getConfig();
     if (hasAlertConfig(orgConfig, type)) {
       const organizationId = organization.getId();
@@ -44,36 +44,38 @@ export default async function externalDigestHandler(
       let slackContext = {};
       for (const site of sites) {
         const latestAuditReports = site.getAudits();
-        const message = processLatestAudit(context, site, latestAuditReports);
-        if (Object.keys(message).length > 0) {
-          const siteConfig = site.getConfig();
-          const isDigest = isDigestReport(orgConfig, type);
-          if (!isDigest || !sentInitialMessage) {
-            slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
-          }
-          if (!sentInitialMessage && isDigest) {
+        if (latestAuditReports.length > 0) {
+          const message = processLatestAudit(context, site, latestAuditReports);
+          if (Object.keys(message).length > 0) {
+            const siteConfig = site.getConfig();
+            const isDigest = isDigestReport(orgConfig, type);
+            if (!isDigest || !sentInitialMessage) {
+              slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
+            }
+            if (!sentInitialMessage && isDigest) {
+              try {
+                // eslint-disable-next-line no-await-in-loop
+                slackContext = await sendInitialMessage(slackClient, slackContext, INITIAL_MESSAGE);
+                sentInitialMessage = true;
+              } catch (e) {
+                log.error(`Failed to send initial Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
+              }
+            }
             try {
               // eslint-disable-next-line no-await-in-loop
-              slackContext = await sendInitialMessage(slackClient, slackContext, INITIAL_MESSAGE);
-              sentInitialMessage = true;
+              await sendReport({
+                slackClient,
+                slackContext,
+                message,
+              });
             } catch (e) {
-              log.error(`Failed to send initial Slack message. Reason: ${e.message}`);
-              return internalServerError('Failed to send initial Slack message');
+              log.error(`Failed to send Slack message for ${site.getBaseURL()} to ${JSON.stringify(slackContext)}. Reason: ${e.message}`);
             }
-          }
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            await sendReport({
-              slackClient,
-              slackContext,
-              message,
-            });
-          } catch (e) {
-            log.error(`Failed to send Slack message for ${site.getBaseURL()}. Reason: ${e.message}`);
           }
         }
       }
     }
   }
+
   return noContent();
 }

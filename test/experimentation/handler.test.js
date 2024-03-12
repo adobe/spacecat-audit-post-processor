@@ -118,14 +118,14 @@ describe('experimentation handler', () => {
   it('throws error when slack api fails to upload file', async () => {
     context.slackClients.WORKSPACE_INTERNAL_STANDARD.fileUpload.rejects(new Error('error'));
     const resp = await experimentationHandler(message, context);
-    expect(resp.status).to.equal(204);
+    expect(resp.status).to.equal(500);
     expect(mockLog.error).to.have.been.calledOnce;
   });
 
   it('throws error when slack api fails to upload file', async () => {
     context.slackClients.WORKSPACE_INTERNAL_STANDARD.fileUpload.rejects(new Error('error'));
     const resp = await experimentationHandler(message, context);
-    expect(resp.status).to.equal(204);
+    expect(resp.status).to.equal(500);
     expect(mockLog.error).to.have.been.calledOnce;
   });
 });

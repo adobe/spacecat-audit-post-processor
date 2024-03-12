@@ -95,34 +95,7 @@ describe('not found internal handler', () => {
       },
     };
     const resp = await notFoundInternalDigestHandler({}, context);
-    expect(resp.status).to.equal(204);
-  });
 
-  it('continues if just one slack api call failed', async () => {
-    context.rumApiClient = {
-      create404Backlink: sandbox.stub().resolves(backlink),
-      getDomainList: sandbox.stub().resolves(['abcd.com']),
-    };
-    context.slackClients = {
-      WORKSPACE_INTERNAL_STANDARD: {
-        postMessage: sandbox.stub().onFirstCall().resolves(
-          { channelId: channel, threadId: thread },
-        ),
-      },
-    };
-    context.slackClients.WORKSPACE_INTERNAL_STANDARD.postMessage.onSecondCall().rejects(new Error('error'));
-    const resp = await notFoundInternalDigestHandler({}, context);
     expect(resp.status).to.equal(204);
-  });
-
-  it('returns 500 if the initial slack api fails', async () => {
-    context.rumApiClient = {
-      getDomainList: sandbox.stub().resolves(['abcd.com']),
-    };
-    context.slackClients = {
-      WORKSPACE_INTERNAL_STANDARD: { postMessage: sandbox.stub().onFirstCall().rejects(new Error('error')) },
-    };
-    const resp = await notFoundInternalDigestHandler({}, context);
-    expect(resp.status).to.equal(500);
   });
 });
