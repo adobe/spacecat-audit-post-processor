@@ -1,3 +1,38 @@
+## [1.8.4](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.3...v1.8.4) (2024-03-13)
+
+
+### Bug Fixes
+
+* continue with the rest if slack fails for one site, send initial message once per org ([#139](https://github.com/adobe/spacecat-audit-post-processor/issues/139)) ([a1bd1f1](https://github.com/adobe/spacecat-audit-post-processor/commit/a1bd1f15aa905bc5b8db046f5304a249fb7c389c))
+
+## [1.8.3](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.2...v1.8.3) (2024-03-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.20.2 ([#138](https://github.com/adobe/spacecat-audit-post-processor/issues/138)) ([628de93](https://github.com/adobe/spacecat-audit-post-processor/commit/628de93a65627afe0fbfd9f950630fe933f7e028))
+
+## [1.8.2](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.1...v1.8.2) (2024-03-11)
+
+
+### Bug Fixes
+
+* silently ignore unknown types ([#137](https://github.com/adobe/spacecat-audit-post-processor/issues/137)) ([84608a8](https://github.com/adobe/spacecat-audit-post-processor/commit/84608a8edf5be61780b7285b1f208b540c3dd215))
+
+## [1.8.1](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.0...v1.8.1) (2024-03-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.20.0 ([#130](https://github.com/adobe/spacecat-audit-post-processor/issues/130)) ([54767df](https://github.com/adobe/spacecat-audit-post-processor/commit/54767df3805b74cc38d555744f77b7561d6c8c43))
+
+# [1.8.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.6...v1.8.0) (2024-03-04)
+
+
+### Features
+
+* sitemap detection audit ([#67](https://github.com/adobe/spacecat-audit-post-processor/issues/67)) ([fa09623](https://github.com/adobe/spacecat-audit-post-processor/commit/fa09623c6028e581a5e6a35d3304b71a9b1ef64d))
+
 ## [1.7.6](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.7.5...v1.7.6) (2024-03-03)
 
 

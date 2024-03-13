@@ -231,6 +231,6 @@ describe('cwv handler', () => {
     const resp = await cwv(message, context);
     expect(resp.status).to.equal(500);
     expect(warnLogSpy).to.have.been.calledWith(`Failed to get a backlink for ${message.auditContext.finalUrl}`);
-    expect(errorLogSpy).to.have.been.calledWith(`Failed to send Slack message for ${message.url}. Reason: Failed to send slack message. Status: 500`);
+    expect(errorLogSpy).to.have.been.calledWith(`Failed to send Slack message for ${message.url}. Reason: Failed to send slack message on channel ${channel}. Status: 500`);
   });
 });

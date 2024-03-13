@@ -45,7 +45,7 @@ export async function postSlackMessage(token, opts) {
     });
     respJson = await resp.json();
   } catch (e) {
-    throw new Error(`Failed to send slack message. ${resp ? `Status: ${resp.status}` : /* c8 ignore next  */ ''}`);
+    throw new Error(`Failed to send slack message on channel ${channel}. ${resp ? `Status: ${resp.status}` : /* c8 ignore next  */ ''}`);
   }
 
   if (!respJson.ok) {
@@ -102,7 +102,7 @@ export async function uploadSlackFile(token, opts) {
       fileUrl: responseJson.file.url_private,
     };
   } catch (e) {
-    throw new Error(`Failed to upload file to slack. Reason: ${e.message}`);
+    throw new Error(`Failed to upload file to slack: channel ${channel}, filename ${fileName}. Reason: ${e.message}`);
   }
 }
 

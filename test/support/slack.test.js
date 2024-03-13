@@ -57,7 +57,7 @@ describe('slack api', () => {
       .reply(200, 'invalid-json');
 
     await expect(postSlackMessage(token, opts))
-      .to.be.rejectedWith('Failed to send slack message. Status: 200');
+      .to.be.rejectedWith('Failed to send slack message on channel channel-id. Status: 200');
   });
 
   it('rejects when slack api returns error', async () => {
@@ -149,7 +149,7 @@ describe('slack api', () => {
       channel: 'channel-id',
     };
 
-    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack. Reason: Slack upload file API request failed. Status: 500');
+    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack: channel channel-id, filename test-file.csv. Reason: Slack upload file API request failed. Status: 500');
   });
 
   it('throws error when slack api request is not acknowledged', async () => {
@@ -190,6 +190,6 @@ describe('slack api', () => {
       channel: 'channel-id',
     };
 
-    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack. Reason: Failed to parse Slack API response. Error: SyntaxError: Unexpected token \'i\', "invalid" is not valid JSON');
+    await expect(uploadSlackFile(token, options)).to.be.rejectedWith('Failed to upload file to slack: channel channel-id, filename test-file.csv. Reason: Failed to parse Slack API response. Error: SyntaxError: Unexpected token \'i\', "invalid" is not valid JSON');
   });
 });
