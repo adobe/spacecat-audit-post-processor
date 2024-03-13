@@ -183,6 +183,7 @@ describe('Sitemap detection audit tests', () => {
 
     const resp = await sitemapHandler(message, context);
     expect(resp.status).to.equal(500);
-    expect(errorLogSpy).to.have.been.calledWith(`Failed to send Slack message for ${message.url}. Reason: Failed to send slack message. Status: 500`);
+    expect(errorLogSpy).to.have.been.calledWith(`Failed to send Slack message for ${message.url}. `
+    + `Reason: Failed to send slack message on channel ${message.auditContext.slackContext.channel}. Status: 500`);
   });
 });
