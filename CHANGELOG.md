@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.3...v1.8.4) (2024-03-13)
+
+
+### Bug Fixes
+
+* continue with the rest if slack fails for one site, send initial message once per org ([#139](https://github.com/adobe/spacecat-audit-post-processor/issues/139)) ([a1bd1f1](https://github.com/adobe/spacecat-audit-post-processor/commit/a1bd1f15aa905bc5b8db046f5304a249fb7c389c))
+
 ## [1.8.3](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.2...v1.8.3) (2024-03-11)
 
 
