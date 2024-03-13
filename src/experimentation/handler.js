@@ -45,8 +45,14 @@ export function buildExperimentationSlackMessage(url, auditResult) {
       const time5 = new Date(value[i].time5);
       variantDuration.push(duration(time95, time5));
       variantConfidence.push({ vName: value[i].variant, vConfidence: value[i].p_value });
-      const vConversions = Number(value[i].variant_conversions);
-      const vExperimentations = Number(value[i].variant_experimentations);
+      let vConversions = 0;
+      if (value[i].variant_conversions === null) {
+        vConversions = 0;
+      } else vConversions = Number(value[i].variant_conversions);
+      let vExperimentations = 0;
+      if (value[i].variant_experimentations === null) {
+        vExperimentations = 0;
+      } else vExperimentations = Number(value[i].variant_experimentations);
       totalVariantConversions += vConversions;
       totalVariantExperimentations += vExperimentations;
     }
@@ -70,7 +76,8 @@ export function buildExperimentationSlackMessage(url, auditResult) {
     };
     const summary = () => {
       if (totalVariantConversions < 500 && variantConfidence[0].vConfidence > 0.05) {
-        return markdown(`Not yet enough data to determine a winner. Keep going until you get ${bigcountformat.format((500 * totalVariantExperimentations) / totalVariantConversions)} visits.`);
+        if (totalVariantConversions > 0 && totalVariantExperimentations > 0) return markdown(`Not yet enough data to determine a winner. Keep going until you get ${bigcountformat.format((500 * totalVariantExperimentations) / totalVariantConversions)} page views.`);
+        else return markdown('Without significant traffic, this experiment is unlikely to conclude.');
       } else if (variantConfidence[0].vConfidence > 0.05) {
         return markdown('No significant difference between variants. In doubt, stick with *control*');
       } else if (variantConfidence[0].vName === 'control') {
@@ -82,15 +89,15 @@ export function buildExperimentationSlackMessage(url, auditResult) {
 
     const score = (confidence) => {
       if (confidence < 0.005) {
-        return `${confidence.toPrecision(4)} is *highly significant*`;
+        return `${confidence.toPrecision(2)} is *highly significant*`;
       }
       if (confidence < 0.05) {
-        return `${confidence.toPrecision(4)} is *significant*`;
+        return `${confidence.toPrecision(2)} is *significant*`;
       }
       if (confidence < 0.1) {
-        return `${confidence.toPrecision(4)} is *marginally significant*`;
+        return `${confidence.toPrecision(2)} is *marginally significant*`;
       }
-      return `${confidence.toPrecision(4)} is *not significant*`;
+      return `${confidence.toPrecision(2)} is *not significant*`;
     };
     const variantstats = [];
     for (let i = 0; i < value.length; i += 1) {
