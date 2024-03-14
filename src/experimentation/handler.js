@@ -30,12 +30,13 @@ export function buildExperimentationSlackMessage(url, auditResult) {
     return acc;
   }, {});
   const blocks = [];
+  const duration = (date1, date2) => Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
+  const countformat = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
   blocks.push(section({
     text: markdown(`For *${url}*, ${Object.keys(groupedData).length} experiments have been run in the *last week*.\n More information is below :`),
   }));
   Object.entries(groupedData).forEach(([key, value]) => {
     const numOfVariants = value.length;
-    const duration = (date1, date2) => Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
     const variantDuration = [];
     const variantConfidence = [];
     let totalVariantConversions = 0;
@@ -46,11 +47,11 @@ export function buildExperimentationSlackMessage(url, auditResult) {
       variantDuration.push(duration(time95, time5));
       variantConfidence.push({ vName: value[i].variant, vConfidence: value[i].p_value });
       let vConversions = 0;
-      if (value[i].variant_conversions === null) {
+      if (!value[i].variant_conversions) {
         vConversions = 0;
       } else vConversions = Number(value[i].variant_conversions);
       let vExperimentations = 0;
-      if (value[i].variant_experimentations === null) {
+      if (!value[i].variant_experimentations) {
         vExperimentations = 0;
       } else vExperimentations = Number(value[i].variant_experimentations);
       totalVariantConversions += vConversions;
@@ -62,7 +63,6 @@ export function buildExperimentationSlackMessage(url, auditResult) {
       text: markdown(`:arrow-red2: The Experiment ${key} has been running for nearly ${Math.round(expDuration)} days with ${numOfVariants} variants.`),
     });
     blocks.push(topLine);
-    const countformat = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
     const bigcountformat = {
       format: (number) => {
         if (number > 1000000) {
