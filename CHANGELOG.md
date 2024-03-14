@@ -1,3 +1,10 @@
+## [1.8.5](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.4...v1.8.5) (2024-03-14)
+
+
+### Bug Fixes
+
+* Update message format ([#127](https://github.com/adobe/spacecat-audit-post-processor/issues/127)) ([aba45c9](https://github.com/adobe/spacecat-audit-post-processor/commit/aba45c96fbc6de083292847f9a5649249e2c8ae5))
+
 ## [1.8.4](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.3...v1.8.4) (2024-03-13)
 
 
