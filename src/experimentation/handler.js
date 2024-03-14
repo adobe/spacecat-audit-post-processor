@@ -89,15 +89,15 @@ export function buildExperimentationSlackMessage(url, auditResult) {
 
     const score = (confidence) => {
       if (confidence < 0.005) {
-        return `${confidence.toPrecision(2)} is *highly significant*`;
+        return `${confidence.toPrecision(3)} is *highly significant*`;
       }
       if (confidence < 0.05) {
-        return `${confidence.toPrecision(2)} is *significant*`;
+        return `${confidence.toPrecision(3)} is *significant*`;
       }
       if (confidence < 0.1) {
-        return `${confidence.toPrecision(2)} is *marginally significant*`;
+        return `${confidence.toPrecision(3)} is *marginally significant*`;
       }
-      return `${confidence.toPrecision(2)} is *not significant*`;
+      return `${confidence.toPrecision(3)} is *not significant*`;
     };
     const variantstats = [];
     for (let i = 0; i < value.length; i += 1) {
