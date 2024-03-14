@@ -17,7 +17,7 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 import experimentationHandler from '../../src/experimentation/handler.js';
-import { expectedAuditResult } from '../fixtures/experimentation-data.js';
+import { expectedAuditResult, formattedSlackMessage } from '../fixtures/experimentation-data.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -113,6 +113,7 @@ describe('experimentation handler', () => {
     expect(resp.status).to.equal(204);
     expect(mockLog.info).to.have.been.calledWith('Successfully reported experiment details for space.cat');
     expect(mockLog.error).to.not.have.been.called;
+    expect(context.slackClients.WORKSPACE_INTERNAL_STANDARD.postMessage).to.have.been.calledWith({ channel: 'channel1', thread_ts: 'thread-id', blocks: formattedSlackMessage });
   });
 
   it('throws error when slack api fails to upload file', async () => {

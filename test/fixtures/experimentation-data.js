@@ -14,6 +14,30 @@ export const expectedAuditResult = {
   result: [
     {
       experiment: '24-101c-lp-enhanced-applicant-tracking-system',
+      p_value: 0.004,
+      variant: 'challenger-1',
+      variant_experimentation_events: 13,
+      variant_conversion_events: 3,
+      variant_experimentations: null,
+      variant_conversions: null,
+      variant_conversion_rate: null,
+      time5: '2024-02-01 17:00:19+00',
+      time95: '2024-02-07 20:00:55+00',
+    },
+    {
+      experiment: '24-101c-lp-enhanced-applicant-tracking-system',
+      p_value: 0.07,
+      variant: 'challenger-2',
+      variant_experimentation_events: 13,
+      variant_conversion_events: 3,
+      variant_experimentations: null,
+      variant_conversions: null,
+      variant_conversion_rate: null,
+      time5: '2024-02-01 17:00:19+00',
+      time95: '2024-02-07 20:00:55+00',
+    },
+    {
+      experiment: '24-101c-lp-enhanced-applicant-tracking-system1',
       p_value: null,
       variant: 'challenger-2',
       variant_experimentation_events: 13,
@@ -25,13 +49,61 @@ export const expectedAuditResult = {
       time95: '2024-02-07 20:00:55+00',
     },
     {
-      experiment: '24-101c-lp-enhanced-applicant-tracking-system',
+      experiment: '24-101c-lp-enhanced-applicant-tracking-system1',
       p_value: 0.004,
-      variant: 'challenger-1',
+      variant: 'control',
       variant_experimentation_events: 11,
       variant_conversion_events: 3,
       variant_experimentations: '1100',
       variant_conversions: '300',
+      variant_conversion_rate: '0.272727273',
+      time5: '2024-02-01 00:00:08+00',
+      time95: '2024-02-07 23:00:58+00',
+    },
+    {
+      experiment: '24-101c-lp-enhanced-applicant-tracking-system2',
+      p_value: 0.07,
+      variant: 'challenger-2',
+      variant_experimentation_events: 50000,
+      variant_conversion_events: 1,
+      variant_experimentations: 5000000,
+      variant_conversions: '100',
+      variant_conversion_rate: null,
+      time5: '2024-02-01 17:00:19+00',
+      time95: '2024-02-07 20:00:55+00',
+    },
+    {
+      experiment: '24-101c-lp-enhanced-applicant-tracking-system2',
+      p_value: 0.064,
+      variant: 'control',
+      variant_experimentation_events: 50000,
+      variant_conversion_events: 1,
+      variant_experimentations: '5000000',
+      variant_conversions: '100',
+      variant_conversion_rate: '0.272727273',
+      time5: '2024-02-01 00:00:08+00',
+      time95: '2024-02-07 23:00:58+00',
+    },
+    {
+      experiment: '24-101c-lp-enhanced-applicant-tracking-system3',
+      p_value: 0.07,
+      variant: 'challenger-2',
+      variant_experimentation_events: 1,
+      variant_conversion_events: 1,
+      variant_experimentations: 100,
+      variant_conversions: '100',
+      variant_conversion_rate: null,
+      time5: '2024-02-01 17:00:19+00',
+      time95: '2024-02-07 20:00:55+00',
+    },
+    {
+      experiment: '24-101c-lp-enhanced-applicant-tracking-system3',
+      p_value: 0.064,
+      variant: 'control',
+      variant_experimentation_events: 1,
+      variant_conversion_events: 1,
+      variant_experimentations: '100',
+      variant_conversions: '100',
       variant_conversion_rate: '0.272727273',
       time5: '2024-02-01 00:00:08+00',
       time95: '2024-02-07 23:00:58+00',
@@ -65,9 +137,9 @@ export const expectedAuditResult = {
       p_value: 0.1,
       variant: 'challenger-1',
       variant_experimentation_events: 24,
-      variant_conversion_events: 20,
+      variant_conversion_events: 2,
       variant_experimentations: '2400',
-      variant_conversions: '2000',
+      variant_conversions: '200',
       variant_conversion_rate: '0.833333333',
       time5: '2024-02-01 00:00:08+00',
       time95: '2024-02-07 23:00:12+00',
@@ -77,9 +149,33 @@ export const expectedAuditResult = {
       p_value: 0.47701597063430096,
       variant: 'challenger-2',
       variant_experimentation_events: 24,
-      variant_conversion_events: 13,
+      variant_conversion_events: 1,
       variant_experimentations: '2400',
-      variant_conversions: '1300',
+      variant_conversions: '100',
+      variant_conversion_rate: '0.541666667',
+      time5: '2024-02-01 18:00:00+00',
+      time95: '2024-02-07 19:00:09+00',
+    },
+    {
+      experiment: '2-21-free-trial-cp-delay-load1',
+      p_value: 0.01,
+      variant: 'challenger-1',
+      variant_experimentation_events: 24,
+      variant_conversion_events: 2,
+      variant_experimentations: '2400',
+      variant_conversions: '200',
+      variant_conversion_rate: '0.833333333',
+      time5: '2024-02-01 00:00:08+00',
+      time95: '2024-02-07 23:00:12+00',
+    },
+    {
+      experiment: '2-21-free-trial-cp-delay-load1',
+      p_value: 0.04701597063430096,
+      variant: 'challenger-2',
+      variant_experimentation_events: 24,
+      variant_conversion_events: 3,
+      variant_experimentations: '2400',
+      variant_conversions: '300',
       variant_conversion_rate: '0.541666667',
       time5: '2024-02-01 18:00:00+00',
       time95: '2024-02-07 19:00:09+00',
@@ -340,3 +436,202 @@ export const rumData = {
     ],
   },
 };
+
+export const formattedSlackMessage = [
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'For *space.cat*, 7 experiments have been run in the *last week*.\n More information is below :',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: ':arrow-red2: The Experiment 24-101c-lp-enhanced-applicant-tracking-system has been running for nearly 6 days with 2 variants.',
+    },
+  },
+  {
+    type: 'section',
+    fields: [
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 0 %. The statistical confidence 0.00400 is *highly significant*',
+      },
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.0700 is *marginally significant*',
+      },
+    ],
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Without significant traffic, this experiment is unlikely to conclude.',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: ':arrow-red2: The Experiment 24-101c-lp-enhanced-applicant-tracking-system1 has been running for nearly 7 days with 2 variants.',
+    },
+  },
+  {
+    type: 'section',
+    fields: [
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0',
+      },
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.00400 is *highly significant*',
+      },
+    ],
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Stick with *control*. No variant is better than the control.',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: ':arrow-red2: The Experiment 24-101c-lp-enhanced-applicant-tracking-system2 has been running for nearly 7 days with 2 variants.',
+    },
+  },
+  {
+    type: 'section',
+    fields: [
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.0700 is *marginally significant*',
+      },
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.0640 is *marginally significant*',
+      },
+    ],
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Not yet enough data to determine a winner. Keep going until you get 25M page views.',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: ':arrow-red2: The Experiment 24-101c-lp-enhanced-applicant-tracking-system3 has been running for nearly 7 days with 2 variants.',
+    },
+  },
+  {
+    type: 'section',
+    fields: [
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.0700 is *marginally significant*',
+      },
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.0640 is *marginally significant*',
+      },
+    ],
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Not yet enough data to determine a winner. Keep going until you get 500 page views.',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: ':arrow-red2: The Experiment 24-101a-lp-enhanced-onboarding has been running for nearly 6 days with 2 variants.',
+    },
+  },
+  {
+    type: 'section',
+    fields: [
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 34.8 %. The statistical confidence 0.0400 is *significant*',
+      },
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 9.68 %. The statistical confidence 0.0900 is *marginally significant*',
+      },
+    ],
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'No significant difference between variants. In doubt, stick with *control*',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: ':arrow-red2: The Experiment 2-21-free-trial-cp-delay-load has been running for nearly 7 days with 2 variants.',
+    },
+  },
+  {
+    type: 'section',
+    fields: [
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 83.3 %. The statistical confidence 0.100 is *not significant*',
+      },
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 54.2 %. The statistical confidence 0.477 is *not significant*',
+      },
+    ],
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Not yet enough data to determine a winner. Keep going until you get 8K page views.',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: ':arrow-red2: The Experiment 2-21-free-trial-cp-delay-load1 has been running for nearly 7 days with 2 variants.',
+    },
+  },
+  {
+    type: 'section',
+    fields: [
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 83.3 %. The statistical confidence 0.0100 is *significant*',
+      },
+      {
+        type: 'mrkdwn',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 54.2 %. The statistical confidence 0.0470 is *significant*',
+      },
+    ],
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'challenger-2 is the winner.',
+    },
+  },
+];
