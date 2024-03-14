@@ -457,11 +457,11 @@ export const formattedSlackMessage = [
     fields: [
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-1 shows a conversion rate of 0 %. The statistical confidence 0.0040 is *highly significant*',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 0 %. The statistical confidence 0.00400 is *highly significant*',
       },
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.070 is *marginally significant*',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.0700 is *marginally significant*',
       },
     ],
   },
@@ -488,7 +488,7 @@ export const formattedSlackMessage = [
       },
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.0040 is *highly significant*',
+        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.00400 is *highly significant*',
       },
     ],
   },
@@ -511,11 +511,11 @@ export const formattedSlackMessage = [
     fields: [
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.070 is *marginally significant*',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.0700 is *marginally significant*',
       },
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.064 is *marginally significant*',
+        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.0640 is *marginally significant*',
       },
     ],
   },
@@ -538,11 +538,11 @@ export const formattedSlackMessage = [
     fields: [
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.070 is *marginally significant*',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 0 %. The statistical confidence 0.0700 is *marginally significant*',
       },
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.064 is *marginally significant*',
+        text: 'The *Variant:* control shows a conversion rate of 27.3 %. The statistical confidence 0.0640 is *marginally significant*',
       },
     ],
   },
@@ -565,11 +565,11 @@ export const formattedSlackMessage = [
     fields: [
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-1 shows a conversion rate of 34.8 %. The statistical confidence 0.040 is *significant*',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 34.8 %. The statistical confidence 0.0400 is *significant*',
       },
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-2 shows a conversion rate of 9.68 %. The statistical confidence 0.090 is *marginally significant*',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 9.68 %. The statistical confidence 0.0900 is *marginally significant*',
       },
     ],
   },
@@ -592,11 +592,11 @@ export const formattedSlackMessage = [
     fields: [
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-1 shows a conversion rate of 83.3 %. The statistical confidence 0.10 is *not significant*',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 83.3 %. The statistical confidence 0.100 is *not significant*',
       },
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-2 shows a conversion rate of 54.2 %. The statistical confidence 0.48 is *not significant*',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 54.2 %. The statistical confidence 0.477 is *not significant*',
       },
     ],
   },
@@ -619,11 +619,11 @@ export const formattedSlackMessage = [
     fields: [
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-1 shows a conversion rate of 83.3 %. The statistical confidence 0.010 is *significant*',
+        text: 'The *Variant:* challenger-1 shows a conversion rate of 83.3 %. The statistical confidence 0.0100 is *significant*',
       },
       {
         type: 'mrkdwn',
-        text: 'The *Variant:* challenger-2 shows a conversion rate of 54.2 %. The statistical confidence 0.047 is *significant*',
+        text: 'The *Variant:* challenger-2 shows a conversion rate of 54.2 %. The statistical confidence 0.0470 is *significant*',
       },
     ],
   },
