@@ -19,7 +19,6 @@ import apex from '../../src/apex/handler.js';
 import { allAuditsAreSuccessful, apexFails, allFails } from '../fixtures/apex-audit-results.js';
 import { slackApexRequestData, slackAllFailsRequestData } from '../fixtures/slack-apex-request-data.js';
 import { getQueryParams } from '../../src/support/slack.js';
-import cwv from '../../src/cwv/handler.js';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -75,13 +74,13 @@ describe('cwv handler', () => {
 
   it('rejects when auditResult is not an array', async () => {
     message.auditResult = {};
-    const resp = await cwv(message, context);
+    const resp = await apex(message, context);
     expect(resp.status).to.equal(400);
   });
 
   it('rejects when auditResult is empty', async () => {
     message.auditResult = [];
-    const resp = await cwv(message, context);
+    const resp = await apex(message, context);
     expect(resp.status).to.equal(400);
   });
 
