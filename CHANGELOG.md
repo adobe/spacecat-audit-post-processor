@@ -1,3 +1,10 @@
+## [1.8.8](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.7...v1.8.8) (2024-03-20)
+
+
+### Bug Fixes
+
+* **cwv:** drop audit post processing ([#145](https://github.com/adobe/spacecat-audit-post-processor/issues/145)) ([7f19ef5](https://github.com/adobe/spacecat-audit-post-processor/commit/7f19ef5517bbc75c6fd6613811de2361d38746bc))
+
 ## [1.8.7](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.6...v1.8.7) (2024-03-19)
 
 
