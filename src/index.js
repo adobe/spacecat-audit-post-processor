@@ -16,7 +16,6 @@ import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
 import apex from './apex/handler.js';
-import cwv from './cwv/handler.js';
 import sitemap from './sitemap/handler.js';
 import noopHandler from './digest/handler-noop.js';
 import notFoundInternalDigestHandler from './notfound/handler-internal.js';
@@ -27,7 +26,7 @@ import experimentation from './experimentation/handler.js';
 
 export const HANDLERS = {
   apex,
-  cwv,
+  cwv: noopHandler,
   sitemap,
   404: noopHandler,
   '404-external': notFoundExternalDigestHandler,
