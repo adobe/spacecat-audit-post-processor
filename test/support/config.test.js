@@ -72,13 +72,8 @@ describe('config util', () => {
 
   it('isDigestReport for valid configs bySite', () => {
     const orgConfig = {
-      slack: {
-        workspace: 'workspace1',
-        channel: 'channel1',
-      },
       alerts: [{
         type: '404',
-        mentions: [{ slack: ['slackId1'] }],
       }],
     };
     const siteConfig = {
