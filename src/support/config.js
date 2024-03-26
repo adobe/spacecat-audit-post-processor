@@ -22,7 +22,7 @@ export const isDigestReport = (conf, alertType) => {
 };
 // TODO replace current implementation with the new one
 // export const isDigestReport = (orgConf, siteConf, alertType) => {
-// implement getAlertConfig for siteConf is not null/undefined return siteAlertConfig.byOrg value
+// if getAlertConfig for siteConf is not null/undefined return siteAlertConfig.byOrg value
 // else return getAlertConfig for orgConf is not null/undefined return orgAlertConfig.byOrg value
 // else return false
 // };
