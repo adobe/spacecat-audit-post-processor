@@ -1,3 +1,10 @@
+## [1.8.12](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.11...v1.8.12) (2024-03-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-slack-client to v1.3.0 ([#156](https://github.com/adobe/spacecat-audit-post-processor/issues/156)) ([0d399fe](https://github.com/adobe/spacecat-audit-post-processor/commit/0d399fe1dc7f8fe92b3392a4aa773def51c3586f))
+
 ## [1.8.11](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.10...v1.8.11) (2024-03-25)
 
 
