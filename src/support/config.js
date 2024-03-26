@@ -11,16 +11,23 @@
  */
 import { isArray } from '@adobe/spacecat-shared-utils';
 
+export const getAlertConfig = (conf, alertType) => (isArray(conf?.alerts)
+  ? conf?.alerts.find((alert) => alert.type === alertType) : null);
+
 export const isDigestReport = (conf, alertType) => {
   const alertConfig = isArray(conf?.alerts)
     ? conf?.alerts.find((alert) => alert.type === alertType)
     : {};
   return alertConfig?.byOrg;
 };
+// TODO replace current implementation with the new one
+// export const isDigestReport = (orgConf, siteConf, alertType) => {
+// implement getAlertConfig for siteConf is not null/undefined return siteAlertConfig.byOrg value
+// else return getAlertConfig for orgConf is not null/undefined return orgAlertConfig.byOrg value
+// else return false
+// };
 
-export const hasAlertConfig = (conf, alertType) => isArray(conf?.alerts)
-    && conf?.alerts.find((alert) => alert.type === alertType);
-
+export const hasAlertConfig = (conf, alertType) => !!getAlertConfig(conf, alertType);
 const getSlackContext = (conf, alertType) => {
   const channel = conf?.slack?.channel;
   const alertConfig = isArray(conf?.alerts)
