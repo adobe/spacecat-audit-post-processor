@@ -22,17 +22,12 @@ export const getAlertConfig = (conf, alertType) => (isArray(conf?.alerts)
 // };
 
 export const isDigestReport = (orgConf, siteConf, alertType) => {
-  // Check site configuration first
   if (getAlertConfig(siteConf, alertType) !== null) {
     return getAlertConfig(siteConf, alertType).byOrg;
   }
-
-  // Check organization configuration if site configuration not found
   if (getAlertConfig(orgConf, alertType) !== null) {
     return getAlertConfig(orgConf, alertType).byOrg;
   }
-
-  // Return false if no matching alert config found
   return false;
 };
 
