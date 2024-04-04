@@ -21,6 +21,7 @@ export const getAlertConfig = (conf, alertType) => (isArray(conf?.alerts)
 //   return alertConfig?.byOrg;
 // };
 
+// used AI just to see if I could get the test to work -- it is still failing
 export const isDigestReport = (orgConf, siteConf, alertType) => {
   if (getAlertConfig(siteConf, alertType) !== null) {
     return getAlertConfig(siteConf, alertType).byOrg;
