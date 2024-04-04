@@ -56,10 +56,10 @@ describe('experimentation handler', () => {
   it('successful run returns proper status', async () => {
     const resp = await lhsHandler(message, context);
     expect(resp.status).to.equal(204);
-  }).timeout(5000);
+  });
 
   it('handler fails with missing audit reference link and returns proper status', async () => {
     const resp = await lhsHandler(badMessage, context);
     expect(resp.status).to.equal(400);
-  }).timeout(5000);
+  });
 });
