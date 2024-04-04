@@ -16,7 +16,7 @@ export default async function lhsDesktopHandler(message, context) {
   const { url, auditContext } = message;
   const { fullAuditRef } = auditContext;
 
-  //check that audit is legit
+  // check that audit is legit
   if (!fullAuditRef) {
     const msg = `The audit reference link is missing in the message body for ${url}`;
     log.info(msg);
