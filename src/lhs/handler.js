@@ -24,8 +24,9 @@ export default async function lhsDesktopHandler(message, context) {
   }
 
   // Fire and Forget to Cloudflare Worker
-  fetch(`https://datadesk-audit-processor.adobeaem.workers.dev?auditRef=${fullAuditRef}`);
+  const workerUrl = `https://datadesk-audit-processor.adobeaem.workers.dev/?auditRef=${fullAuditRef}`;
+  await fetch(workerUrl);
 
-  log.info(`Audit Data Sent to Bigquery for ${url}`);
+  log.info(`Audit Data Sent to Bigquery via ${workerUrl}`);
   return noContent();
 }
