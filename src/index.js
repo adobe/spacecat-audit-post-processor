@@ -33,6 +33,7 @@ export const HANDLERS = {
   'broken-backlinks': noopHandler,
   'broken-backlinks-external': brokenBacklinksExternal,
   'broken-backlinks-internal': brokenBacklinksInternal,
+  experimentation: noopHandler,
 };
 
 function guardEnvironmentVariables(fn) {
