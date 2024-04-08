@@ -1,3 +1,10 @@
+## [1.8.13](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.12...v1.8.13) (2024-04-08)
+
+
+### Bug Fixes
+
+* deploy post-processor ([132bce4](https://github.com/adobe/spacecat-audit-post-processor/commit/132bce4e0eacf25f968e4da41376442332759cda))
+
 ## [1.8.12](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.11...v1.8.12) (2024-03-26)
 
 
