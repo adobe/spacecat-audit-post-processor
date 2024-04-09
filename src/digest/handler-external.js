@@ -48,7 +48,7 @@ export default async function externalDigestHandler(
           const message = processLatestAudit(context, site, latestAuditReports);
           if (Object.keys(message).length > 0) {
             const siteConfig = site.getConfig();
-            const isDigest = isDigestReport(orgConfig, type);
+            const isDigest = isDigestReport(orgConfig, siteConfig, type);
             if (!isDigest || !sentInitialMessage) {
               slackContext = getSlackContextForAlert(orgConfig, siteConfig, type);
             }

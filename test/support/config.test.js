@@ -116,7 +116,7 @@ describe('config util', () => {
   it(' for empty config', () => {
     const config = {
     };
-    const isByOrg = isDigestReport(config, '404');
-    expect(isByOrg).to.be.undefined;
+    const isByOrg = isDigestReport(config, {}, '404');
+    expect(isByOrg).to.be.false;
   });
 });

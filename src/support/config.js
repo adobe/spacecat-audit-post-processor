@@ -21,13 +21,15 @@ export const getAlertConfig = (conf, alertType) => (isArray(conf?.alerts)
 //   return alertConfig?.byOrg;
 // };
 
-// used AI just to see if I could get the test to work -- it is still failing
+// used AI code just to see if I could get the test to work -- it is still failing
 export const isDigestReport = (orgConf, siteConf, alertType) => {
-  if (getAlertConfig(siteConf, alertType) !== null) {
-    return getAlertConfig(siteConf, alertType).byOrg;
+  const orgAlertConfig = getAlertConfig(orgConf, alertType);
+  if (orgAlertConfig?.byOrg !== undefined) {
+    return orgAlertConfig.byOrg;
   }
-  if (getAlertConfig(orgConf, alertType) !== null) {
-    return getAlertConfig(orgConf, alertType).byOrg;
+  const siteAlertConfig = getAlertConfig(siteConf, alertType);
+  if (siteAlertConfig?.byOrg !== undefined) {
+    return siteAlertConfig.byOrg;
   }
   return false;
 };
@@ -50,7 +52,7 @@ const getSlackContext = (conf, alertType) => {
 };
 
 export const getSlackContextForAlert = (orgConf, siteConf, alertType) => {
-  if (isDigestReport(orgConf, alertType)) {
+  if (isDigestReport(orgConf, siteConf, alertType)) {
     return getSlackContext(orgConf, alertType);
   }
   return getSlackContext(siteConf, alertType);
