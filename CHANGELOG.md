@@ -1,3 +1,24 @@
+## [1.8.13](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.12...v1.8.13) (2024-04-08)
+
+
+### Bug Fixes
+
+* deploy post-processor ([132bce4](https://github.com/adobe/spacecat-audit-post-processor/commit/132bce4e0eacf25f968e4da41376442332759cda))
+
+## [1.8.12](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.11...v1.8.12) (2024-03-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-slack-client to v1.3.0 ([#156](https://github.com/adobe/spacecat-audit-post-processor/issues/156)) ([0d399fe](https://github.com/adobe/spacecat-audit-post-processor/commit/0d399fe1dc7f8fe92b3392a4aa773def51c3586f))
+
+## [1.8.11](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.10...v1.8.11) (2024-03-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.21.0 ([#154](https://github.com/adobe/spacecat-audit-post-processor/issues/154)) ([4a25d94](https://github.com/adobe/spacecat-audit-post-processor/commit/4a25d941b62b5e63c1c9d3eaf38caac7297257a1))
+
 ## [1.8.10](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.9...v1.8.10) (2024-03-21)
 
 
