@@ -30,7 +30,7 @@ describe('not found util', () => {
   };
   auditData.getAuditedAt = () => new Date().toISOString();
 
-  it('processLatest404Audit  with results in audit', () => {
+  it('processLatest404Audit with auditResults in audit', () => {
     const latestAudits = [auditData];
     const site = { getBaseURL: () => 'https://abcd.com' };
     auditData.getAuditResult = () => auditData.state.auditResult;
