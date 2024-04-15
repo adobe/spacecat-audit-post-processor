@@ -1,3 +1,10 @@
+## [1.8.16](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.15...v1.8.16) (2024-04-15)
+
+
+### Bug Fixes
+
+* undefined 404 audit result ([0bde514](https://github.com/adobe/spacecat-audit-post-processor/commit/0bde51469f8d356faafddc7bb3e91a8b0ff7efb6))
+
 ## [1.8.15](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.14...v1.8.15) (2024-04-15)
 
 
