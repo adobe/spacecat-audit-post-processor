@@ -49,6 +49,12 @@ describe('not found util', () => {
     expect(message).to.deep.equal({});
   });
 
+  it('processLatest404Audit with undefined latest audit', () => {
+    const site = { getBaseURL: () => 'https://abcd.com' };
+    const message = processLatest404Audit({}, site);
+    expect(message).to.deep.equal({});
+  });
+
   it('processLatest404Audit with empty results in latest audit', () => {
     auditData.getAuditResult = () => ({ result: [] });
     const latestAudits = [auditData];

@@ -85,7 +85,7 @@ export const send404Report = async ({
 };
 
 export const processLatest404Audit = (context, site, latestAudits) => {
-  if (latestAudits.length === 0) {
+  if (!isArray(latestAudits) || latestAudits.length === 0) {
     return {};
   }
   const latestAudit = latestAudits[0];
