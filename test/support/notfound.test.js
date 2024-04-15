@@ -18,17 +18,14 @@ const { expect } = chai;
 describe('not found util', () => {
   const auditData = {
     state: {
-      auditResult: {
-        result:
-                    [
-                      {
-                        url: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img',
-                        pageviews: '100',
-                        source: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/',
-                      },
-                    ],
-        finalUrl: 'abcd.com',
-      },
+      auditResult: [
+        {
+          url: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img',
+          pageviews: '100',
+          source: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/',
+        },
+      ],
+      finalUrl: 'abcd.com',
     },
   };
   auditData.getAuditedAt = () => new Date().toISOString();
@@ -39,7 +36,7 @@ describe('not found util', () => {
     auditData.getAuditResult = () => auditData.state.auditResult;
     auditData.getFullAuditRef = () => 'https://helix-pages.anywhere.run/helix-services/run-query@v3/rum-sources?domainkey=hebele&interval=7&offset=0&limit=101&checkpoint=404&url=http%3A%2F%2Fspacecar.com';
     const message = processLatest404Audit({}, site, latestAudits);
-    expect(message.results).to.deep.equal(auditData.state.auditResult.result);
+    expect(message.results).to.deep.equal(auditData.state.auditResult);
   });
 
   it('processLatest404Audit with empty latest audit', () => {

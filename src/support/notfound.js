@@ -91,11 +91,10 @@ export const processLatest404Audit = (context, site, latestAudits) => {
   const latestAudit = latestAudits[0];
   if (isWithinDays(latestAudit.getAuditedAt(), 7)) {
     const auditResult = latestAudit.getAuditResult();
-    const { result } = auditResult;
-    if (isArray(result) && result.length > 0) {
+    if (isArray(auditResult) && auditResult.length > 0) {
       const fullAuditRef = latestAudit.getFullAuditRef();
       return {
-        results: result, fullAuditRef, context, baseUrl: site.getBaseURL(),
+        results: auditResult, fullAuditRef, context, baseUrl: site.getBaseURL(),
       };
     }
   }
