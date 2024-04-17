@@ -30,8 +30,7 @@ describe('not found external handler', () => {
   const backlink = 'https://main--franklin-dashboard--adobe.hlx.live/views/404-report?interval=7&offset=0&limit=100&url=www.abcd.com&domainkey=scoped-domain-key';
   const auditData = {
     state: {
-      auditResult: {
-        result:
+      auditResult:
             [
               {
                 url: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img',
@@ -39,8 +38,7 @@ describe('not found external handler', () => {
                 source: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/',
               },
             ],
-        finalUrl: 'abcd.com',
-      },
+      finalUrl: 'abcd.com',
     },
   };
   auditData.getAuditResult = () => auditData.state.auditResult;
@@ -143,12 +141,12 @@ describe('not found external handler', () => {
     const initialBlocks = buildInitialSlackMessage(INITIAL_404_SLACK_MESSAGE, ['slackOrgId1']);
     const blocksOrg = build404SlackMessage(
       'https://abcd.com',
-      auditData.getAuditResult().result,
+      auditData.getAuditResult(),
       backlink,
     );
     const blocksSite = build404SlackMessage(
       'https://abcd.com',
-      auditData.getAuditResult().result,
+      auditData.getAuditResult(),
       backlink,
       ['slackSiteId2'],
     );
