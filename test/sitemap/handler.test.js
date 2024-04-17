@@ -85,8 +85,11 @@ describe('Sitemap detection audit tests', () => {
     });
 
     expect(result).to.be.an('array');
-    expect(result[0].text.text).to.equal(`Error finding sitemap for ${url}: ${reasons.map((reason) => `${reason.value} - ${reason.error}`).join(',')}`);
-    expect(result[1].text.text).to.equal('Please ensure your sitemap is properly defined and accessible.');
+    expect(result[0].text.text).to.equal(`Unable to process sitemap for ${url}:`);
+    expect(result[1].text.text).to.equal('|link|reason|\n'
+      + '|---|---|\n'
+      + '|value1|error1|\n'
+      + ',|value2|error2|\n');
   });
 
   it('sitemapHandler returns bad request when message is not valid', async () => {
