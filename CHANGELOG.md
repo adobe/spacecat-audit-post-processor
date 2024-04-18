@@ -1,3 +1,38 @@
+## [1.8.19](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.18...v1.8.19) (2024-04-18)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#177](https://github.com/adobe/spacecat-audit-post-processor/issues/177)) ([86bf1d9](https://github.com/adobe/spacecat-audit-post-processor/commit/86bf1d94c96fa7feb546ece28ca3b274e7ba3108))
+
+## [1.8.18](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.17...v1.8.18) (2024-04-17)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#175](https://github.com/adobe/spacecat-audit-post-processor/issues/175)) ([2b7485c](https://github.com/adobe/spacecat-audit-post-processor/commit/2b7485cf677c84c42b1ee712388b78bcb74ebc23))
+
+## [1.8.17](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.16...v1.8.17) (2024-04-16)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#174](https://github.com/adobe/spacecat-audit-post-processor/issues/174)) ([4f4ac8b](https://github.com/adobe/spacecat-audit-post-processor/commit/4f4ac8b11d84bfb7721f5b30b552de1e84c0f9fe))
+
+## [1.8.16](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.15...v1.8.16) (2024-04-15)
+
+
+### Bug Fixes
+
+* undefined 404 audit result ([0bde514](https://github.com/adobe/spacecat-audit-post-processor/commit/0bde51469f8d356faafddc7bb3e91a8b0ff7efb6))
+
+## [1.8.15](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.14...v1.8.15) (2024-04-15)
+
+
+### Bug Fixes
+
+* undefined latest audit ([4f76ea6](https://github.com/adobe/spacecat-audit-post-processor/commit/4f76ea6047fb0f3e0d79d0045c55c642531946ae))
+
 ## [1.8.14](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.13...v1.8.14) (2024-04-10)
 
 
