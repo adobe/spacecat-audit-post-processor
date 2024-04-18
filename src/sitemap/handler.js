@@ -17,10 +17,11 @@ import { markdown, postSlackMessage, section } from '../support/slack.js';
 export function buildSlackMessage({ url, reasons }) {
   const blocks = [];
 
-  const informativePart = `Error finding sitemap for ${url}: ${reasons.map((reason) => `${reason.value} - ${reason.error}`)}`;
-
+  const informativePart = `Unable to process sitemap for ${url}:`;
   blocks.push(section({ text: markdown(informativePart) }));
-
+  blocks.push(section({
+    text: markdown(`|link|reason|\n|---|---|\n${reasons.map((reason) => `|${reason.value}|${reason.error}|\n`).join('')}`),
+  }));
   blocks.push(section({
     text: markdown('Please ensure your sitemap is properly defined and accessible.'),
   }));
