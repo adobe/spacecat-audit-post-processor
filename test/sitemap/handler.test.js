@@ -89,7 +89,7 @@ describe('Sitemap detection audit tests', () => {
     expect(result[1].text.text).to.equal('|link|reason|\n'
       + '|---|---|\n'
       + '|value1|error1|\n'
-      + ',|value2|error2|\n');
+      + '|value2|error2|\n');
   });
 
   it('sitemapHandler returns bad request when message is not valid', async () => {

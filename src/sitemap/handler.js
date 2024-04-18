@@ -20,7 +20,7 @@ export function buildSlackMessage({ url, reasons }) {
   const informativePart = `Unable to process sitemap for ${url}:`;
   blocks.push(section({ text: markdown(informativePart) }));
   blocks.push(section({
-    text: markdown(`|link|reason|\n|---|---|\n${reasons.map((reason) => `|${reason.value}|${reason.error}|\n`)}`),
+    text: markdown(`|link|reason|\n|---|---|\n${reasons.map((reason) => `|${reason.value}|${reason.error}|\n`).join('')}`),
   }));
   blocks.push(section({
     text: markdown('Please ensure your sitemap is properly defined and accessible.'),
