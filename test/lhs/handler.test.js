@@ -12,6 +12,7 @@
 /* eslint-env mocha */
 import sinon from 'sinon';
 import chai from 'chai';
+import nock from 'nock';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import lhsHandler from '../../src/lhs/handler.js';
@@ -22,7 +23,7 @@ const { expect } = chai;
 
 const sandbox = sinon.createSandbox();
 
-describe('experimentation handler', () => {
+describe('lhs handler', () => {
   let message;
   let badMessage;
   let context;
@@ -38,6 +39,8 @@ describe('experimentation handler', () => {
     context = {
       log: {
         info: (msg) => msg,
+        error: (msg) => msg,
+        warn: (msg) => msg,
       },
     };
 
@@ -54,12 +57,27 @@ describe('experimentation handler', () => {
   });
 
   it('successful run returns proper status', async () => {
+    nock(/.*datadesk-audit.*/gm)
+      .get(/\/\?auditRef.*/gm)
+      .reply(200);
     const resp = await lhsHandler(message, context);
     expect(resp.status).to.equal(204);
   });
 
   it('handler fails with missing audit reference link and returns proper status', async () => {
+    // nock server will not respond, but in case a request goes through we will return 400
+    nock(/.*datadesk-audit.*/gm)
+      .get(/\/\?auditRef.*/gm)
+      .reply(400);
     const resp = await lhsHandler(badMessage, context);
     expect(resp.status).to.equal(400);
+  });
+
+  it('errors returns proper status', async () => {
+    nock(/.*datadesk-audit.*/gm)
+      .get(/\/\?auditRef.*/gm)
+      .reply(500);
+    const resp = await lhsHandler(message, context);
+    expect(resp.status).to.equal(500);
   });
 });

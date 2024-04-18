@@ -9,7 +9,9 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import { badRequest, noContent } from '@adobe/spacecat-shared-http-utils';
+import { badRequest, noContent, internalServerError } from '@adobe/spacecat-shared-http-utils';
+import { createUrl } from '@adobe/fetch';
+import { fetch } from '../support/utils.js';
 
 export default async function lhsDesktopHandler(message, context) {
   const { log } = context;
@@ -19,13 +21,21 @@ export default async function lhsDesktopHandler(message, context) {
   // check that audit is legit
   if (!fullAuditRef) {
     const msg = `The audit reference link is missing in the message body for ${url}`;
-    log.info(msg);
+    log.error(msg);
     return badRequest(msg);
   }
 
   // Fire and Forget to Cloudflare Worker
   const workerUrl = `https://datadesk-audit-processor.adobeaem.workers.dev/?auditRef=${fullAuditRef}`;
-  fetch(workerUrl);
+  try {
+    const req = await fetch(createUrl(workerUrl));
+    if (req.status !== 200) {
+      throw new Error(req.statusText);
+    }
+  } catch (e) {
+    log.error(`Failed to send audit data for ${url}. Reason: ${e.message}`);
+    return internalServerError(`Failed to send lhs for ${url}`);
+  }
 
   log.info(`Audit Data Sent to Bigquery via ${workerUrl}`);
   return noContent();
