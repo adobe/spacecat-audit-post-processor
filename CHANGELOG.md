@@ -1,3 +1,10 @@
+## [1.8.20](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.19...v1.8.20) (2024-04-18)
+
+
+### Bug Fixes
+
+* sitemap alerting messages update  ([#153](https://github.com/adobe/spacecat-audit-post-processor/issues/153)) ([59d8e65](https://github.com/adobe/spacecat-audit-post-processor/commit/59d8e657a520b7e7e9d2a2b59f98196a34205132))
+
 ## [1.8.19](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.18...v1.8.19) (2024-04-18)
 
 
