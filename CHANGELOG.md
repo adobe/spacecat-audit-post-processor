@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.21...v1.9.0) (2024-04-19)
+
+
+### Features
+
+* Send lhs to bigquery ([#161](https://github.com/adobe/spacecat-audit-post-processor/issues/161)) ([534f42f](https://github.com/adobe/spacecat-audit-post-processor/commit/534f42f381f855014b0ce15a9bb6df81884d7407))
+
 ## [1.8.21](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.20...v1.8.21) (2024-04-19)
 
 
