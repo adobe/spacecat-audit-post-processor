@@ -22,6 +22,7 @@ import notFoundInternalDigestHandler from './notfound/handler-internal.js';
 import notFoundExternalDigestHandler from './notfound/handler-external.js';
 import brokenBacklinksInternal from './backlinks/handler-internal.js';
 import brokenBacklinksExternal from './backlinks/handler-external.js';
+import lhsHandler from './lhs/handler.js';
 
 export const HANDLERS = {
   apex,
@@ -34,6 +35,8 @@ export const HANDLERS = {
   'broken-backlinks-external': brokenBacklinksExternal,
   'broken-backlinks-internal': brokenBacklinksInternal,
   experimentation: noopHandler,
+  'lhs-desktop': lhsHandler,
+  'lhs-mobile': lhsHandler,
 };
 
 function guardEnvironmentVariables(fn) {
