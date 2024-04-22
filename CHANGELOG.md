@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.9.0...v1.10.0) (2024-04-22)
+
+
+### Features
+
+* **lhs:** add register handler ([#181](https://github.com/adobe/spacecat-audit-post-processor/issues/181)) ([846ac3d](https://github.com/adobe/spacecat-audit-post-processor/commit/846ac3d3baf9f4e60692e1544ed259111884914a))
+
 # [1.9.0](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.8.21...v1.9.0) (2024-04-19)
 
 
