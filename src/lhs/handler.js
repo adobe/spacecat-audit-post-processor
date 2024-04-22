@@ -13,7 +13,7 @@ import { badRequest, noContent, internalServerError } from '@adobe/spacecat-shar
 import { createUrl } from '@adobe/fetch';
 import { fetch } from '../support/utils.js';
 
-export default async function lhsDesktopHandler(message, context) {
+export default async function lhsHandler(message, context) {
   const { log } = context;
   const { url, auditContext } = message;
   const { fullAuditRef } = auditContext;
