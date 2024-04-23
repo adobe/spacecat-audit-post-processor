@@ -21,8 +21,8 @@ describe('not found util', () => {
       auditResult: [
         {
           url: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img',
-          pageviews: '100',
-          source: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/',
+          pageviews: '300',
+          sources: ['https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/', 'www,google.com'],
         },
       ],
       finalUrl: 'abcd.com',

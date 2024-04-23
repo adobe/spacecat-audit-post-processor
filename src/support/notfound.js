@@ -47,7 +47,7 @@ export function build404SlackMessage(url, auditResult, backlink, mentions) {
     const stats = section({
       fields: [
         markdown(`:mag: *Pageviews:* ${commaNumber(auditResult[i].pageviews)}`),
-        markdown(`:mag: *Source:* ${commaNumber(auditResult[i].source)}`),
+        markdown(`:mag: *Sources:* ${commaNumber(auditResult[i].sources.join(' ').toString())}`),
       ],
     });
 
