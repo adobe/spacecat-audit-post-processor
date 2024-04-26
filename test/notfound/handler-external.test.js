@@ -34,8 +34,8 @@ describe('not found external handler', () => {
             [
               {
                 url: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img',
-                pageviews: '100',
-                source: 'https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/',
+                pageviews: '200',
+                sources: ['https://www.abcd.com/sites/default/files/en/assets/training-material/dd/img/', 'https://www.google.com'],
               },
             ],
       finalUrl: 'abcd.com',
