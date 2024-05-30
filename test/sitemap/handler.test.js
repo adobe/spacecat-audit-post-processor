@@ -137,7 +137,7 @@ describe('Sitemap detection audit tests', () => {
     expect(logSpy).to.have.been.calledWith('Sitemap audit was successful for space.cat. Won\'t notify.');
   });
 
-  it.skip('sends slack message when audit was not successful', async () => {
+  it('sends slack message when audit was not successful', async () => {
     const logSpy = sandbox.spy(context.log, 'info');
     const opts = message.auditContext.slackContext;
 
@@ -164,7 +164,7 @@ describe('Sitemap detection audit tests', () => {
     expect(logSpy).to.have.been.calledWith('Slack notification sent for space.cat');
   });
 
-  it.skip('returns internal server error when sending the slack message fails', async () => {
+  it('returns internal server error when sending the slack message fails', async () => {
     const errorLogSpy = sandbox.spy(context.log, 'error');
     message.auditResult = {
       success: false,
