@@ -10,4 +10,4 @@
  * governing permissions and limitations under the License.
  */
 
-export const queryData = ({ blocks }) => blocks === '[{"type":"section","text":{"type":"mrkdwn","text":"Unable to process sitemap for space.cat:"}},{"type":"section","text":{"type":"mrkdwn","text":"|link|reason|\\n|---|---|\\n|https://space.cat/sitemap.xml|SITEMAP_NOT_FOUND|\\n"}},{"type":"section","text":{"type":"mrkdwn","text":"Please ensure your sitemap is properly defined and accessible."}}]';
+export const queryData = ({ blocks }) => blocks === '[{"type":"section","text":{"type":"mrkdwn","text":"Unable to process sitemap for space.cat:"}},{"type":"section","text":{"type":"mrkdwn","text":"\\n`SITEMAP_NOT_FOUND        `\\thttps://space.cat/sitemap.xml\\n"}},{"type":"section","text":{"type":"mrkdwn","text":"Please ensure your sitemap is properly defined and accessible."}}]';
