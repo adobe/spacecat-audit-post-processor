@@ -1,3 +1,10 @@
+## [1.10.13](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.12...v1.10.13) (2024-06-04)
+
+
+### Bug Fixes
+
+* slack enhancement message for sitemap ([#203](https://github.com/adobe/spacecat-audit-post-processor/issues/203)) ([53f83c4](https://github.com/adobe/spacecat-audit-post-processor/commit/53f83c4fbada0dd2a6ff3c72668ec169566b9f9f))
+
 ## [1.10.12](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.11...v1.10.12) (2024-06-02)
 
 
