@@ -10,8 +10,8 @@
  * governing permissions and limitations under the License.
  */
 import wrap from '@adobe/helix-shared-wrap';
-import { hasText, resolveSecretsName } from '@adobe/spacecat-shared-utils';
-import { badRequest, internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
+import { hasText, resolveSecretsName, sqsEventAdapter } from '@adobe/spacecat-shared-utils';
+import { internalServerError, notFound } from '@adobe/spacecat-shared-http-utils';
 import { helixStatus } from '@adobe/helix-status';
 import secrets from '@adobe/helix-shared-secrets';
 import dataAccess from '@adobe/spacecat-shared-data-access';
@@ -42,32 +42,6 @@ export const HANDLERS = {
 function guardEnvironmentVariables(fn) {
   const variables = ['SLACK_BOT_TOKEN', 'RUM_DOMAIN_KEY'];
   return async (req, context) => (variables.every((v) => hasText(context.env[v])) ? fn(req, context) : internalServerError('Missing configuration'));
-}
-
-/**
- * Wrapper to turn an SQS record into a function param
- * Inspired by https://github.com/adobe/helix-admin/blob/main/src/index.js#L104C1-L128C5
- *
- * @param {UniversalAction} fn
- * @returns {function(object, UniversalContext): Promise<Response>}
- */
-function sqsEventAdapter(fn) {
-  return async (req, context) => {
-    const { log } = context;
-    let message;
-
-    try {
-      // currently not publishing batch messages
-      const records = context.invocation?.event?.Records;
-      log.info(`Received ${records.length} many records. ID of the first message in the batch: ${records[0]?.messageId}`);
-      message = JSON.parse(records[0]?.body);
-      log.info(`Received message with id: ${context.invocation?.event?.Records.length}`);
-    } catch (e) {
-      log.error('Function was not invoked properly, message body is not a valid JSON', e);
-      return badRequest('Event does not contain a valid message body');
-    }
-    return fn(message, context);
-  };
 }
 
 /**
