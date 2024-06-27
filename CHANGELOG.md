@@ -1,3 +1,10 @@
+## [1.10.17](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.16...v1.10.17) (2024-06-27)
+
+
+### Bug Fixes
+
+* use shared sqsEventAdapter ([#216](https://github.com/adobe/spacecat-audit-post-processor/issues/216)) ([f670a74](https://github.com/adobe/spacecat-audit-post-processor/commit/f670a74e93f17fe05b1028d2c03ed5c896b5dd21))
+
 ## [1.10.16](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.15...v1.10.16) (2024-06-07)
 
 
