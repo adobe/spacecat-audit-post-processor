@@ -1,3 +1,10 @@
+## [1.10.21](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.20...v1.10.21) (2024-07-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-utils to v1.17.1 ([#223](https://github.com/adobe/spacecat-audit-post-processor/issues/223)) ([b5af9b9](https://github.com/adobe/spacecat-audit-post-processor/commit/b5af9b9213f1d50aa2b03b53fe16f70800bb2166))
+
 ## [1.10.20](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.19...v1.10.20) (2024-07-02)
 
 
