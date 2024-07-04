@@ -1,6 +1,6 @@
 {
   "name": "@adobe/spacecat-audit-post-processor",
-  "version": "1.10.21",
+  "version": "1.10.22",
   "description": "SpaceCat Audit Post-Processor",
   "main": "src/index.js",
   "type": "module",
