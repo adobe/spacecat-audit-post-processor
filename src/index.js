@@ -29,6 +29,7 @@ export const HANDLERS = {
   404: noopHandler,
   '404-external': notFoundExternalDigestHandler,
   '404-internal': notFoundInternalDigestHandler,
+  'broken-backlinks': noopHandler,
   experimentation: noopHandler,
   'lhs-desktop': lhsHandler,
   'lhs-mobile': lhsHandler,
