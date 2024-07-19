@@ -11,7 +11,6 @@
  */
 
 import { createUrl } from '@adobe/fetch';
-import { isArray } from '@adobe/spacecat-shared-utils';
 import { fetch } from './utils.js';
 
 export const SLACK_API = 'https://slack.com/api/chat.postMessage';
@@ -105,29 +104,6 @@ export async function uploadSlackFile(token, opts) {
     throw new Error(`Failed to upload file to slack: channel ${channel}, filename ${fileName}. Reason: ${e.message}`);
   }
 }
-
-export function buildInitialSlackMessage(initialMessage, mentions) {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${isArray(mentions) ? `${mentions.join(' ').toString()} ` : ''}${initialMessage}`,
-      },
-    },
-  ];
-}
-
-export const sendInitialMessage = async (slackClient, slackContext, initialMessage) => {
-  const blocks = buildInitialSlackMessage(initialMessage, slackContext?.mentions);
-  const { threadId } = await slackClient.postMessage(
-    {
-      channel: slackContext?.channel,
-      blocks,
-    },
-  );
-  return { thread_ts: threadId, channel: slackContext.channel };
-};
 
 export function section(content) {
   return { type: 'section', ...content };
