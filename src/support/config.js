@@ -11,16 +11,37 @@
  */
 import { isArray } from '@adobe/spacecat-shared-utils';
 
-export const isDigestReport = (conf, alertType) => {
-  const alertConfig = isArray(conf?.alerts)
-    ? conf?.alerts.find((alert) => alert.type === alertType)
-    : {};
-  return alertConfig?.byOrg;
+export const getAlertConfig = (conf, alertType) => (isArray(conf?.alerts)
+  ? conf?.alerts.find((alert) => alert.type === alertType) : null);
+
+// export const isDigestReport = (conf, alertType) => {
+//   const alertConfig = isArray(conf?.alerts)
+//     ? conf?.alerts.find((alert) => alert.type === alertType)
+//     : {};
+//   return alertConfig?.byOrg;
+// };
+
+// used AI code just to see if I could get the test to work -- it is still failing
+export const isDigestReport = (orgConf, siteConf, alertType) => {
+  const orgAlertConfig = getAlertConfig(orgConf, alertType);
+  if (orgAlertConfig?.byOrg !== undefined) {
+    return orgAlertConfig.byOrg;
+  }
+  const siteAlertConfig = getAlertConfig(siteConf, alertType);
+  if (siteAlertConfig?.byOrg !== undefined) {
+    return siteAlertConfig.byOrg;
+  }
+  return false;
 };
 
-export const hasAlertConfig = (conf, alertType) => isArray(conf?.alerts)
-    && conf?.alerts.find((alert) => alert.type === alertType);
+// TODO replace current implementation with the new one
+// export const isDigestReport = (orgConf, siteConf, alertType) => {
+// if getAlertConfig for siteConf is not null/undefined return siteAlertConfig.byOrg value
+// else return getAlertConfig for orgConf is not null/undefined return orgAlertConfig.byOrg value
+// else return false
+// };
 
+export const hasAlertConfig = (conf, alertType) => !!getAlertConfig(conf, alertType);
 const getSlackContext = (conf, alertType) => {
   const channel = conf?.slack?.channel;
   const alertConfig = isArray(conf?.alerts)
@@ -31,7 +52,7 @@ const getSlackContext = (conf, alertType) => {
 };
 
 export const getSlackContextForAlert = (orgConf, siteConf, alertType) => {
-  if (isDigestReport(orgConf, alertType)) {
+  if (isDigestReport(orgConf, siteConf, alertType)) {
     return getSlackContext(orgConf, alertType);
   }
   return getSlackContext(siteConf, alertType);
