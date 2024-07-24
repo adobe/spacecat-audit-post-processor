@@ -18,8 +18,6 @@ import dataAccess from '@adobe/spacecat-shared-data-access';
 import apex from './apex/handler.js';
 import sitemap from './sitemap/handler.js';
 import noopHandler from './digest/handler-noop.js';
-import notFoundInternalDigestHandler from './notfound/handler-internal.js';
-import notFoundExternalDigestHandler from './notfound/handler-external.js';
 import lhsHandler from './lhs/handler.js';
 
 export const HANDLERS = {
@@ -27,8 +25,6 @@ export const HANDLERS = {
   cwv: noopHandler,
   sitemap,
   404: noopHandler,
-  '404-external': notFoundExternalDigestHandler,
-  '404-internal': notFoundInternalDigestHandler,
   'broken-backlinks': noopHandler,
   experimentation: noopHandler,
   'lhs-desktop': lhsHandler,

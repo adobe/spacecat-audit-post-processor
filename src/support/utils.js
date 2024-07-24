@@ -30,10 +30,3 @@ export function convertToCSV(array) {
   }).join(',')).join('\r\n');
   return `${headers}\r\n${rows}\r\n`;
 }
-
-export function isWithinDays(date, numDays) {
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - numDays);
-  const checkedDate = new Date(date);
-  return checkedDate >= sevenDaysAgo;
-}

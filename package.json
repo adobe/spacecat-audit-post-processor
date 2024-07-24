@@ -17,7 +17,7 @@
     "deploy-routes": "hedy --no-build -no-hints -l major",
     "deploy-ci": "hedy -v --deploy --test --pkgVersion=ci$CIRCLE_BUILD_NUM -l ci --cleanup-ci=24h",
     "deploy-secrets": "hedy --aws-update-secrets --params-file=secrets/secrets.env",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "wsk": {
     "target": "aws",
