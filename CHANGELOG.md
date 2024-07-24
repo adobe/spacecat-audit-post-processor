@@ -1,3 +1,10 @@
+## [1.10.28](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.27...v1.10.28) (2024-07-24)
+
+
+### Bug Fixes
+
+* remove digest from post-processor ([7a8e9a3](https://github.com/adobe/spacecat-audit-post-processor/commit/7a8e9a365971d8a06782fa31bc5b143b1fc4a5d5))
+
 ## [1.10.27](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.26...v1.10.27) (2024-07-19)
 
 
