@@ -55,7 +55,7 @@
     "@adobe/helix-shared-wrap": "2.0.2",
     "@adobe/helix-status": "10.1.2",
     "@adobe/helix-universal-logger": "3.0.18",
-    "@adobe/spacecat-shared-rum-api-client": "2.5.3",
+    "@adobe/spacecat-shared-rum-api-client": "2.5.4",
     "@adobe/spacecat-shared-http-utils": "1.4.0",
     "@adobe/spacecat-shared-utils": "1.19.1",
     "@adobe/spacecat-shared-data-access": "1.39.0",
@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@adobe/eslint-config-helix": "2.0.6",
-    "@adobe/helix-deploy": "12.0.5",
+    "@adobe/helix-deploy": "12.0.6",
     "@adobe/helix-universal": "5.0.5",
     "@adobe/semantic-release-coralogix": "1.1.31",
     "@adobe/semantic-release-skms-cmr": "1.1.2",
