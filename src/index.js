@@ -19,6 +19,7 @@ import apex from './apex/handler.js';
 import sitemap from './sitemap/handler.js';
 import noopHandler from './digest/handler-noop.js';
 import lhsHandler from './lhs/handler.js';
+import brokenBacklinksAutoSuggestHandler from './broken-backlinks/auto-suggest.js';
 
 export const HANDLERS = {
   apex,
@@ -26,6 +27,7 @@ export const HANDLERS = {
   sitemap,
   404: noopHandler,
   'broken-backlinks': noopHandler,
+  'broken-backlinks-auto-suggest': brokenBacklinksAutoSuggestHandler,
   experimentation: noopHandler,
   'lhs-desktop': lhsHandler,
   'lhs-mobile': lhsHandler,
