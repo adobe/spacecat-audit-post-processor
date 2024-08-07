@@ -29,6 +29,8 @@ export default async function brokenBacklinksAutoSuggestHandler(message, context
     return noContent();
   }
 
+  log.info(`audit: ${JSON.stringify(audit)}`);
+
   const updatedAudit = {
     ...audit,
     auditResult: {
