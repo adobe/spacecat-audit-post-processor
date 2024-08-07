@@ -35,9 +35,9 @@ export default async function brokenBacklinksAutoSuggestHandler(message, context
       ...audit.auditResult,
       brokenBacklinks: audit.auditResult.brokenBacklinks.map((backlink) => ({
         ...backlink,
-        url_suggested: suggestionsResult.brokenBacklinks.find(
+        urls_suggested: suggestionsResult.brokenBacklinks.find(
           (suggestion) => suggestion.broken_url === backlink.url_to,
-        )?.suggested_url,
+        )?.suggested_urls,
       })),
     },
   };

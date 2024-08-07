@@ -75,12 +75,16 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
     const message = {
       siteId: 'site123',
       type: 'type1',
-      suggestionsResult: { brokenBacklinks: [{ broken_url: 'url1', suggested_url: 'url2' }] },
+      suggestionsResult: {
+        brokenBacklinks: [
+          { broken_url: 'https://broken.url', suggested_urls: ['https://suggested1.url', 'https://suggested2.url'] },
+        ],
+      },
     };
 
     const audit = {
       auditResult: {
-        brokenBacklinks: [{ url_to: 'url1' }],
+        brokenBacklinks: [{ url_to: 'https://broken.url' }],
       },
     };
 
@@ -92,7 +96,7 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
       ...audit,
       auditResult: {
         ...audit.auditResult,
-        brokenBacklinks: [{ url_to: 'url1', url_suggested: 'url2' }],
+        brokenBacklinks: [{ url_to: 'https://broken.url', urls_suggested: ['https://suggested1.url', 'https://suggested2.url'] }],
       },
     });
   });
