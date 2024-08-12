@@ -25,24 +25,30 @@ export default async function brokenBacklinksAutoSuggestHandler(message, context
   log.info(`message: ${JSON.stringify(message)}`);
 
   const audit = await dataAccess.getLatestAuditForSite(siteId, 'broken-backlinks');
-  if (!audit?.auditResult?.brokenBacklinks?.length > 0) {
+  const auditResult = audit.getAuditResult();
+  log.info(`auditResult: ${JSON.stringify(auditResult)}`);
+  if (!auditResult?.brokenBacklinks?.length > 0) {
     log.error(`No audit with broken backlinks found for site ID: ${siteId}`);
     return noContent();
   }
 
-  log.info(`audit: ${JSON.stringify(audit)}`);
-
   const updatedAudit = {
-    ...audit,
+    siteId,
+    auditType: 'broken-backlinks',
+    auditedAt: audit.getAuditedAt(),
+    expiresAt: audit.getExpiresAt(),
+    fullAuditRef: audit.getFullAuditRef(),
+    isLive: audit.isLive(),
     auditResult: {
-      ...audit.auditResult,
-      brokenBacklinks: audit.auditResult.brokenBacklinks.map((backlink) => ({
+      ...auditResult,
+      brokenBacklinks: auditResult.brokenBacklinks.map((backlink) => ({
         ...backlink,
         urls_suggested: suggestionsResult.brokenBacklinks.find(
           (suggestion) => suggestion.broken_url === backlink.url_to,
         )?.suggested_urls,
       })),
     },
+    previousAuditResult: audit.getPreviousAuditResult(),
   };
 
   dataAccess.updateLatestAudit(updatedAudit);

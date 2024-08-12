@@ -26,11 +26,20 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
   let context;
   let log;
   let dataAccessMock;
+  let auditMock;
 
   beforeEach(() => {
     dataAccessMock = {
       getLatestAuditForSite: sinon.stub(),
       updateLatestAudit: sinon.stub(),
+    };
+    auditMock = {
+      getAuditResult: sinon.stub(),
+      getAuditedAt: sinon.stub(),
+      getExpiresAt: sinon.stub(),
+      getFullAuditRef: sinon.stub(),
+      isLive: sinon.stub(),
+      getPreviousAuditResult: sinon.stub(),
     };
     log = {
       info: sinon.spy(),
@@ -64,7 +73,8 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
       suggestionsResult: { brokenBacklinks: [{ broken_url: 'url1', suggested_url: 'url2' }] },
     };
 
-    dataAccessMock.getLatestAuditForSite.resolves(null);
+    dataAccessMock.getLatestAuditForSite.resolves(auditMock);
+    auditMock.getAuditResult.returns(null);
 
     await brokenBacklinksAutoSuggestHandler(message, context);
 
@@ -82,22 +92,32 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
       },
     };
 
-    const audit = {
-      auditResult: {
-        brokenBacklinks: [{ url_to: 'https://broken.url' }],
-      },
+    const auditResult = {
+      brokenBacklinks: [{ url_to: 'https://broken.url' }],
     };
 
-    dataAccessMock.getLatestAuditForSite.resolves(audit);
+    dataAccessMock.getLatestAuditForSite.resolves(auditMock);
+    auditMock.getAuditResult.returns(auditResult);
+    auditMock.getAuditedAt.returns(new Date('2024-04-16').toISOString());
+    auditMock.getExpiresAt.returns(new Date('2024-07-16').toISOString());
+    auditMock.getFullAuditRef.returns('https://example.com');
+    auditMock.isLive.returns(true);
+    auditMock.getPreviousAuditResult.returns({});
 
     await brokenBacklinksAutoSuggestHandler(message, context);
 
     expect(dataAccessMock.updateLatestAudit).to.have.been.calledWith({
-      ...audit,
+      siteId: 'site123',
+      auditType: 'broken-backlinks',
+      auditedAt: auditMock.getAuditedAt(),
+      expiresAt: auditMock.getExpiresAt(),
+      fullAuditRef: auditMock.getFullAuditRef(),
+      isLive: auditMock.isLive(),
       auditResult: {
-        ...audit.auditResult,
+        ...auditResult,
         brokenBacklinks: [{ url_to: 'https://broken.url', urls_suggested: ['https://suggested1.url', 'https://suggested2.url'] }],
       },
+      previousAuditResult: auditMock.getPreviousAuditResult(),
     });
   });
 });
