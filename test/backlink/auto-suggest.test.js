@@ -97,6 +97,7 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
     };
 
     dataAccessMock.getLatestAuditForSite.resolves(auditMock);
+    dataAccessMock.updateLatestAudit.resolves(auditMock);
     auditMock.getAuditResult.returns(auditResult);
     auditMock.getAuditedAt.returns(new Date('2024-04-16').toISOString());
     auditMock.getExpiresAt.returns(new Date('2024-07-16').toISOString());

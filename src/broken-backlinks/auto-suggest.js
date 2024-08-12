@@ -51,7 +51,9 @@ export default async function brokenBacklinksAutoSuggestHandler(message, context
     previousAuditResult: audit.getPreviousAuditResult(),
   };
 
-  dataAccess.updateLatestAudit(updatedAudit);
+  const latestAudit = await dataAccess.updateLatestAudit(updatedAudit);
+
+  log.info(`Updated audit: ${JSON.stringify(latestAudit.getAuditResult())}`);
 
   return noContent();
 }
