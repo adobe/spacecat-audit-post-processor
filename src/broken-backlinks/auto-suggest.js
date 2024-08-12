@@ -22,10 +22,11 @@ export default async function brokenBacklinksAutoSuggestHandler(message, context
     log.error('No broken backlinks found in suggestions result');
     return noContent();
   }
+  log.info(`message: ${JSON.stringify(message)}`);
 
   const audit = await dataAccess.getLatestAuditForSite(siteId, 'broken-backlinks');
-  if (!audit) {
-    log.error(`No audit found for site ID: ${siteId}`);
+  if (!audit?.auditResult?.brokenBacklinks?.length > 0) {
+    log.error(`No audit with broken backlinks found for site ID: ${siteId}`);
     return noContent();
   }
 

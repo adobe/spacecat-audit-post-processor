@@ -68,7 +68,7 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
 
     await brokenBacklinksAutoSuggestHandler(message, context);
 
-    expect(log.error).to.have.been.calledWith('No audit found for site ID: site123');
+    expect(log.error).to.have.been.calledWith('No audit with broken backlinks found for site ID: site123');
   });
 
   it('should update audit and return noContent when audit is found', async () => {
