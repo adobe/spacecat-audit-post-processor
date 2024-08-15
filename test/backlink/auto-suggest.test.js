@@ -28,6 +28,10 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
   let dataAccessMock;
   let auditMock;
 
+  const auditResult = {
+    brokenBacklinks: [{ url_to: 'https://broken.url' }],
+  };
+
   beforeEach(() => {
     dataAccessMock = {
       getLatestAuditForSite: sinon.stub(),
@@ -49,6 +53,15 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
       log,
       dataAccess: dataAccessMock,
     };
+
+    dataAccessMock.getLatestAuditForSite.resolves(auditMock);
+    dataAccessMock.updateLatestAudit.resolves(auditMock);
+    auditMock.getAuditResult.returns(auditResult);
+    auditMock.getAuditedAt.returns(new Date('2024-04-16').toISOString());
+    auditMock.getExpiresAt.returns(new Date('2024-07-16').toISOString());
+    auditMock.getFullAuditRef.returns('https://example.com');
+    auditMock.isLive.returns(true);
+    auditMock.getPreviousAuditResult.returns({});
   });
 
   afterEach(() => {
@@ -73,7 +86,6 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
       suggestionsResult: { brokenBacklinks: [{ broken_url: 'url1', suggested_url: 'url2' }] },
     };
 
-    dataAccessMock.getLatestAuditForSite.resolves(auditMock);
     auditMock.getAuditResult.returns(null);
 
     await brokenBacklinksAutoSuggestHandler(message, context);
@@ -92,19 +104,6 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
       },
     };
 
-    const auditResult = {
-      brokenBacklinks: [{ url_to: 'https://broken.url' }],
-    };
-
-    dataAccessMock.getLatestAuditForSite.resolves(auditMock);
-    dataAccessMock.updateLatestAudit.resolves(auditMock);
-    auditMock.getAuditResult.returns(auditResult);
-    auditMock.getAuditedAt.returns(new Date('2024-04-16').toISOString());
-    auditMock.getExpiresAt.returns(new Date('2024-07-16').toISOString());
-    auditMock.getFullAuditRef.returns('https://example.com');
-    auditMock.isLive.returns(true);
-    auditMock.getPreviousAuditResult.returns({});
-
     await brokenBacklinksAutoSuggestHandler(message, context);
 
     expect(dataAccessMock.updateLatestAudit).to.have.been.calledWith({
@@ -117,6 +116,34 @@ describe('brokenBacklinksAutoSuggestHandler', () => {
       auditResult: {
         ...auditResult,
         brokenBacklinks: [{ url_to: 'https://broken.url', urls_suggested: ['https://suggested1.url', 'https://suggested2.url'] }],
+      },
+      previousAuditResult: auditMock.getPreviousAuditResult(),
+    });
+  });
+
+  it('should return an empty array when suggested_urls is undefined', async () => {
+    const message = {
+      siteId: 'site123',
+      type: 'type1',
+      suggestionsResult: {
+        brokenBacklinks: [
+          { broken_url: 'https://broken.url' },
+        ],
+      },
+    };
+
+    await brokenBacklinksAutoSuggestHandler(message, context);
+
+    expect(dataAccessMock.updateLatestAudit).to.have.been.calledWith({
+      siteId: 'site123',
+      auditType: 'broken-backlinks',
+      auditedAt: auditMock.getAuditedAt(),
+      expiresAt: auditMock.getExpiresAt(),
+      fullAuditRef: auditMock.getFullAuditRef(),
+      isLive: auditMock.isLive(),
+      auditResult: {
+        ...auditResult,
+        brokenBacklinks: [{ url_to: 'https://broken.url', urls_suggested: [] }],
       },
       previousAuditResult: auditMock.getPreviousAuditResult(),
     });
