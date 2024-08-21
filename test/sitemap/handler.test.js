@@ -11,7 +11,7 @@
  */
 /* eslint-env mocha */
 
-import chai from 'chai';
+import { expect, use } from 'chai';
 import { noContent } from '@adobe/spacecat-shared-http-utils';
 import nock from 'nock';
 import sinon from 'sinon';
@@ -20,9 +20,8 @@ import chaiAsPromised from 'chai-as-promised';
 import sitemapHandler, { buildSlackMessage, isValidMessage } from '../../src/sitemap/handler.js';
 import { queryData } from '../fixtures/sitemap-request-data.js';
 
-chai.use(sinonChai);
-chai.use(chaiAsPromised);
-const { expect } = chai;
+use(sinonChai);
+use(chaiAsPromised);
 let message;
 let context;
 

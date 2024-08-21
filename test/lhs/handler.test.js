@@ -11,15 +11,14 @@
  */
 /* eslint-env mocha */
 import sinon from 'sinon';
-import chai from 'chai';
+import { expect, use } from 'chai';
 import nock from 'nock';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import lhsHandler from '../../src/lhs/handler.js';
 
-chai.use(sinonChai);
-chai.use(chaiAsPromised);
-const { expect } = chai;
+use(sinonChai);
+use(chaiAsPromised);
 
 const sandbox = sinon.createSandbox();
 
