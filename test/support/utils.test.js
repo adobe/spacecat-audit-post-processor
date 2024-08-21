@@ -11,12 +11,11 @@
  */
 /* eslint-env mocha */
 
-import chai from 'chai';
+import { expect, use } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { convertToCSV } from '../../src/support/utils.js';
 
-chai.use(chaiAsPromised);
-const { expect } = chai;
+use(chaiAsPromised);
 
 describe('convertToCSV', () => {
   it('should stringify object values of the item fields in the CSV string', () => {

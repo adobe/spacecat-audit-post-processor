@@ -11,10 +11,9 @@
  */
 /* eslint-env mocha */
 
-import chai from 'chai';
+import { expect } from 'chai';
 import { getSlackContextForAlert, isDigestReport } from '../../src/support/config.js';
 
-const { expect } = chai;
 describe('config util', () => {
   it('getSlackContextForAlert for valid configs byOrg', () => {
     const orgConfig = {
