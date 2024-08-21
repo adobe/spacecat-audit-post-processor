@@ -1,3 +1,24 @@
+## [1.10.44](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.43...v1.10.44) (2024-08-20)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#267](https://github.com/adobe/spacecat-audit-post-processor/issues/267)) ([2ea87d9](https://github.com/adobe/spacecat-audit-post-processor/commit/2ea87d9db7715832742d7c9ab1d02893cbbbc7c3))
+
+## [1.10.43](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.42...v1.10.43) (2024-08-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-data-access to v1.41.6 ([#266](https://github.com/adobe/spacecat-audit-post-processor/issues/266)) ([cf4d2e7](https://github.com/adobe/spacecat-audit-post-processor/commit/cf4d2e79d394327bbfb10aa61642c20ef6d7aee4))
+
+## [1.10.42](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.41...v1.10.42) (2024-08-19)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#265](https://github.com/adobe/spacecat-audit-post-processor/issues/265)) ([cf4e769](https://github.com/adobe/spacecat-audit-post-processor/commit/cf4e769417d4ac1ac58afdfcf861154b6735da17))
+
 ## [1.10.41](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.40...v1.10.41) (2024-08-16)
 
 
