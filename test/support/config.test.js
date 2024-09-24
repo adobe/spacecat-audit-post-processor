@@ -69,6 +69,27 @@ describe('config util', () => {
     expect(slackContext.mentions).to.deep.equal(['slackId2']);
   });
 
+  it('isDigestReport for valid configs bySite', () => {
+    const orgConfig = {
+      alerts: [{
+        type: '404',
+      }],
+    };
+    const siteConfig = {
+      slack: {
+        workspace: 'workspace2',
+        channel: 'channel2',
+      },
+      alerts: [{
+        type: '404',
+        byOrg: false,
+        mentions: [{ slack: ['slackId2'] }],
+      }],
+    };
+    const isDigest = isDigestReport(orgConfig, siteConfig, '404');
+    expect(isDigest).to.be.false;
+  });
+
   it('getSlackContextForAlert returns only slack channel if no alerts are in config', () => {
     const orgConfig = {
       slack: {

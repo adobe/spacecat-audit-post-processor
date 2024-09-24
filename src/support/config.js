@@ -11,16 +11,35 @@
  */
 import { isArray } from '@adobe/spacecat-shared-utils';
 
-export const isDigestReport = (conf, alertType) => {
-  const alertConfig = isArray(conf?.alerts)
-    ? conf?.alerts.find((alert) => alert.type === alertType)
-    : {};
-  return alertConfig?.byOrg;
+export const getAlertConfig = (conf, alertType) => (isArray(conf?.alerts)
+  ? conf?.alerts.find((alert) => alert.type === alertType) : null);
+
+// export const isDigestReport = (conf, alertType) => {
+//   const alertConfig = isArray(conf?.alerts)
+//     ? conf?.alerts.find((alert) => alert.type === alertType)
+//     : {};
+//   return alertConfig?.byOrg;
+// };
+
+// used AI just to see if I could get the test to work -- it is still failing
+export const isDigestReport = (orgConf, siteConf, alertType) => {
+  if (getAlertConfig(siteConf, alertType) !== null) {
+    return getAlertConfig(siteConf, alertType).byOrg;
+  }
+  if (getAlertConfig(orgConf, alertType) !== null) {
+    return getAlertConfig(orgConf, alertType).byOrg;
+  }
+  return false;
 };
 
-export const hasAlertConfig = (conf, alertType) => isArray(conf?.alerts)
-    && conf?.alerts.find((alert) => alert.type === alertType);
+// TODO replace current implementation with the new one
+// export const isDigestReport = (orgConf, siteConf, alertType) => {
+// if getAlertConfig for siteConf is not null/undefined return siteAlertConfig.byOrg value
+// else return getAlertConfig for orgConf is not null/undefined return orgAlertConfig.byOrg value
+// else return false
+// };
 
+export const hasAlertConfig = (conf, alertType) => !!getAlertConfig(conf, alertType);
 const getSlackContext = (conf, alertType) => {
   const channel = conf?.slack?.channel;
   const alertConfig = isArray(conf?.alerts)
