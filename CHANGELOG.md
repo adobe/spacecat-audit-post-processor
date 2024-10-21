@@ -1,3 +1,10 @@
+## [1.10.63](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.62...v1.10.63) (2024-10-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-universal-logger to v3.0.21 ([#308](https://github.com/adobe/spacecat-audit-post-processor/issues/308)) ([a4f6f4f](https://github.com/adobe/spacecat-audit-post-processor/commit/a4f6f4fce5eb40c6a3c290e83f1b9b4c57c68731))
+
 ## [1.10.62](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.61...v1.10.62) (2024-10-21)
 
 
