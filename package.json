@@ -58,7 +58,7 @@
     "@adobe/spacecat-shared-rum-api-client": "2.9.7",
     "@adobe/spacecat-shared-http-utils": "1.6.14",
     "@adobe/spacecat-shared-utils": "1.21.1",
-    "@adobe/spacecat-shared-data-access": "1.49.1",
+    "@adobe/spacecat-shared-data-access": "1.49.2",
     "@adobe/spacecat-shared-slack-client": "1.3.20",
     "comma-number": "2.1.0",
     "human-format": "1.2.0"
