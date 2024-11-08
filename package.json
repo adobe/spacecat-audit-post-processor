@@ -56,9 +56,9 @@
     "@adobe/helix-status": "10.1.3",
     "@adobe/helix-universal-logger": "3.0.21",
     "@adobe/spacecat-shared-rum-api-client": "2.9.9",
-    "@adobe/spacecat-shared-http-utils": "1.6.16",
-    "@adobe/spacecat-shared-utils": "1.22.3",
-    "@adobe/spacecat-shared-data-access": "1.49.7",
+    "@adobe/spacecat-shared-http-utils": "1.6.17",
+    "@adobe/spacecat-shared-utils": "1.22.4",
+    "@adobe/spacecat-shared-data-access": "1.49.8",
     "@adobe/spacecat-shared-slack-client": "1.3.22",
     "comma-number": "2.1.0",
     "human-format": "1.2.0"
