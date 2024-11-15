@@ -1,3 +1,10 @@
+## [1.10.77](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.76...v1.10.77) (2024-11-15)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#330](https://github.com/adobe/spacecat-audit-post-processor/issues/330)) ([40a301c](https://github.com/adobe/spacecat-audit-post-processor/commit/40a301cb60f287c6a1d168a536a14ea2c79110e2))
+
 ## [1.10.76](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.75...v1.10.76) (2024-11-14)
 
 
