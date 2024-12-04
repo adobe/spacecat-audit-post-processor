@@ -1,3 +1,10 @@
+## [1.10.94](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.93...v1.10.94) (2024-12-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/spacecat-shared-rum-api-client to v2.15.0 ([#355](https://github.com/adobe/spacecat-audit-post-processor/issues/355)) ([da37e97](https://github.com/adobe/spacecat-audit-post-processor/commit/da37e974be9628e6f7d1c2263a75a2b3fb768244))
+
 ## [1.10.93](https://github.com/adobe/spacecat-audit-post-processor/compare/v1.10.92...v1.10.93) (2024-12-04)
 
 
