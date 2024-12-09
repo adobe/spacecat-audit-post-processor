@@ -55,7 +55,7 @@
     "@adobe/helix-shared-wrap": "2.0.2",
     "@adobe/helix-status": "10.1.5",
     "@adobe/helix-universal-logger": "3.0.23",
-    "@adobe/spacecat-shared-rum-api-client": "2.15.5",
+    "@adobe/spacecat-shared-rum-api-client": "2.15.6",
     "@adobe/spacecat-shared-http-utils": "1.7.3",
     "@adobe/spacecat-shared-utils": "1.23.5",
     "@adobe/spacecat-shared-data-access": "1.58.2",
